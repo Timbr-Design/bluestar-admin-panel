@@ -17,6 +17,8 @@ import {
   setIsViewDrawerOpen,
   setVehicleTrackerFilter,
 } from "../../redux/slices/vehicleTrackerSlice";
+import FuelForm from "./FuelForm";
+import ExpenseForm from "./ExpenseForm";
 import ExpenseTable from "../../components/VehicleTracker/tables/Expense";
 import FuelsTable from "../../components/VehicleTracker/tables/Fuels";
 import LoansTable from "../../components/VehicleTracker/tables/Loans";
@@ -77,7 +79,8 @@ const VehicleTabs = ({ setDescVal }: any) => {
 const VehicleTrackerPage = () => {
   const dispatch = useAppDispatch();
   const [desc, setDesc] = useState(tab[0].desc);
-  const [openSidePanel, setOpenSidePanel] = useState(false);
+  const [openExpenseForm, setOpenExpenseForm] = useState(false);
+  const [openFuelForm, setOpenFuelForm] = useState(false);
 
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -97,8 +100,12 @@ const VehicleTrackerPage = () => {
     }
   };
 
-  const handleCloseSidePanel = () => {
-    setOpenSidePanel(false);
+  const handleSidePanelForm = () => {
+    if (filters.currentTab === "expense") {
+      setOpenExpenseForm(true);
+    } else if (filters.currentTab === "fuel") {
+      setOpenFuelForm(true);
+    }
   };
 
   return (
@@ -131,9 +138,7 @@ const VehicleTrackerPage = () => {
               <PrimaryBtn
                 LeadingIcon={PlusIcon}
                 btnText={`Add ${filters.currentTab.charAt(0).toUpperCase() + filters.currentTab.slice(1)}`}
-                onClick={() => {
-                  setOpenSidePanel(true);
-                }}
+                onClick={handleSidePanelForm}
               />
             )}
             {filters.currentTab === "average" && <DriverFilter />}
@@ -153,13 +158,11 @@ const VehicleTrackerPage = () => {
           <AverageTable handleOpenSidePanel={() => {}} />
         )}
       </div>
-      {openSidePanel && (
-        <div className={cn(styles.sidebar, { [styles.open]: openSidePanel })}>
-          <button className={styles.closeBtn} onClick={handleCloseSidePanel}>
-            <CrossIcon />
-          </button>
-        </div>
-      )}
+      <FuelForm open={openFuelForm} onClose={() => setOpenFuelForm(false)} />
+      <ExpenseForm
+        open={openExpenseForm}
+        onClose={() => setOpenExpenseForm(false)}
+      />
     </div>
   );
 };
