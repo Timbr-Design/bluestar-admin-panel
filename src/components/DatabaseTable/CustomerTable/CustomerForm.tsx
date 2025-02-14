@@ -65,6 +65,7 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
 
   const handleUploadUrl = (file: IFile) => {
     const tempFilesArr = [...filesArr, file];
+    console.log(tempFilesArr, "tempFilesArr")
     setFilesArr(tempFilesArr);
   };
 

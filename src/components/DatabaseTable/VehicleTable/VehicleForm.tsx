@@ -47,9 +47,7 @@ interface IVehicleForm {
 type NotificationType = "success" | "info" | "warning" | "error";
 
 const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
-  const { Dragger } = Upload;
   const [api, contextHolder] = notification.useNotification();
-  const [vehicleGroupLabel, setVehicleGroupLabel] = useState<string>("");
   const [registrationDocument, setRegistrationDocument] = useState<IFile>();
   const [insuranceDocument, setInsuranceDocument] = useState<IFile>();
   const [rtoDocument, setRtoDocument] = useState<IFile>();
@@ -80,10 +78,9 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
   const dispatch = useAppDispatch();
   const {
     driverOption: options,
-    vehicleGroupSelectOption,
     selectedVehicle,
     viewContentDatabase,
-    vehicleGroupOption,
+    vehicleGroupData,
   } = useAppSelector((state: RootState) => state.database);
   const [isActive, setIsActive] = useState(false); // Track checkbox value in state
 
@@ -92,13 +89,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
     if (changedValues?.loan?.isActive !== undefined) {
       setIsActive(changedValues?.loan?.isActive);
     }
-  };
-
-  const openNotificationWithIcon = (type: NotificationType) => {
-    api[type]({
-      message: "Vehicle added",
-      description: "Vehicle added to the database",
-    });
   };
 
   const props: UploadProps = {
@@ -167,7 +157,7 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
   }, [selectedVehicle]);
 
   useEffect(() => {
-    dispatch(getVehicleGroupOptions({ page: "1", size: 10 }));
+    dispatch(getVehicleGroup({ page: "1", size: 10 }));
     dispatch(
       getDrivers({
         page: "1",
@@ -176,14 +166,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
       })
     );
   }, []);
-
-  const handleVehicleGroupChange = (value: string) => {
-    setVehicleGroupLabel(value);
-  };
-
-  const handleVehicleGroupSelect = (value: string, option: any) => {
-    setVehicleGroupLabel(option.label);
-  };
 
   return (
     <div className={styles.formContainer}>
@@ -231,44 +213,17 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
             modelName: "",
             vehicleNumber: "",
             fuelType: "",
-            vehicleGroupId: "", //Always add an ID from the vehicle-group table, the data for vehicle group is fetched from that
-            driverId: "", //Driver ID from driver collection
+            vehicleGroupId: "",
+            driverId: "",
             fastTagId: "",
-            registration: {
-              ownerName: "",
-              date: Date.now(),
-              registrationDocument,
-            },
-            insurance: {
-              companyName: "",
-              policyNumber: "",
-              issueDate: Date.now(),
-              dueDate: Date.now(),
-              premiumAmount: null,
-              coverAmount: null,
-              insuranceDocument,
-            },
-            rto: {
-              ownerName: "",
-              date: Date.now(),
-              registrationDocument: rtoDocument,
-            },
-            parts: {
-              chasisNumber: "",
-              engineNumber: "",
-            },
-            expiryDate: Date.now(),
-            vehicleDocuments,
-            notes: "",
-            loan: {
-              isActive: isActive,
-              emiAmount: null,
-              startDate: Date.now(),
-              endDate: Date.now(),
-              bankName: "",
-              emiDate: Date.now(),
-              loanDocument,
-            },
+            registration: null,
+            insurance: null,
+            rto: null,
+            parts: null,
+            carExpiryDate: Date.now(),
+            files: null,
+            notes: null,
+            loan: null,
           }}
           onValuesChange={handleValuesChange}
           className={styles.form}
@@ -337,14 +292,14 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
             >
               <Select
                 allowClear
-                options={vehicleGroupOption?.data?.map(
+                options={vehicleGroupData?.data?.map(
                   (option: { _id: string; name: string }) => ({
                     value: option._id,
                     label: option.name,
                   })
                 )}
                 onSearch={(text) => getVehicleGroupValue(text)}
-                placeholder="Search drivers"
+                placeholder="Search vehicle group"
                 fieldNames={{ label: "label", value: "value" }}
                 notFoundContent={<div>No search result</div>}
                 filterOption={false}
@@ -365,7 +320,7 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
               <Select
                 showSearch
                 allowClear
-                options={options.map((option: { value: any; label: any }) => ({
+                options={options?.map((option: { value: any; label: any }) => ({
                   value: option.value,
                   label: option.label,
                 }))}
@@ -402,9 +357,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 <Form.Item
                   label="Owner name"
                   name={["registration", "ownerName"]}
-                  rules={[
-                    { required: true, message: "Owner name is required" },
-                  ]}
                 >
                   <Input placeholder="Owner Name" />
                 </Form.Item>
@@ -414,7 +366,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 <Form.Item
                   label="Document"
                   name={["registration", "registrationDocument"]}
-                  // rules={[{ required: true, message: "File is required" }]}
                 >
                   <UploadComponent
                     handleUploadUrl={handleRegistrationDocs}
@@ -435,9 +386,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 <Form.Item
                   label="Company name"
                   name={["insurance", "companyName"]}
-                  rules={[
-                    { required: true, message: "Company name  is required" },
-                  ]}
                 >
                   <Input placeholder="Enter company name..." />
                 </Form.Item>
@@ -446,30 +394,17 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 <Form.Item
                   label="Policy Number"
                   name={["insurance", "policyNumber"]}
-                  rules={[
-                    { required: true, message: "Policy Number is required" },
-                  ]}
                 >
                   <Input placeholder="Enter policy number..." />
                 </Form.Item>
               </div>
               <div className={styles.typeContainer}>
-                <Form.Item
-                  label="Issue Date"
-                  name={["insurance", "issueDate"]}
-                  rules={[
-                    { required: false, message: "Issue Date is required" },
-                  ]}
-                >
+                <Form.Item label="Issue Date" name={["insurance", "issueDate"]}>
                   <CustomDatePicker format="DD-MM-YYYY" />
                 </Form.Item>
               </div>
               <div className={styles.typeContainer}>
-                <Form.Item
-                  label="Due Date"
-                  name={["insurance", "dueDate"]}
-                  rules={[{ required: false, message: "Due Date is required" }]}
-                >
+                <Form.Item label="Due Date" name={["insurance", "dueDate"]}>
                   <CustomDatePicker format="DD-MM-YYYY" />
                 </Form.Item>
               </div>
@@ -477,7 +412,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 <Form.Item
                   label="Premium Amount"
                   name={["insurance", "premiumAmount"]}
-                  rules={[{ required: true, message: "Due Date is required" }]}
                 >
                   <Input
                     placeholder="Enter premium amount..."
@@ -490,9 +424,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 <Form.Item
                   label="Cover Amount"
                   name={["insurance", "coverAmount"]}
-                  rules={[
-                    { required: true, message: "Cover amount is required" },
-                  ]}
                 >
                   <Input
                     placeholder="Enter cover amount..."
@@ -505,12 +436,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 <Form.Item
                   label="Insurance Document"
                   name={["insurance", "insuranceDocument"]}
-                  rules={[
-                    {
-                      // required: true,
-                      // message: "Insurance Document is required",
-                    },
-                  ]}
                 >
                   <UploadComponent
                     handleUploadUrl={handleInsuranceDocs}
@@ -528,36 +453,17 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
           >
             <Input.Group className={"custom-input-group"}>
               <div className={styles.typeContainer}>
-                <Form.Item
-                  label="Owner name"
-                  name={["rto", "ownerName"]}
-                  rules={[
-                    { required: true, message: "Owner name is required" },
-                  ]}
-                >
+                <Form.Item label="Owner name" name={["rto", "ownerName"]}>
                   <Input placeholder="Enter owner name..." />
                 </Form.Item>
               </div>
               <div className={styles.typeContainer}>
-                <Form.Item
-                  label="Registration Date"
-                  name={["rto", "date"]}
-                  rules={[{ required: false, message: "Date is required" }]}
-                >
+                <Form.Item label="Registration Date" name={["rto", "date"]}>
                   <CustomDatePicker format="DD-MM-YYYY" />
                 </Form.Item>
               </div>
               <div className={styles.typeContainer}>
-                <Form.Item
-                  label="RTO Document"
-                  name={["rto", "rtoDocument"]}
-                  rules={[
-                    {
-                      // required: true,
-                      // message: "RTO is required",
-                    },
-                  ]}
-                >
+                <Form.Item label="RTO Document" name={["rto", "rtoDocument"]}>
                   <UploadComponent
                     handleUploadUrl={handleRTODoc}
                     isMultiple={false}
@@ -577,12 +483,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 <Form.Item
                   label="Chasis number"
                   name={["parts", "chasisNumber"]}
-                  rules={[
-                    {
-                      required: false,
-                      // message: "chassis number is required",
-                    },
-                  ]}
                 >
                   <Input placeholder="Enter chassis number..." />
                 </Form.Item>
@@ -591,12 +491,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 <Form.Item
                   label="Engine number"
                   name={["parts", "engineNumber"]}
-                  rules={[
-                    {
-                      required: false,
-                      // message: "Engine  number is required",
-                    },
-                  ]}
                 >
                   <Input placeholder="Enter engine number..." />
                 </Form.Item>
@@ -604,19 +498,7 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
             </Input.Group>
           </Form.Item>
           <div className={styles.typeContainer}>
-            <Form.Item
-              label="Car expiry Date"
-              name="expiryDate"
-              // getValueProps={(value) => ({
-              //   value: value ? dayjs(value) : undefined,
-              // })}
-              // getValueFromEvent={(date) => date?.toISOString()}
-              rules={[
-                {
-                  required: false,
-                },
-              ]}
-            >
+            <Form.Item label="Car expiry Date" name="carExpiryDate">
               <CustomDatePicker format="DD-MM-YYYY" />
             </Form.Item>
           </div>
@@ -715,15 +597,7 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                           message: "EMI date is required",
                         },
                       ]}
-                      // getValueProps={(value) => ({
-                      //   value: value ? dayjs(value) : undefined,
-                      // })}
-                      // getValueFromEvent={(date) => date?.toISOString()}
                     >
-                      {/* <DatePicker
-                        format="DD" // Display format as day only
-                        placeholder="Select a day"
-                      /> */}
                       <CustomDatePicker format="DD" />
                     </Form.Item>
                   </div>
@@ -731,12 +605,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                     <Form.Item
                       label="Loan Document"
                       name={["loan", "loanDocument"]}
-                      rules={[
-                        {
-                          //  required: true,
-                          // message: "loan document is required",
-                        },
-                      ]}
                     >
                       <UploadComponent
                         handleUploadUrl={handleVehicleDocuments}

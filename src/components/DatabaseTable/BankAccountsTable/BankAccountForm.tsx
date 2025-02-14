@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Form, Input, notification, Spin, Button } from "antd";
+import { Form, Input, notification, Spin, Button, message } from "antd";
 import {
   addBankAccount,
   updateBankAccount,
@@ -64,6 +64,7 @@ const BankAccountForm = ({ handleCloseSidePanel }: IBankAccountForm) => {
     }
   }, [selectedBankAccount]);
 
+  console.log(selectedBankAccount, "selectedBankAccount");
   return (
     <div className={styles.formContainer}>
       {contextHolder}
@@ -157,6 +158,8 @@ const BankAccountForm = ({ handleCloseSidePanel }: IBankAccountForm) => {
               rules={[
                 {
                   required: true,
+                  pattern: new RegExp(/^[A-Z]{4}0[A-Z0-9]{6}$/),
+                  message: "Wrong format!",
                 },
               ]}
               label="IFSC Code"

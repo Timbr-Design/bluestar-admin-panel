@@ -1,7 +1,8 @@
 /* eslint-disable */
 import { useState } from "react";
 import { Form, Input, Select, DatePicker, Upload, Button, Drawer } from "antd";
-import { UploadOutlined, CloseOutlined } from "@ant-design/icons";
+import { UploadOutlined } from "@ant-design/icons";
+import { ReactComponent as CrossIcon } from "../../../icons/x.svg";
 import type { UploadFile } from "antd/es/upload/interface";
 import styles from "./index.module.scss";
 
@@ -45,11 +46,10 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
     <Drawer
       title="Add Fuel"
       placement="right"
-      onClose={onClose}
+      closable={false} // Remove the default close button
       open={open}
       width={630}
       className={styles.drawer}
-      closeIcon={<CloseOutlined className={styles.closeIcon} />}
       footer={
         <div className={styles.footer}>
           <Button onClick={onClose} className={styles.cancelButton}>
@@ -66,6 +66,9 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
         </div>
       }
     >
+      <button className={styles.closeBtn} onClick={onClose}>
+        <CrossIcon />
+      </button>
       <div className={styles.subtitle}>Add an individual car fuel here</div>
 
       <Form

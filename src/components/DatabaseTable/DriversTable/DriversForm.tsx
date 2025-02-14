@@ -99,7 +99,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
           fullAddress: valuesToMaped.address.fullAddress,
         },
         _id: valuesToMaped._id,
-        customDriverId: valuesToMaped.customDriverId,
+        driverId: valuesToMaped.driverId,
         name: valuesToMaped.name,
         phoneNumber: valuesToMaped.phoneNumber,
         dob: valuesToMaped.dob,
@@ -207,8 +207,8 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
         >
           <div className={styles.typeContainer}>
             <Form.Item
-              name="customDriverId"
-              id="customDriverId"
+              name="driverId"
+              id="driverId"
               label="Driver ID"
               rules={[
                 {
@@ -536,8 +536,8 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
                 placeholder="Select One"
                 dropdownRender={(menu) => <>{menu}</>}
                 options={[
-                  { value: "sat", label: "Saturday" },
-                  { value: "sun", label: "Sunday" },
+                  { value: "Saturday", label: "Saturday" },
+                  { value: "Sunday", label: "Sunday" },
                 ].map((day) => ({
                   label: day.label,
                   value: day.value,

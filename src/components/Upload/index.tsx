@@ -34,7 +34,7 @@ const UploadComponent = ({
 
     try {
       const response = await axios.post(
-        `https://useless-marcile-qrunava-268b22a4.koyeb.app/upload`,
+        `https://qualified-regina-bluestar-timbr-5ecda5aa.koyeb.app/upload`,
         formData,
         {
           headers: {

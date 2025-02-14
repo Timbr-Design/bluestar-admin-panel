@@ -84,7 +84,7 @@ export const updateBankAccount = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { id, payload } = body;
 
-    const response = await apiClient.patch(
+    const response = await apiClient.put(
       `/database/bank-accounts/${id}`,
       payload
     );
@@ -162,10 +162,7 @@ export const updateDutyType = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
 
-    const response = await apiClient.patch(
-      `/database/duty-type/${id}`,
-      payload
-    );
+    const response = await apiClient.put(`/database/duty-type/${id}`, payload);
     const { database } = getState();
     const { pagination, q } = database;
 
@@ -290,7 +287,7 @@ export const updateTax = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { id, payload } = body;
 
-    const response = await apiClient.patch(`/database/tax/${id}`, payload);
+    const response = await apiClient.put(`/database/tax/${id}`, payload);
 
     const { database } = getState();
     const { pagination, q } = database;
@@ -371,7 +368,7 @@ export const updateCustomer = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
 
-    const response = await apiClient.patch(`/database/customer/${id}`, payload);
+    const response = await apiClient.put(`/database/customer/${id}`, payload);
     const { database } = getState();
     const { pagination, q } = database;
     if (response.status === 200) {
@@ -468,10 +465,7 @@ export const updateAllowance = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
 
-    const response = await apiClient.patch(
-      `/database/allowance/${id}`,
-      payload
-    );
+    const response = await apiClient.put(`/database/allowance/${id}`, payload);
     const { database } = getState();
     const { pagination, q } = database;
 
@@ -553,7 +547,7 @@ export const updateVehicle = createAsyncThunk(
 
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
-    const response = await apiClient.patch(`/database/vehicle/${id}`, payload);
+    const response = await apiClient.put(`/database/vehicle/${id}`, payload);
     const { database } = getState();
     const { pagination, q } = database;
     if (response.status === 200) {
@@ -643,7 +637,7 @@ export const updateDriver = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
 
-    const response = await apiClient.patch(`/database/driver/${id}`, payload);
+    const response = await apiClient.put(`/database/driver/${id}`, payload);
 
     const { database } = getState();
     const { pagination } = database;
@@ -787,7 +781,7 @@ export const updateVehicleGroup = createAsyncThunk(
 
     console.log(body, "body");
 
-    const response = await apiClient.patch(
+    const response = await apiClient.put(
       `/database/vehicle-group/${id}`,
       payload
     );

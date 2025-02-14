@@ -16,6 +16,7 @@ import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import Modal from "../../Modal";
 import type { MenuProps } from "antd";
 import { Table, TableProps, Dropdown } from "antd";
+import apiClient from "../../../utils/configureAxios";
 import styles from "./index.module.scss";
 import cn from "classnames";
 import React, { useState, useEffect } from "react";
@@ -136,6 +137,12 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
     console.log("Selected Rows: ", selectedRows);
   };
 
+  const getDriverName = async (id: string) => {
+    const response = await apiClient.get(`/database/driver/${id}`);
+
+    return response?.data?.data?.name;
+  };
+
   return (
     <>
       <Table
@@ -157,8 +164,9 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
         dataSource={vehicleList?.data?.map((data: any) => ({
           ...data,
           key: data?._id,
+          modelName: data?.modelName,
           group: "Taxi",
-          assigned_driver: data.registration.ownerName,
+          assigned_driver: "",
           status: (
             <div
               className={cn(styles.status, {

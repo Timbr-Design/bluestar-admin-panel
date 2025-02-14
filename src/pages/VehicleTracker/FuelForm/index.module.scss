@@ -87,11 +87,6 @@
   }
 }
 
-.closeIcon {
-  color: #9ca3af;
-  font-size: 16px;
-}
-
 .subtitle {
   color: #6b7280;
   font-size: 14px;
@@ -184,4 +179,15 @@
   &:active {
     background: #5b21b6;
   }
+}
+
+.closeBtn {
+  all: unset;
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  z-index: 100;
 }

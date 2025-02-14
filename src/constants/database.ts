@@ -200,6 +200,10 @@ export const BANK_ACCOUNTS = [
 
 export const DUTY_TYPES_TYPE = [
   {
+    value: "Custom",
+    label: "Custom",
+  },
+  {
     value: "Day - KM( Outstation)",
     label: "Day - KM( Outstation)",
   },

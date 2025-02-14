@@ -13,9 +13,7 @@ import {
   getVehicleGroup,
   getVehicleGroupById,
   deleteVehicleGroup,
-  updateVehicleGroup,
   setViewContentDatabase,
-  setPagination,
 } from "../../../redux/slices/databaseSlice";
 import type { TableProps } from "antd";
 import styles from "./index.module.scss";
@@ -52,24 +50,24 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
     setOpenDeleteModal(false);
   };
 
-  const handleClickOutside = (event: any) => {
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(event.target as Node)
-    ) {
-      setDeleteVehicleGroupId("");
-    }
-  };
+  // const handleClickOutside = (event: any) => {
+  //   if (
+  //     dropdownRef.current &&
+  //     !dropdownRef.current.contains(event.target as Node)
+  //   ) {
+  //     setDeleteVehicleGroupId("");
+  //   }
+  // };
 
-  useEffect(() => {
-    // Add event listener to detect outside clicks
-    document.addEventListener("mousedown", handleClickOutside);
+  // useEffect(() => {
+  //   // Add event listener to detect outside clicks
+  //   document.addEventListener("mousedown", handleClickOutside);
 
-    return () => {
-      // Remove event listener on cleanup to prevent memory leaks
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  //   return () => {
+  //     // Remove event listener on cleanup to prevent memory leaks
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     if (e.key === "1") {
@@ -92,7 +90,6 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
   };
 
   const handleDeleteVehicleGroup = () => {
-    console.log(deleteVehicleGroupId, "deleteVehicleGroupId");
     dispatch(deleteVehicleGroup({ id: deleteVehicleGroupId }));
     setOpenDeleteModal(false);
   };

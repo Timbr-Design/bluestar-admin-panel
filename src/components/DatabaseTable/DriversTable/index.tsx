@@ -180,7 +180,7 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
                 <div className={styles.driverName}>{data?.name}</div>
               </div>
             ),
-            driverId: data?.customDriverId,
+            driverId: data?.driverId,
             status: (
               <div className={cn(styles.status, { [styles.active]: true })}>
                 <div className={cn(styles.dot, { [styles.active]: true })} />
