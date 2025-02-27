@@ -45,12 +45,22 @@
   background: #fee4e2;
 }
 
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6941c6;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
 .modalContainer {
   display: flex;
   flex-direction: column;
-  gap: 32px;
   width: 350px;
-  padding-top: 16px;
 
   .textContainer {
     display: flex;
@@ -69,6 +79,7 @@
       font-size: 14px;
       font-weight: 400;
       line-height: 20px;
+      padding-bottom: 32px;
     }
 
     .selectedSecondaryText {
@@ -143,4 +154,41 @@
       }
     }
   }
+}
+
+.start {
+  color: #101828;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.end {
+  color: var(--colors-text-text-tertiary-600, #475467);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.passengerName {
+  text-transform: uppercase;
+}
+
+.popoverContainer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.check-icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 48px;
+  background-color: rgba(7, 148, 85, 0.1);
+  border-radius: 50%;
+  margin-bottom: 16px;
 }

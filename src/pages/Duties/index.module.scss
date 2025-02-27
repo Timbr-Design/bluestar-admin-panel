@@ -108,3 +108,15 @@
   justify-content: flex-end;
   gap: 10px; // Adds space between the buttons
 }
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6941c6;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  text-decoration: none;
+  margin-bottom: 10px;
+}

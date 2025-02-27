@@ -1,8 +1,13 @@
 /* eslint-disable */
-import { useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Form, Input, Select, DatePicker, Upload, Button, Drawer } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { ReactComponent as CrossIcon } from "../../../icons/x.svg";
+import UploadComponent from "../../../components/Upload";
+import { IFile } from "../../../constants/database";
+import { useAppSelector, useAppDispatch } from "../../../hooks/store";
+import { RootState } from "../../../types/store";
+import { getDrivers, getVehicle } from "../../../redux/slices/databaseSlice";
 import type { UploadFile } from "antd/es/upload/interface";
 import styles from "./index.module.scss";
 
@@ -28,6 +33,20 @@ interface FuelExpenseFormProps {
 const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [receiptDoc, setReceiptDoc] = useState<IFile>();
+  const dispatch = useAppDispatch();
+
+  const {
+    driverOption: options,
+    vehicleList,
+    selectedVehicle,
+    viewContentDatabase,
+    vehicleGroupData,
+  } = useAppSelector((state: RootState) => state.database);
+
+  const handleReceiptDoc = (file: IFile) => {
+    setReceiptDoc(file);
+  };
 
   const handleSubmit = async (values: FuelExpenseFormData) => {
     try {
@@ -39,6 +58,27 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
       console.error("Failed to submit:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    dispatch(getVehicle({ page: 1, limit: "10" }));
+    dispatch(
+      getDrivers({
+        page: "1",
+        limit: "10",
+        search: "",
+      })
+    );
+  }, []);
+
+  const getPanelValue = (searchText: string) => {
+    if (searchText) {
+      dispatch(
+        getDrivers({
+          search: searchText,
+        })
+      );
     }
   };
 
@@ -93,19 +133,30 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
         <Form.Item
           label="Vehicle"
           name="vehicle"
-          required={false}
+          required
           rules={[{ required: true, message: "Please select vehicle" }]}
         >
-          <Select placeholder="Select Vehicle">
-            <Option value="car1">Car 1</Option>
-            <Option value="car2">Car 2</Option>
-          </Select>
+          <Select
+            showSearch
+            allowClear
+            options={vehicleList?.data?.map(
+              (option: { value: any; label: any }) => ({
+                value: option.value,
+                label: option.label,
+              })
+            )}
+            onSearch={(text) => getPanelValue(text)}
+            placeholder="Search vehicle"
+            fieldNames={{ label: "label", value: "value" }}
+            filterOption={false}
+            notFoundContent={<div>No search result</div>}
+          />
         </Form.Item>
 
         <Form.Item
           label="Fuel Type"
           name="fuelType"
-          required={false}
+          required
           rules={[{ required: true, message: "Please select fuel type" }]}
         >
           <Select placeholder="Permanent Address">
@@ -117,56 +168,47 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
         <Form.Item
           label="Quantity (in litres)"
           name="quantity"
-          required={false}
-          rules={[
-            { required: true, message: "Please enter quantity" },
-            { type: "number", min: 0, message: "Quantity must be positive" },
-          ]}
+          required
+          rules={[{ required: true, message: "Please enter quantity" }]}
         >
-          <Select placeholder="Permanent Address">
-            <Option value="10">10</Option>
-            <Option value="20">20</Option>
-          </Select>
+          <Input placeholder="Enter the fuel quantity" type="number" min={0} />
         </Form.Item>
 
         <Form.Item
           label="Amount"
           name="amount"
-          required={false}
+          required
           rules={[{ required: true, message: "Please enter amount" }]}
         >
-          <Input placeholder="John Doe" />
+          <Input placeholder="Enter the amount..." min={0} />
         </Form.Item>
 
         <Form.Item
           label="Paid by"
-          name="paidBy"
-          required={false}
+          name="driverId"
+          id="driverId"
+          required
           rules={[{ required: true, message: "Please select payment method" }]}
         >
-          <Select placeholder="Permanent Address">
-            <Option value="card1">Card 1</Option>
-            <Option value="card2">Card 2</Option>
-          </Select>
+          <Select
+            showSearch
+            allowClear
+            options={options?.map((option: { value: any; label: any }) => ({
+              value: option.value,
+              label: option.label,
+            }))}
+            onSearch={(text) => getPanelValue(text)}
+            placeholder="Search drivers"
+            fieldNames={{ label: "label", value: "value" }}
+            filterOption={false}
+            notFoundContent={<div>No search result</div>}
+          />
         </Form.Item>
 
-        <Form.Item label="Receipts" name="receipts">
-          <Upload.Dragger
-            accept=".jpg,.png,.doc,.pdf"
-            maxCount={1}
-            beforeUpload={() => false}
-            className={styles.uploader}
-          >
-            <p className={styles.uploadText}>
-              <UploadOutlined className={styles.uploadIcon} />
-              <span className={styles.uploadLabel}>Click to upload</span>
-              <span>or drag and drop</span>
-            </p>
-            <p className={styles.uploadHint}>
-              JPG, PNG, DOC or PDF (max. 10MB)
-            </p>
-          </Upload.Dragger>
-        </Form.Item>
+        <UploadComponent
+          handleUploadUrl={handleReceiptDoc}
+          isMultiple={false}
+        />
 
         <Form.Item label="Notes" name="notes">
           <TextArea

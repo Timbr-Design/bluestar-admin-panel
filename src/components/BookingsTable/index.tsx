@@ -25,8 +25,15 @@ import {
   PushpinOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import axios from "axios";
 import { ReactComponent as DotsHorizontal } from "../../icons/dots-horizontal.svg";
 import { ReactComponent as DeleteIcon } from "../../icons/trash.svg";
+import { ReactComponent as EyeIcon } from "../../icons/eye2.svg";
+import { ReactComponent as CheckCircleIcon } from "../../icons/checkCircle.svg";
+import { ReactComponent as EditIcon } from "../../icons/edit02Component.svg";
+import { ReactComponent as DocumentsIcon } from "../../icons/fileIcon.svg";
+import { ReactComponent as TrashIcon } from "../../icons/trash2.svg";
+
 import { useEffect, useState } from "react";
 import Modal from "../Modal";
 import { useAppDispatch } from "../../hooks/store";
@@ -40,7 +47,8 @@ import {
 import BookingsStates from "../States/BookingsStates";
 import { useSelector } from "react-redux";
 import { RootState } from "../../types/store";
-
+import apiClient from "../../utils/configureAxios";
+import { formatEpochToDate, capitalize } from "../../helper";
 import CustomPagination from "../Common/Pagination";
 import { RouteName } from "../../constants/routes";
 import { useNavigate } from "react-router-dom";
@@ -58,6 +66,7 @@ const BookingsTable = () => {
     pagination,
     filters,
   } = useSelector((state: RootState) => state.booking);
+  const [currentSelectedBookingId, setCurrentBookingId] = useState("");
 
   const dispatch = useAppDispatch();
 
@@ -66,22 +75,18 @@ const BookingsTable = () => {
       {
         key: "1",
         label: (
-          <div>
-            <Space>
-              <CheckCircleTwoTone twoToneColor="#52c41a" />
-              Confirm booking
-            </Space>
+          <div className={styles.popoverContainer}>
+            <CheckCircleIcon />
+            <div style={{ color: "#079455" }}>Confirm booking</div>
           </div>
         ),
         onClick: (e) => {
           // setCurrentSelectedBooking(row);
           e.domEvent.stopPropagation();
+          setCurrentBookingId(row?._id);
           dispatch(setCurrentSelectedBooking(row));
           setConformedBookingModal(true);
         },
-      },
-      {
-        type: "divider",
       },
       {
         key: "2",
@@ -92,25 +97,18 @@ const BookingsTable = () => {
           dispatch(setIsAddEditDrawerOpen());
         },
         label: (
-          <div>
-            <Space>
-              <EyeOutlined twoToneColor="#52c41a" />
-              View booking
-            </Space>
+          <div className={styles.popoverContainer}>
+            <EyeIcon />
+            <div style={{ color: "#344054" }}>View booking</div>
           </div>
         ),
       },
       {
-        type: "divider",
-      },
-      {
         key: "3",
         label: (
-          <div>
-            <Space>
-              <EditOutlined twoToneColor="#52c41a" />
-              Edit booking
-            </Space>
+          <div className={styles.popoverContainer}>
+            <EditIcon />
+            <div style={{ color: "#344054" }}>Edit booking</div>
           </div>
         ),
         onClick: (e) => {
@@ -121,34 +119,20 @@ const BookingsTable = () => {
         },
       },
       {
-        type: "divider",
-      },
-      {
         key: "4",
         label: (
-          <div>
-            <Space>
-              <FilePdfOutlined twoToneColor="#52c41a" />
-              Generate invoice
-            </Space>
+          <div className={styles.popoverContainer}>
+            <DocumentsIcon />
+            <div style={{ color: "#344054" }}>Generate invoice</div>
           </div>
         ),
       },
       {
-        type: "divider",
-      },
-      {
         key: "5",
         label: (
-          <div
-            style={{
-              color: "#F04438",
-            }}
-          >
-            <Space>
-              <DeleteOutlined />
-              Delete Booking
-            </Space>
+          <div className={styles.popoverContainer}>
+            <TrashIcon />
+            <div style={{ color: "#F04438" }}>Delete Booking</div>
           </div>
         ),
         onClick: (e) => {
@@ -161,31 +145,71 @@ const BookingsTable = () => {
     return items;
   }
 
+  const getCustomer = async (id: string) => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/database/customer/${id}`
+      );
+      return response.data.data.name;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+
+  const getCustomerName = async (id: string) => {
+    const customer = await getCustomer(id);
+    return customer;
+  };
+
   const columns: TableColumnsType<any> = [
     {
       title: "Start date",
       dataIndex: "startDate",
+      className: "custom-booking-header",
       key: "startDate",
+      render: (_, record) => {
+        const startDate = formatEpochToDate(record?.durationDetails?.startDate);
+        const endDate = formatEpochToDate(record?.durationDetails?.endDate);
+
+        return (
+          <div>
+            <span className={styles.start}>{`${startDate} `}</span>
+            <span className={styles.end}>{`to ${endDate}`}</span>
+          </div>
+        );
+      },
     },
-    // {
-    //   title: "Custom booking Id",
-    //   dataIndex: "customBookingId",
-    //   key: "customBookingId",
-    // },
+    {
+      title: "Customer",
+      dataIndex: "customer",
+      key: "customer",
+      render: (_, record) => {
+        // const [name, setName] = useState("");
+
+        // getCustomerName(record?.customerId)
+        //   .then((ele) => {
+        //     setName(ele);
+        //   })
+        //   .catch((err) => console.error(err));
+
+        return <span>{record?.customerId}</span>;
+      },
+    },
     // {
     //   title: "Alternate option",
     //   dataIndex: "assignAlternateVehicles",
     //   key: "assignAlternateVehicles",
     //   render: (each: any) => (each === false ? "No" : "Yes"),
     // },
-    {
-      title: "Customer",
-      dataIndex: "customerId",
-      key: "customerId",
-      render: (each: any) => {
-        return <span>{each.name}</span>;
-      },
-    },
+    // {
+    //   title: "Customer",
+    //   dataIndex: "customerId",
+    //   key: "customerId",
+    //   render: (each: any) => {
+    //     return <span>{each.name}</span>;
+    //   },
+    // },
     // {
     //   title: "Booked By",
     //   dataIndex: "bookedBy",
@@ -211,25 +235,27 @@ const BookingsTable = () => {
       title: "Passenger",
       dataIndex: "passengers",
       key: "passengers",
-      render: (data: any) => {
-        if (Array.isArray(data)) {
-          if (data.length <= 0) {
+      render: (_, record) => {
+        const passenger = record?.passenger;
+
+        if (Array.isArray(passenger)) {
+          if (passenger.length <= 0) {
             return "No passengers data";
           }
-          if (data.length == 1) {
-            return data[0].name;
+          if (passenger.length == 1) {
+            return capitalize(passenger[0].name);
           }
           return (
             <Space>
-              {data[0].name}
+              {capitalize(passenger[0].name)}
 
               <Popover
                 content={() => {
                   return (
                     <>
-                      {data?.map((each) => (
+                      {passenger?.map((each) => (
                         <div>
-                          <p>
+                          <p className={styles.passengerName}>
                             <UserOutlined /> {each.name}
                           </p>
                           <p>
@@ -243,7 +269,7 @@ const BookingsTable = () => {
                 }}
                 title="Passenger List"
               >
-                <Badge color="yellow" count={`+${data.length - 1}`} />
+                <Badge color="yellow" count={`+${passenger.length - 1}`} />
               </Popover>
             </Space>
           );
@@ -254,14 +280,19 @@ const BookingsTable = () => {
       title: "Vehicle group",
       dataIndex: "vehicleGroupId",
       key: "vehicleGroupId",
-      render: (each) => <span>{each?.name}</span>,
+      render: (_, record) => {
+        const vehicleGroupId = record?.vehicleGroupId[0];
+
+        return <span>{vehicleGroupId}</span>;
+      },
     },
     {
       title: "Duty type",
       dataIndex: "dutyTypeId",
       key: "dutyTypeId",
-      render: (each) => {
-        return <span>{each?.name}</span>;
+      render: (_, record) => {
+        const dutyTypeId = record?.dutyTypeId;
+        return <span>{dutyTypeId}</span>;
       },
     },
     {
@@ -303,9 +334,9 @@ const BookingsTable = () => {
       title: "Status",
       dataIndex: "bookingStatus",
       key: "bookingStatus",
-      render: (data: any) => {
-        return <BookingsStates status={data.toLowerCase()} />;
-      },
+      // render: (data: any) => {
+      //   return <BookingsStates status={data.toLowerCase()} />;
+      // },
     },
     {
       title: "",
@@ -368,7 +399,7 @@ const BookingsTable = () => {
           dropAddress: each?.dropAddress,
           reportingAddress: each?.reportingAddress,
         },
-        startDate: dayjs(each.duration.startTime).format("DD,MMM YYYY hh:mm A"),
+        // startDate: dayjs(each.duration.startTime).format("DD,MMM YYYY hh:mm A"),
         vehicleGroupId: each.vehicleGroupId,
         id: each._id,
         action: "",
@@ -404,8 +435,6 @@ const BookingsTable = () => {
     dispatch(getBookings({ ...filters }));
   }, [filters.search, filters.status]);
   let navigate = useNavigate();
-
-  console.log(currentSelectedBooking, "currentSelectedBooking");
 
   return (
     <>
@@ -479,13 +508,14 @@ const BookingsTable = () => {
         onClose={() => handleCloseBookingModal()}
       >
         <div className={styles.modalContainer}>
+          <div className={styles["check-icon-container"]}>
+            <CheckCircleIcon />
+          </div>
           <div className={styles.textContainer}>
             <div className={styles.primaryText}>Confirm booking</div>
             <div className={styles.secondaryText}>
-              Are you sure you want to confirm this booking? Booking ID: 1234245
+              {`Are you sure you want to confirm this booking? Booking ID: ${currentSelectedBookingId}`}
             </div>
-            <div>customer:{currentSelectedBooking?.customer}</div>
-            <div>Vehicle Group:{currentSelectedBooking?.vehicleGroup}</div>
           </div>
           <div className={styles.bottomBtns}>
             <button

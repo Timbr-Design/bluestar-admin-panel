@@ -3,7 +3,7 @@ import axios from "axios";
 import { getCookie } from "../helper/getCookie";
 
 const apiClient = axios.create({
-  baseURL: "https://qualified-regina-bluestar-timbr-5ecda5aa.koyeb.app",
+  baseURL: process.env.REACT_APP_BASE_URL,
 });
 
 apiClient.interceptors.request.use(

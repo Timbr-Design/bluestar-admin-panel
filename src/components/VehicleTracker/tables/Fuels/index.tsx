@@ -15,7 +15,7 @@ import CustomPagination from "../../../Common/Pagination";
 
 import {
   getExpenses,
-  getFuels,
+  // getFuels,
 } from "../../../../redux/slices/vehicleTrackerSlice";
 import { getAllowances } from "../../../../redux/slices/databaseSlice";
 import { MoreOutlined } from "@ant-design/icons";
@@ -162,11 +162,11 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
   };
 
   useEffect(() => {
-    dispatch(
-      getFuels({
-        search: filters.search,
-      })
-    );
+    // dispatch(
+    //   getFuels({
+    //     search: filters.search,
+    //   })
+    // );
   }, [filters.search]);
 
   const onChange = (
