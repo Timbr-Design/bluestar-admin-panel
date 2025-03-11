@@ -571,9 +571,6 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                         className={classNames(styles.vehicleGroup, styles.name)}
                       >
                         {row?.name}
-                        {/* {Object.keys(selectedDutyType).length
-                          ? useVehicleGroupName(row?.vehicleGroupId).name
-                          : row?.name} */}
                       </div>
                       <div className={styles.rowItem}>
                         <input

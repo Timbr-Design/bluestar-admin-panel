@@ -10,7 +10,7 @@ import {
   TableColumnsType,
 } from "antd";
 import styles from "../index.module.scss";
-
+import { formatEpochToDate, capitalize } from "../../../helper";
 import {
   CarOutlined,
   DeleteOutlined,
@@ -138,7 +138,19 @@ const SingleBookingsTable = () => {
     {
       title: "Duties date",
       dataIndex: "dutiesDate",
+      className: "custom-booking-header",
       key: "dutiesDate",
+      render: (_, record) => {
+        const startDate = formatEpochToDate(record?.durationDetails?.startDate);
+        const endDate = formatEpochToDate(record?.durationDetails?.endDate);
+
+        return (
+          <div>
+            <span className={styles.start}>{`${startDate} `}</span>
+            <span className={styles.end}>{`to ${endDate}`}</span>
+          </div>
+        );
+      },
     },
     {
       title: "Passenger",
@@ -185,15 +197,21 @@ const SingleBookingsTable = () => {
     },
     {
       title: "Vehicle",
-      dataIndex: "vehicleGroupId",
-      key: "vehicleGroupId",
-      render: (data) => data.name,
+      dataIndex: "vehicleGroup",
+      key: "vehicleGroup",
+      render: (_, record) => {
+        const vehicleGroupName = record?.vehicleGroup?.name;
+        return <span>{vehicleGroupName}</span>;
+      },
     },
     {
       title: "Duty type",
       dataIndex: "dutyTypeId",
       key: "dutyTypeId",
-      render: (data) => data.name,
+      render: (_, record) => {
+        const dutyTypeName = record?.dutyType?.name;
+        return <span>{dutyTypeName}</span>;
+      },
     },
     {
       title: "Driver",
@@ -204,16 +222,7 @@ const SingleBookingsTable = () => {
       title: "Duration",
       dataIndex: "duration",
       key: "duration",
-      render: (data) => (
-        <div>
-          <p>
-            {" "}
-            {formatDateFull(data.startDateTime)} -{" "}
-            {formatDateFull(data.endDateTime)}
-          </p>
-          <p> </p>
-        </div>
-      ),
+      render: (data) => <div>{"Date"}</div>,
     },
     {
       title: "Address",

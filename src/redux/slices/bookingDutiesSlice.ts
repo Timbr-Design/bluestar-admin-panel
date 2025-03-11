@@ -33,7 +33,6 @@ export const addNewBookingDuties = createAsyncThunk(
         description: "New Booking duties added successfully",
       });
       console.log("CLOSE");
-      // dispatch(setIsAddEditDrawerClose());
       dispatch(getBookingsDuties({}));
       return response.data;
     }
@@ -49,7 +48,6 @@ export const updateBookingDuties = createAsyncThunk(
         message: "Success",
         description: "update booking duties successfully",
       });
-      console.log("CLOSE");
       dispatch(setIsAddEditDrawerClose());
       dispatch(getBookingsDuties({}));
       return response.data;
@@ -59,7 +57,9 @@ export const updateBookingDuties = createAsyncThunk(
 export const getBookingsDuties = createAsyncThunk(
   "bookingsDuties/getBookingsDuties",
   async (params: any) => {
-    const response = await apiClient.get("/duty", { params });
+    const { bookingId } = params;
+
+    const response = await apiClient.get(`/booking/duty/${bookingId}`);
     return response.data;
   }
 );

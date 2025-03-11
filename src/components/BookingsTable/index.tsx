@@ -157,11 +157,6 @@ const BookingsTable = () => {
     }
   };
 
-  const getCustomerName = async (id: string) => {
-    const customer = await getCustomer(id);
-    return customer;
-  };
-
   const columns: TableColumnsType<any> = [
     {
       title: "Start date",
@@ -185,52 +180,9 @@ const BookingsTable = () => {
       dataIndex: "customer",
       key: "customer",
       render: (_, record) => {
-        // const [name, setName] = useState("");
-
-        // getCustomerName(record?.customerId)
-        //   .then((ele) => {
-        //     setName(ele);
-        //   })
-        //   .catch((err) => console.error(err));
-
-        return <span>{record?.customerId}</span>;
+        return <span>{record?.customer?.name}</span>;
       },
     },
-    // {
-    //   title: "Alternate option",
-    //   dataIndex: "assignAlternateVehicles",
-    //   key: "assignAlternateVehicles",
-    //   render: (each: any) => (each === false ? "No" : "Yes"),
-    // },
-    // {
-    //   title: "Customer",
-    //   dataIndex: "customerId",
-    //   key: "customerId",
-    //   render: (each: any) => {
-    //     return <span>{each.name}</span>;
-    //   },
-    // },
-    // {
-    //   title: "Booked By",
-    //   dataIndex: "bookedBy",
-    //   key: "bookedBy",
-    //   width: "200px",
-    //   render: (each: any) => {
-    //     return (
-    //       <div>
-    //         <p>
-    //           <UserOutlined /> {each.name}
-    //         </p>
-    //         <p>
-    //           <PhoneOutlined /> {each.phoneNumber}
-    //         </p>
-    //         <p>
-    //           <MailOutlined /> {each.email}
-    //         </p>
-    //       </div>
-    //     );
-    //   },
-    // },
     {
       title: "Passenger",
       dataIndex: "passengers",
@@ -281,9 +233,9 @@ const BookingsTable = () => {
       dataIndex: "vehicleGroupId",
       key: "vehicleGroupId",
       render: (_, record) => {
-        const vehicleGroupId = record?.vehicleGroupId[0];
+        const vehicleGroupName = record?.vehicleGroup[0]?.name;
 
-        return <span>{vehicleGroupId}</span>;
+        return <span>{vehicleGroupName}</span>;
       },
     },
     {
@@ -291,8 +243,8 @@ const BookingsTable = () => {
       dataIndex: "dutyTypeId",
       key: "dutyTypeId",
       render: (_, record) => {
-        const dutyTypeId = record?.dutyTypeId;
-        return <span>{dutyTypeId}</span>;
+        const dutyTypeName = record?.dutyType?.name;
+        return <span style={{}}>{dutyTypeName}</span>;
       },
     },
     {
@@ -300,36 +252,6 @@ const BookingsTable = () => {
       dataIndex: "duties",
       key: "duties",
     },
-    // {
-    //   title: "Address",
-    //   dataIndex: "address",
-    //   key: "address",
-    //   render: (data) => {
-    //     return (
-    //       <div onClick={(event) => event.stopPropagation()}>
-    //         <a href={data?.dropAddress} target="_blank">
-    //           <PushpinOutlined /> Drop address
-    //         </a>
-    //         <br />
-    //         <a href={data?.reportingAddress} target="_blank">
-    //           <PushpinOutlined /> Reporting address
-    //         </a>
-    //       </div>
-    //     );
-    //   },
-    // },
-    // {
-    //   title: "Airport Booking",
-    //   dataIndex: "isAirportBooking",
-    //   key: "isAirportBooking",
-    //   render: (each: any) => (each === false ? "No" : "yes"),
-    // },
-    // {
-    //   title: "Confirmed Status",
-    //   dataIndex: "isUnconfirmed",
-    //   key: "isUnconfirmed",
-    //   render: (each: any) => (each === false ? "Yes" : "No"),
-    // },
     {
       title: "Status",
       dataIndex: "bookingStatus",
@@ -371,21 +293,6 @@ const BookingsTable = () => {
               </button>
             </Dropdown>
           </div>
-
-          // <div className={styles.columnsAction}>
-          //   <DeleteOutlined
-          //     onClick={(e) => {
-          // console.log(row, "row");
-          // e.stopPropagation();
-          // setDeleteModal(true);
-          // dispatch(setCurrentSelectedBooking(row));
-          //     }}
-          //     className={styles.deleteIcon}
-          //   />
-          //   <Dropdown menu={{ items: returnItems(row) }}>
-          //     <MoreOutlined />
-          //   </Dropdown>
-          // </div>
         );
       },
     },

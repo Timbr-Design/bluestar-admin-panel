@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import styles from "./index.module.scss";
 import {
   Form,
@@ -78,7 +78,12 @@ const AddNewBookingForm = ({
   };
   const [useThisPassenger, setUseThisPassenger] = useState<boolean>(false);
 
-  console.log("initialData", initialData);
+  const randomCustomBookingId = useMemo(() => {
+    return Math.floor(100000 + Math.random() * 900000);
+  }, []);
+
+  console.log("randomCustomBookingId", randomCustomBookingId);
+  
   useEffect(() => {
     if (Object.keys(initialData).length) {
       form.setFieldsValue({
@@ -141,7 +146,6 @@ const AddNewBookingForm = ({
         console.log("Failed:", errorInfo);
       }}
       onFinish={(values) => {
-        console.log(values);
         // handleFormSubmit(value);
         if (isEditable && initialData._id) {
           dispatch(updateBooking({ id: initialData._id, ...values }));
@@ -157,12 +161,13 @@ const AddNewBookingForm = ({
         label="Custom booking Id"
         rules={[{ required: true }]}
       >
-        <Input />
+        <Input value={randomCustomBookingId} type={"text"} disabled/>
       </Form.Item>
       <Form.Item
         name={"customerId"}
         rules={[{ required: true }]}
         label="Customer"
+        style={{ marginTop: "12px" }}
       >
         <Select
           placeholder="Select customer"

@@ -58,15 +58,12 @@ const SingleBookingDuties = () => {
     isEditingBookingDuties,
   } = useSelector((state: RootState) => state.bookingDuties);
 
-  console.log(
-    "currentSelectedBookingDuties",
-    currentSelectedBookingDuties?.duration?.startTime
-  );
-
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     dispatch(setBookingDutiesFilter({ search: value }));
   };
+
+  console.log("Bookings Duties");
 
   const [form] = Form.useForm();
   return (
