@@ -428,4 +428,14 @@ input {
 
 .ant-input-number .ant-input-number-input {
   text-align: right;
+
+  &.number-input {
+    text-align: right;
+  }
+}
+
+.ant-drawer-footer {
+  padding: 0 !important;
+  border-top: none;
+  background: transparent;
 }

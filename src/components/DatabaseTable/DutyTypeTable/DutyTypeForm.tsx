@@ -1,5 +1,14 @@
 /* eslint-disable */
-import { Select, Radio, Spin, Button, Table, InputNumber } from "antd";
+import {
+  Select,
+  Radio,
+  Spin,
+  Button,
+  Table,
+  InputNumber,
+  Form,
+  Input,
+} from "antd";
 import { useAppSelector, useAppDispatch } from "../../../hooks/store";
 import classNames from "classnames";
 import type { RadioChangeEvent } from "antd";
@@ -38,15 +47,11 @@ interface VehicleGroupName {
 }
 
 const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
-  const [items, setItems] = useState(DUTY_TYPES_TYPE);
+  const [form] = Form.useForm();
   const [value, setValue] = useState("P2P");
-  const [thresholdKM, setThresholdKM] = useState<number>(0);
-  const [ratePerKM, setRatePerKM] = useState<number>();
-  const [vehicleGroup, setVehicleGroup] = useState<string>("");
   const [api, contextHolder] = notification.useNotification();
   const dispatch = useAppDispatch();
   const [dutyType, setDutyType] = useState("");
-  const [name, setName] = useState("");
   const {
     selectedDutyType,
     updatedDutyTypeStates,
@@ -100,13 +105,9 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
 
       setVehicleGroupDataArray(tempArr);
       setDutyType(capitalize(selectedDutyType?.data?.category));
-      setName(selectedDutyType?.data?.dutyTypeName);
       setValue(selectedDutyType?.data?.secondaryType);
 
       if (capitalize(selectedDutyType?.data?.category) === "Custom") {
-        setThresholdKM(selectedDutyType?.data?.customDutyType?.thresholdKm);
-        setVehicleGroup(selectedDutyType?.data?.customDutyType?.vehicleGroupId);
-        setRatePerKM(selectedDutyType?.data?.ratePerKm);
         setData([
           {
             key: "o-6",
@@ -127,6 +128,30 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
               selectedDutyType?.data?.customDutyType?.rateBasePerHour["12+"],
           },
         ]);
+
+        // Set form values for Custom duty type
+        form.setFieldsValue({
+          dutyType: capitalize(selectedDutyType?.data?.category),
+          name: selectedDutyType?.data?.dutyTypeName,
+          vehicleGroup: selectedDutyType?.data?.customDutyType?.vehicleGroupId,
+          thresholdKM: selectedDutyType?.data?.customDutyType?.thresholdKm,
+          ratePerKm: selectedDutyType?.data?.customDutyType?.ratePerKm,
+        });
+      } else {
+        // Set form values for non-Custom duty type
+        const pricingValues = selectedDutyType?.data?.pricing?.map(
+          (data: any) => ({
+            baseRate: data?.baseRate,
+            extraKmRate: data?.extraKmRate,
+            extraHrRate: data?.extraHrRate,
+          })
+        );
+
+        form.setFieldsValue({
+          dutyType: capitalize(selectedDutyType?.data?.category),
+          name: selectedDutyType?.data?.dutyTypeName,
+          pricing: pricingValues,
+        });
       }
     } else {
       const tempArr = vehicleGroupData?.data?.map((data: any) => {
@@ -140,22 +165,18 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
       });
 
       setVehicleGroupDataArray(tempArr);
+
+      // Reset form values for new duty type
+      form.resetFields();
     }
-  }, [vehicleGroupData, selectedDutyType]);
+  }, [vehicleGroupData, selectedDutyType, form]);
 
   const handleSelectChange = (value: any) => {
     setDutyType(value);
   };
 
-  const handleVehicleGroupChange = (value: string) => {
-    setVehicleGroup(value);
-  };
   const onChange = (e: RadioChangeEvent) => {
     setValue(e.target.value);
-  };
-
-  const handleNameChange = (e: any) => {
-    setName(e.target.value);
   };
 
   const columnHeader = [
@@ -165,36 +186,97 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
     { id: 4, name: "Extra HR rate" },
   ];
 
-  const handleSave = () => {
-    if (Object.keys(selectedDutyType).length) {
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+
+      // Validate base rates for custom duty type
       if (capitalize(dutyType) === "Custom") {
-        const customDutyType = {
-          vehicleGroupId: vehicleGroup,
-          thresholdKm: thresholdKM,
-          ratePerKm: ratePerKM,
-          rateBasePerHour: {
-            "o-6": data[0]?.baseRate,
-            "6-12": data[1]?.baseRate,
-            "12+": data[2]?.baseRate,
-          },
-        };
-        dispatch(
-          updateDutyType({
-            payload: {
-              dutyTypeName: name,
+        const hasInvalidBaseRates = data.some((item) => item.baseRate === 0);
+        if (hasInvalidBaseRates) {
+          form.setFields([
+            {
+              name: "baseRates",
+              errors: ["All base rates must be greater than 0"],
+              touched: true,
+            },
+          ]);
+          return;
+        }
+      }
+
+      if (Object.keys(selectedDutyType).length) {
+        if (capitalize(dutyType) === "Custom") {
+          const customDutyType = {
+            vehicleGroupId: values.vehicleGroup,
+            thresholdKm: values.thresholdKM,
+            ratePerKm: values.ratePerKm,
+            rateBasePerHour: {
+              "o-6": data[0]?.baseRate,
+              "6-12": data[1]?.baseRate,
+              "12+": data[2]?.baseRate,
+            },
+          };
+          dispatch(
+            updateDutyType({
+              payload: {
+                dutyTypeName: values.name,
+                category: "custom",
+                secondaryType: value,
+                customDutyType,
+              },
+              id: selectedDutyType?.data?._id,
+            })
+          );
+        } else {
+          dispatch(
+            updateDutyType({
+              payload: {
+                dutyTypeName: values.name,
+                category: values.dutyType,
+                secondaryType: value,
+                pricing: vehicleGroupDataArray?.map((data: any) =>
+                  omit(
+                    {
+                      ...data,
+                      baseRate: Number(data.baseRate),
+                      extraKmRate: Number(data.extraKmRate),
+                      extraHrRate: Number(data.extraHrRate),
+                    },
+                    "name"
+                  )
+                ),
+              },
+              id: selectedDutyType?.data?._id,
+            })
+          );
+        }
+      } else {
+        if (capitalize(dutyType) === "Custom") {
+          const customDutyType = {
+            vehicleGroupId: values.vehicleGroup,
+            thresholdKm: values.thresholdKM,
+            ratePerKm: values.ratePerKm,
+            rateBasePerHour: {
+              "o-6": data[0]?.baseRate,
+              "6-12": data[1]?.baseRate,
+              "12+": data[2]?.baseRate,
+            },
+          };
+
+          dispatch(
+            addDutyType({
+              dutyTypeName: values.name,
               category: "custom",
               secondaryType: value,
               customDutyType,
-            },
-            id: selectedDutyType?.data?._id,
-          })
-        );
-      } else {
-        dispatch(
-          updateDutyType({
-            payload: {
-              dutyTypeName: name,
-              category: dutyType,
+            })
+          );
+        } else {
+          dispatch(
+            addDutyType({
+              dutyTypeName: values.name,
+              category: values.dutyType,
               secondaryType: value,
               pricing: vehicleGroupDataArray?.map((data: any) =>
                 omit(
@@ -207,52 +289,12 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                   "name"
                 )
               ),
-            },
-            id: selectedDutyType?.data?._id,
-          })
-        );
+            })
+          );
+        }
       }
-    } else {
-      if (capitalize(dutyType) === "Custom") {
-        const customDutyType = {
-          vehicleGroupId: vehicleGroup,
-          thresholdKm: thresholdKM,
-          ratePerKm: ratePerKM,
-          rateBasePerHour: {
-            "o-6": data[0]?.baseRate,
-            "6-12": data[1]?.baseRate,
-            "12+": data[2]?.baseRate,
-          },
-        };
-
-        dispatch(
-          addDutyType({
-            dutyTypeName: name,
-            category: "custom",
-            secondaryType: value,
-            customDutyType,
-          })
-        );
-      } else {
-        dispatch(
-          addDutyType({
-            dutyTypeName: name,
-            category: dutyType,
-            secondaryType: value,
-            pricing: vehicleGroupDataArray?.map((data: any) =>
-              omit(
-                {
-                  ...data,
-                  baseRate: Number(data.baseRate),
-                  extraKmRate: Number(data.extraKmRate),
-                  extraHrRate: Number(data.extraHrRate),
-                },
-                "name"
-              )
-            ),
-          })
-        );
-      }
+    } catch (error) {
+      console.error("Validation failed:", error);
     }
   };
 
@@ -268,14 +310,6 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
       );
       setVehicleGroupDataArray(tempVehicleGroupDataArray);
     }
-  };
-
-  const handleThresholdKM = (e: any) => {
-    setThresholdKM(Number(e.target.value));
-  };
-
-  const handleRatePerKM = (e: any) => {
-    setRatePerKM(Number(e.target.value));
   };
 
   const getVehicleGroupValue = debounce((searchText: string) => {
@@ -309,6 +343,20 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
           placeholder="Enter rate"
           controls={false}
           disabled={viewContentDatabase}
+          onKeyDown={(e) => {
+            if (
+              !/[0-9]/.test(e.key) &&
+              ![
+                "Backspace",
+                "Delete",
+                "ArrowLeft",
+                "ArrowRight",
+                "Tab",
+              ].includes(e.key)
+            ) {
+              e.preventDefault();
+            }
+          }}
         />
       ),
     },
@@ -334,44 +382,63 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
               : "Add details of your duty type"}
           </div>
         </div>
-        <div className={styles.form}>
-          <div className={styles.typeContainer}>
-            <div className={styles.text}>
-              <p>Category</p>
-              <sup>*</sup>
-              <HelpCircle />
-            </div>
+        <Form
+          form={form}
+          layout="vertical"
+          className={styles.form}
+          disabled={viewContentDatabase}
+        >
+          <Form.Item
+            label={
+              <div className={styles.text}>
+                <p>Category</p>
+                <sup>*</sup>
+                <HelpCircle />
+              </div>
+            }
+            name="dutyType"
+            rules={[{ required: true, message: "Please select a category" }]}
+            required={false}
+          >
             <Select
               style={{ width: "100%" }}
               onChange={handleSelectChange}
-              disabled={viewContentDatabase}
-              value={dutyType || undefined}
-              placeholder={<>{"Select One"}</>}
+              placeholder="Select One"
               dropdownRender={(menu) => <>{menu}</>}
-              options={items.map((item) => ({
+              options={DUTY_TYPES_TYPE.map((item) => ({
                 label: item.label,
                 value: item.value,
               }))}
             />
-          </div>
-          <div className={styles.typeContainer}>
-            <div className={styles.text}>
-              <p>Type Name</p>
-              <sup>*</sup>
-            </div>
-            <input
-              className={styles.input}
-              disabled={viewContentDatabase}
-              value={name}
-              onChange={handleNameChange}
-              placeholder="Enter Type name"
-            />
-          </div>
-          <div className={styles.typeContainer}>
-            <div className={styles.text}>
-              <p>Category - Vehicle Group</p>
-              <sup>*</sup>
-            </div>
+          </Form.Item>
+
+          <Form.Item
+            label={
+              <div className={styles.text}>
+                <p>Type Name</p>
+                <sup>*</sup>
+              </div>
+            }
+            name="name"
+            rules={[{ required: true, message: "Please enter type name" }]}
+            required={false}
+          >
+            <Input placeholder="Enter Type name" />
+          </Form.Item>
+
+          <Form.Item
+            label={
+              <div className={styles.text}>
+                <p>Category - Vehicle Group</p>
+                <sup>*</sup>
+              </div>
+            }
+            name="vehicleGroup"
+            rules={[
+              { required: true, message: "Please select a vehicle group" },
+            ]}
+            required={false}
+          >
             <Select
               allowClear
               options={vehicleGroupData?.data?.map(
@@ -380,30 +447,63 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                   label: option.name,
                 })
               )}
-              value={vehicleGroup}
-              onChange={handleVehicleGroupChange}
               onSearch={(text) => getVehicleGroupValue(text)}
               placeholder="Search vehicle group"
               fieldNames={{ label: "label", value: "value" }}
               notFoundContent={<div>No search result</div>}
               filterOption={false}
-              disabled={viewContentDatabase}
             />
-          </div>
-          <div className={styles.typeContainer}>
-            <div className={styles.text}>
-              <p>Threshold KMs</p>
-              <sup>*</sup>
-            </div>
-            <input
-              className={styles.input}
-              type="number"
-              disabled={viewContentDatabase}
-              value={thresholdKM}
-              onChange={handleThresholdKM}
+          </Form.Item>
+
+          <Form.Item
+            label={
+              <div className={styles.text}>
+                <p>Threshold KMs</p>
+                <sup>*</sup>
+              </div>
+            }
+            name="thresholdKM"
+            rules={[{ required: true, message: "Please enter threshold KMs" }]}
+            required={false}
+          >
+            <InputNumber
+              className="number-input"
+              style={{
+                width: "100%",
+                textAlign: "left",
+                border: "1px solid #d9d9d9",
+                borderRadius: "6px",
+                height: "40px",
+              }}
               placeholder="Enter Threshold KMs"
+              min={0}
+              controls={false}
+              precision={0}
+              keyboard={true}
+              onKeyDown={(e) => {
+                if (
+                  !/[0-9]/.test(e.key) &&
+                  ![
+                    "Backspace",
+                    "Delete",
+                    "ArrowLeft",
+                    "ArrowRight",
+                    "Tab",
+                  ].includes(e.key)
+                ) {
+                  e.preventDefault();
+                }
+              }}
+              onChange={(value) => {
+                if (value === null) return;
+                const numValue = Number(value);
+                if (!isNaN(numValue)) {
+                  form.setFieldValue("thresholdKM", numValue);
+                }
+              }}
             />
-          </div>
+          </Form.Item>
+
           <div className={styles["rate-table-container"]}>
             <div className={styles.text}>
               <p>
@@ -418,7 +518,11 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
               pagination={false}
               className={styles["custom-table"]}
             />
+            <Form.Item name="baseRates" className={styles.errorText}>
+              <div></div>
+            </Form.Item>
           </div>
+
           <div className={styles.text}>
             <p>
               Define rates basis kilometers if total kilometers are more than
@@ -426,20 +530,57 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
             </p>
             <sup>*</sup>
           </div>
-          <div className={styles.typeContainer}>
-            <div className={styles.text}>
-              <p>Rate per kilometer</p>
-              <sup>*</sup>
-            </div>
-            <input
-              type="number"
-              className={styles.input}
-              disabled={viewContentDatabase}
-              value={ratePerKM}
-              onChange={handleRatePerKM}
+
+          <Form.Item
+            label={
+              <div className={styles.text}>
+                <p>Rate per kilometer</p>
+                <sup>*</sup>
+              </div>
+            }
+            name="ratePerKm"
+            rules={[
+              { required: true, message: "Please enter rate per kilometer" },
+            ]}
+            required={false}
+          >
+            <InputNumber
+              className="number-input"
+              style={{
+                width: "100%",
+                textAlign: "left",
+                border: "1px solid #d9d9d9",
+                borderRadius: "6px",
+                height: "40px",
+              }}
               placeholder="Enter Rate per KM"
+              min={0}
+              controls={false}
+              precision={0}
+              keyboard={true}
+              onKeyDown={(e) => {
+                if (
+                  !/[0-9]/.test(e.key) &&
+                  ![
+                    "Backspace",
+                    "Delete",
+                    "ArrowLeft",
+                    "ArrowRight",
+                    "Tab",
+                  ].includes(e.key)
+                ) {
+                  e.preventDefault();
+                }
+              }}
+              onChange={(value) => {
+                if (value === null) return;
+                const numValue = Number(value);
+                if (!isNaN(numValue)) {
+                  form.setFieldValue("ratePerKm", numValue);
+                }
+              }}
             />
-          </div>
+          </Form.Item>
 
           <div className={styles.radio}>
             <Radio.Group
@@ -465,7 +606,7 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
               </Radio>
             </Radio.Group>
           </div>
-        </div>
+        </Form>
       </div>
       {viewContentDatabase ? (
         <div className={styles.bottomContainer}>
@@ -530,39 +671,50 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
               : "Add details of your duty type"}
           </div>
         </div>
-        <div className={styles.form}>
-          <div className={styles.typeContainer}>
-            <div className={styles.text}>
-              <p>Category</p>
-              <sup>*</sup>
-              <HelpCircle />
-            </div>
+        <Form
+          form={form}
+          layout="vertical"
+          className={styles.form}
+          disabled={viewContentDatabase}
+        >
+          <Form.Item
+            label={
+              <div className={styles.text}>
+                <p>Category</p>
+                <sup>*</sup>
+                <HelpCircle />
+              </div>
+            }
+            name="dutyType"
+            rules={[{ required: true, message: "Please select a category" }]}
+            required={false}
+          >
             <Select
               style={{ width: "100%" }}
               onChange={handleSelectChange}
-              disabled={viewContentDatabase}
-              value={dutyType || undefined}
-              placeholder={<>{"Select One"}</>}
+              placeholder="Select One"
               dropdownRender={(menu) => <>{menu}</>}
-              options={items.map((item) => ({
+              options={DUTY_TYPES_TYPE.map((item) => ({
                 label: item.label,
                 value: item.value,
               }))}
             />
-          </div>
-          <div className={styles.typeContainer}>
-            <div className={styles.text}>
-              <p>Duty type name</p>
-              <sup>*</sup>
-            </div>
-            <input
-              className={styles.input}
-              disabled={viewContentDatabase}
-              value={name}
-              onChange={handleNameChange}
-              placeholder="Enter Duty type name"
-            />
-          </div>
+          </Form.Item>
+
+          <Form.Item
+            label={
+              <div className={styles.text}>
+                <p>Duty type name</p>
+                <sup>*</sup>
+              </div>
+            }
+            name="name"
+            rules={[{ required: true, message: "Please enter duty type name" }]}
+            required={false}
+          >
+            <Input placeholder="Enter Duty type name" />
+          </Form.Item>
+
           <div className={styles.radio}>
             <Radio.Group
               onChange={onChange}
@@ -587,6 +739,7 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
               </Radio>
             </Radio.Group>
           </div>
+
           {dutyType && (
             <div className={styles.dutyTypeTable}>
               <div className={styles.columnsHeader}>
@@ -604,31 +757,133 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                         {row?.name}
                       </div>
                       <div className={styles.rowItem}>
-                        <input
-                          className={styles.input}
-                          disabled={viewContentDatabase}
-                          value={row?.baseRate}
-                          onChange={(e) => handlePricingValueChange(e, index)}
-                          name={"baseRate"}
-                        />
+                        <Form.Item
+                          name={["pricing", index, "baseRate"]}
+                          rules={[{ required: true, message: "Required" }]}
+                          initialValue={row?.baseRate}
+                          required={false}
+                        >
+                          <InputNumber
+                            className={styles.input}
+                            disabled={viewContentDatabase}
+                            placeholder="Enter base rate"
+                            min={0}
+                            style={{ width: "100%", textAlign: "left" }}
+                            controls={false}
+                            precision={0}
+                            keyboard={true}
+                            onKeyDown={(e) => {
+                              if (
+                                !/[0-9]/.test(e.key) &&
+                                ![
+                                  "Backspace",
+                                  "Delete",
+                                  "ArrowLeft",
+                                  "ArrowRight",
+                                  "Tab",
+                                ].includes(e.key)
+                              ) {
+                                e.preventDefault();
+                              }
+                            }}
+                            onChange={(value) => {
+                              if (value === null) return;
+                              const numValue = Number(value);
+                              if (!isNaN(numValue)) {
+                                form.setFieldValue(
+                                  ["pricing", index, "baseRate"],
+                                  numValue
+                                );
+                              }
+                            }}
+                          />
+                        </Form.Item>
                       </div>
                       <div className={styles.rowItem}>
-                        <input
-                          className={styles.input}
-                          disabled={viewContentDatabase}
-                          value={row?.extraKmRate}
-                          name={"extraKmRate"}
-                          onChange={(e) => handlePricingValueChange(e, index)}
-                        />
+                        <Form.Item
+                          name={["pricing", index, "extraKmRate"]}
+                          rules={[{ required: true, message: "Required" }]}
+                          initialValue={row?.extraKmRate}
+                          required={false}
+                        >
+                          <InputNumber
+                            className={styles.input}
+                            disabled={viewContentDatabase}
+                            placeholder="Enter extra KM rate"
+                            min={0}
+                            style={{ width: "100%", textAlign: "left" }}
+                            controls={false}
+                            precision={0}
+                            keyboard={true}
+                            onKeyDown={(e) => {
+                              if (
+                                !/[0-9]/.test(e.key) &&
+                                ![
+                                  "Backspace",
+                                  "Delete",
+                                  "ArrowLeft",
+                                  "ArrowRight",
+                                  "Tab",
+                                ].includes(e.key)
+                              ) {
+                                e.preventDefault();
+                              }
+                            }}
+                            onChange={(value) => {
+                              if (value === null) return;
+                              const numValue = Number(value);
+                              if (!isNaN(numValue)) {
+                                form.setFieldValue(
+                                  ["pricing", index, "extraKmRate"],
+                                  numValue
+                                );
+                              }
+                            }}
+                          />
+                        </Form.Item>
                       </div>
                       <div className={styles.rowItem}>
-                        <input
-                          className={styles.input}
-                          disabled={viewContentDatabase}
-                          value={row?.extraHrRate}
-                          name={"extraHrRate"}
-                          onChange={(e) => handlePricingValueChange(e, index)}
-                        />
+                        <Form.Item
+                          name={["pricing", index, "extraHrRate"]}
+                          rules={[{ required: true, message: "Required" }]}
+                          initialValue={row?.extraHrRate}
+                          required={false}
+                        >
+                          <InputNumber
+                            className={styles.input}
+                            disabled={viewContentDatabase}
+                            placeholder="Enter extra HR rate"
+                            min={0}
+                            style={{ width: "100%", textAlign: "left" }}
+                            controls={false}
+                            precision={0}
+                            keyboard={true}
+                            onKeyDown={(e) => {
+                              if (
+                                !/[0-9]/.test(e.key) &&
+                                ![
+                                  "Backspace",
+                                  "Delete",
+                                  "ArrowLeft",
+                                  "ArrowRight",
+                                  "Tab",
+                                ].includes(e.key)
+                              ) {
+                                e.preventDefault();
+                              }
+                            }}
+                            onChange={(value) => {
+                              if (value === null) return;
+                              const numValue = Number(value);
+                              if (!isNaN(numValue)) {
+                                form.setFieldValue(
+                                  ["pricing", index, "extraHrRate"],
+                                  numValue
+                                );
+                              }
+                            }}
+                          />
+                        </Form.Item>
                       </div>
                     </div>
                   );
@@ -636,7 +891,7 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
               </div>
             </div>
           )}
-        </div>
+        </Form>
       </div>
       {viewContentDatabase ? (
         <div className={styles.bottomContainer}>
