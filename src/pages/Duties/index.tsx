@@ -1,4 +1,5 @@
 /* eslint-disable */
+// All Duties Page
 
 import {
   ArrowLeftOutlined,

@@ -1,10 +1,11 @@
 /* eslint-disable */
 import cn from "classnames";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useMemo, useEffect } from "react";
 import { BOOKINGS_TABS } from "../../constants/bookings";
 import styles from "./index.module.scss";
 import SecondaryBtn from "../../components/SecondaryBtn";
 import PrimaryBtn from "../../components/PrimaryBtn";
+import { getVehicle, getDrivers } from "../../redux/slices/databaseSlice";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import BookingsTable from "../../components/BookingsTable";
 import { Button, DatePicker, Drawer, Form, Input, Radio } from "antd";
@@ -15,10 +16,13 @@ import {
   setBookingFilter,
   setIsEditingBooking,
 } from "../../redux/slices/bookingSlice";
+import AssignVehicle from "../../components/Bookings/AssignVehicle";
+import AssignDriver from "../../components/Bookings/AssignDriver";
+import { ReactComponent as EditIcon } from "../../icons/edit-icon.svg";
 import { ReactComponent as CrossIcon } from "../../icons/x.svg";
 import { useSelector } from "react-redux";
 import { RootState } from "../../types/store";
-import { useAppDispatch } from "../../hooks/store";
+import { useAppDispatch, useAppSelector } from "../../hooks/store";
 import { RouteName } from "../../constants/routes";
 import { useNavigate } from "react-router-dom";
 
@@ -51,10 +55,10 @@ const Bookings = () => {
   // const [searchTerm, setSearchTerm] = useState<string>("");
   // const debouncedSearch = useDebounce(searchTerm, 300);
   const dispatch = useAppDispatch();
+  const { q } = useAppSelector((state) => state.database);
 
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // setSearchTerm(value);
     dispatch(setBookingFilter({ search: value }));
   };
 
@@ -66,12 +70,67 @@ const Bookings = () => {
   } = useSelector((state: RootState) => state.booking);
 
   const [form] = Form.useForm();
-  const [formStep, setFormSetp] = useState(0);
+  const [formStep, setFormSetp] = useState(1);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getVehicle({ page: 1, limit: "10", search: q || "" }));
+  }, [q]);
+
+  useEffect(() => {
+    dispatch(
+      getDrivers({
+        search: q,
+      })
+    );
+  }, [q]);
 
   const handleCloseSidePanel = () => {
     dispatch(setIsAddEditDrawerClose());
     dispatch(setIsEditingBooking(false));
+  };
+
+  const primaryBtnText = useMemo(() => {
+    if (formStep === 1 || formStep === 2) {
+      return "next";
+    } else if (formStep === 3) {
+      return "save";
+    }
+  }, [formStep]);
+
+  const secondaryBtnText = useMemo(() => {
+    if (formStep === 1) {
+      return "cancel";
+    } else if (formStep === 2 || formStep === 3) {
+      return "back";
+    }
+  }, [formStep]);
+
+  const handlePrimaryBtn = () => {
+    if (formStep === 1) {
+      setFormSetp(2);
+    } else if (formStep === 2) {
+      setFormSetp(3);
+    }
+  };
+
+  const handleSecondaryBtn = () => {
+    if (formStep === 1) {
+      handleCloseSidePanel();
+    } else if (formStep === 2) {
+      setFormSetp(1);
+    } else if (formStep === 3) {
+      setFormSetp(2);
+    }
+  };
+
+  const checkValidation = async () => {
+    try {
+      await form.validateFields(); // Resolves if valid
+      return true;
+    } catch (error) {
+      return false;
+    }
   };
 
   return (
@@ -145,26 +204,36 @@ const Bookings = () => {
               {!isEditingBooking ? "Add New Booking" : "Edit Booking"}
             </div>
             <div className={styles.primaryText}>
-              Fill your booking details here
-              {isEditingBooking.toString()}
+              {formStep === 1 && "Fill your booking details here"}
+              {formStep === 3 && "Select the driver"}
             </div>
           </div>
         }
         footer={
-          <div className={styles.drawerFooter}>
-            <Button>Cancel</Button>
-            <Button
-              onClick={() => {
-                // handleFormSubmit();
-                // form.validateFields();
-                // if success make step2
-                form.submit();
-              }}
-              type="primary"
-            >
-              Save
-            </Button>
-          </div>
+          isEditingBooking ? (
+            <div className={styles.bottomContainer}>
+              <PrimaryBtn
+                btnText={"Edit"}
+                onClick={() => {}}
+                LeadingIcon={EditIcon}
+              />
+            </div>
+          ) : (
+            <div className={styles.bottomContainer}>
+              <SecondaryBtn
+                btnText={secondaryBtnText}
+                onClick={handleSecondaryBtn}
+              />
+              <Button
+                type="primary"
+                loading={false}
+                onClick={handlePrimaryBtn}
+                className="primary-btn"
+              >
+                {primaryBtnText}
+              </Button>
+            </div>
+          )
         }
         open={isAddEditDrawerOpen}
       >
@@ -172,14 +241,15 @@ const Bookings = () => {
           <CrossIcon />
         </button>
         <div>
-          {formStep == 0 && (
+          {formStep == 1 && (
             <AddNewBookingForm
               form={form}
               isEditable={isEditingBooking}
               initialData={currentSelectedBooking}
             />
           )}
-          {formStep == 1 && <h1>step 1</h1>}
+          {formStep == 2 && <AssignVehicle />}
+          {formStep == 3 && <AssignDriver />}
         </div>
       </Drawer>
     </div>

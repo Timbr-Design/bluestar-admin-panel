@@ -1,7 +1,6 @@
 @import "../../styles/mixins";
 
 .container {
-  // position: absolute;
   position: sticky;
   top: 0%;
   left: 0;
@@ -39,5 +38,11 @@
         }
       }
     }
+  }
+
+  .settings {
+    position: absolute;
+    bottom: 1rem;
+    cursor: pointer;
   }
 }

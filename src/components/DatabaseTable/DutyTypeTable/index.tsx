@@ -1,5 +1,4 @@
 /* eslint-disable */
-import { DUTY_TYPES } from "../../../constants/database";
 import {
   getAllDutyTypes,
   getDutyTypeById,
@@ -22,10 +21,12 @@ import styles from "./index.module.scss";
 interface IDutyTypeTableData {
   key: string;
   _id: string;
-  name: string;
-  type: string;
-  max_kilometers: number;
-  max_hours: number;
+  dutyTypeName: string;
+  secondaryType: string;
+  customDutyType: any;
+  ratePerKm: number;
+  category: string;
+  pricing: any;
 }
 
 interface IDutyTypeTable {
@@ -45,7 +46,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [dutyTypeId, setDutyTypeId] = useState<string>("");
-  const [dutyType, setDutyType] = useState({ name: "" });
+  const [dutyType, setDutyType] = useState({ dutyTypeName: "" });
   const [openDropdown, setOpenDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -82,27 +83,43 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
     dispatch(getAllDutyTypes({ page: "1", search: q, limit: 10 }));
   }, [q]);
 
-  // const handleClickOutside = (event: any) => {
-  //   if (
-  //     dropdownRef.current &&
-  //     !dropdownRef.current.contains(event.target as Node)
-  //   ) {
-  //     setOpenDropdown(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   // Add event listener to detect outside clicks
-  //   document.addEventListener("mousedown", handleClickOutside);
-
-  //   return () => {
-  //     // Remove event listener on cleanup to prevent memory leaks
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, []);
-
-  const columns: TableProps<IDutyTypeTableData>["columns"] = [
-    ...DUTY_TYPES,
+  const columns: TableProps<any>["columns"] = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (_, record) => {
+        return <span>{record?.dutyTypeName}</span>;
+      },
+    },
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      render: (_, record) => {
+        return (
+          <span style={{ textTransform: "capitalize" }}>
+            {record?.category}
+          </span>
+        );
+      },
+    },
+    {
+      title: "Max Kilometers",
+      dataIndex: "max_kilometers",
+      key: "max_kilometers",
+      render: (_, record) => {
+        return <span>{"record?.pricing[0]?.extraKmRate"}</span>;
+      },
+    },
+    {
+      title: "Max Hours",
+      dataIndex: "max_hours",
+      key: "max_hours",
+      render: (_, record) => {
+        return <span>{"record?.pricing[0]?.extraHrRate"}</span>;
+      },
+    },
     {
       title: "",
       dataIndex: "action",
@@ -144,7 +161,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
     selectedRowKeys: React.Key[],
     selectedRows: IDutyTypeTableData[]
   ) => {
-    console.log(selectedRowKeys, "selectedRowKeys")
+    console.log(selectedRowKeys, "selectedRowKeys");
     setSelectedRowKeys(selectedRowKeys);
     console.log("Selected Rows: ", selectedRows);
   };
@@ -169,14 +186,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
           selectedRowKeys: selectedRowKeys,
         }}
         columns={columns}
-        dataSource={dutyTypeList?.data?.map((data: any) => {
-          return {
-            ...data,
-            key: data?._id,
-            max_kilometers: data?.pricing[0]?.extraKmRate,
-            max_hours: data?.pricing[0]?.extraHrRate,
-          };
-        })}
+        dataSource={dutyTypeList?.data}
         loading={deleteDutyTypeStates?.loading || dutyTypeStates?.loading}
         pagination={false}
         scroll={{
@@ -210,7 +220,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
             <div className={styles.secondaryText}>
               Are you sure you want to delete this duty type?
               <div className={styles.selectedSecondaryText}>
-                {dutyType?.name}
+                {dutyType?.dutyTypeName}
               </div>
             </div>
           </div>

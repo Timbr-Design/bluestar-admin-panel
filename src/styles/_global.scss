@@ -178,6 +178,7 @@ th {
   line-height: 20px;
   cursor: pointer;
   height: 40px;
+  text-transform: capitalize;
 
   &:hover {
     background: #6941c6 !important;
@@ -397,4 +398,34 @@ input {
   &.dontShow {
     display: none !important;
   }
+}
+
+.vehicle-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f9fafb;
+  }
+}
+
+.vehicle-row-selected {
+  cursor: pointer;
+  background-color: #f4f3ff;
+
+  td {
+    background-color: #f4f3ff !important;
+  }
+}
+
+.ant-input-number-outlined {
+  border: none;
+}
+
+.ant-input-number-focused {
+ border: none;
+}
+
+.ant-input-number .ant-input-number-input {
+  text-align: right;
 }

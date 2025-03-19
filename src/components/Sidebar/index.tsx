@@ -3,13 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 import { Tooltip } from "antd";
 import cn from "classnames";
 import { ReactComponent as FileIcon } from "../../icons/file.svg";
-import { ReactComponent as Dashboard } from "../../icons/homeLine.svg";
 import { ReactComponent as Database } from "../../icons/database.svg";
 import { ReactComponent as Drivers } from "../../icons/drivers.svg";
 import { ReactComponent as BookingsIcon } from "../../icons/bookings.svg";
 import { ReactComponent as VehicleRename } from "../../icons/VehicleRename.svg";
 import { ReactComponent as Availability } from "../../icons/Availability.svg";
 import { ReactComponent as Logo } from "../../icons/TempLogo.svg";
+import { ReactComponent as Settings } from "../../icons/settings.svg";
 import { RouteName } from "../../constants/routes";
 import styles from "./index.module.scss";
 
@@ -24,25 +24,6 @@ const Sidebar = () => {
         </div>
       </Link>
       <div className={styles.iconsContainer}>
-        {/* <Tooltip placement="right" title={"Dashboard"}>
-          <Link to={RouteName.DASHBOARD}>
-            <div
-              className={cn(styles.icon, {
-                [styles.selected]: location.pathname.startsWith(
-                  RouteName.DASHBOARD
-                ),
-              })}
-            >
-              <Dashboard
-                className={cn(styles.svgIcon, {
-                  [styles.selected]: location.pathname.startsWith(
-                    RouteName.DASHBOARD
-                  ),
-                })}
-              />
-            </div>
-          </Link>
-        </Tooltip> */}
         <Tooltip placement="right" title={"Bookings"}>
           <Link to={RouteName.BOOKINGS}>
             <div
@@ -121,6 +102,11 @@ const Sidebar = () => {
             </div>
           </Link>
         </Tooltip>
+      </div>
+      <div className={styles.settings}>
+        <Link to={RouteName.SETTINGS}>
+          <Settings />
+        </Link>
       </div>
     </div>
   );

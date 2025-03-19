@@ -91,26 +91,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
     }
   };
 
-  const props: UploadProps = {
-    name: "file",
-    multiple: true,
-    action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-    onChange(info) {
-      const { status } = info.file;
-      if (status !== "uploading") {
-        console.log(info.file, info.fileList);
-      }
-      if (status === "done") {
-        message.success(`${info?.file?.name} file uploaded successfully.`);
-      } else if (status === "error") {
-        message.error(`${info?.file?.name} file upload failed.`);
-      }
-    },
-    onDrop(e) {
-      console.log("Dropped files", e.dataTransfer.files);
-    },
-  };
-
   const getPanelValue = (searchText: string) => {
     if (searchText) {
       dispatch(
@@ -145,19 +125,19 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
 
       form.setFieldsValue(values);
       form.setFieldValue("vehicleGroupId", {
-        value: selectedVehicle?.vehicleGroupId?._id,
-        label: selectedVehicle?.vehicleGroupId?.name,
+        value: selectedVehicle?.vehicleGroup?._id,
+        label: selectedVehicle?.vehicleGroup?.name,
       });
       form.setFieldValue("driverId", {
-        value: selectedVehicle?.driverId?._id,
-        label: selectedVehicle?.driverId?.name,
+        value: selectedVehicle?.driver?._id,
+        label: selectedVehicle?.driver?.name,
       });
       setIsActive(values?.loan?.isActive);
     }
   }, [selectedVehicle]);
 
   useEffect(() => {
-    dispatch(getVehicleGroup({ page: "1", size: 10 }));
+    dispatch(getVehicleGroup({ page: "1", search: "", limit: 10 }));
     dispatch(
       getDrivers({
         page: "1",
@@ -201,7 +181,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 vehicleGroupId: Values.vehicleGroupId.value,
               };
 
-              console.log(tempValues, "tempValues");
               dispatch(
                 updateVehicle({ id: selectedVehicle?._id, payload: tempValues })
               );

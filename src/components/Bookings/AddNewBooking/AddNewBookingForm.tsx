@@ -4,7 +4,7 @@ import styles from "./index.module.scss";
 import {
   Form,
   Input,
-  AutoComplete,
+  Switch,
   Space,
   Card,
   Radio,
@@ -36,17 +36,16 @@ const { TextArea } = Input;
 interface AddNewBookingForm {
   initialData?: any;
   isEditable?: boolean;
-  // handleFormSubmit: (value?: any) => void;
   form: any;
 }
 const AddNewBookingForm = ({
   initialData,
   isEditable = true,
-  // handleFormSubmit,
   form,
 }: AddNewBookingForm) => {
-  const { vehicleGroupSelectOption, dutyTypeOption, customersOption } =
-    useAppSelector((state: RootState) => state.database);
+  const { dutyTypeList, customersOption, vehicleGroupData } = useAppSelector(
+    (state: RootState) => state.database
+  );
   const dispatch = useAppDispatch();
 
   const getDutyTypeValue = (searchText: string) => {
@@ -82,13 +81,37 @@ const AddNewBookingForm = ({
     return Math.floor(100000 + Math.random() * 900000);
   }, []);
 
-  console.log("randomCustomBookingId", randomCustomBookingId);
-  
+  useEffect(() => {
+    dispatch(
+      getCustomer({
+        page: "1",
+        limit: "10",
+        search: "",
+      })
+    );
+
+    dispatch(
+      getAllDutyTypes({
+        page: "1",
+        limit: "10",
+        search: "",
+      })
+    );
+
+    dispatch(
+      getVehicleGroup({
+        page: "1",
+        limit: "10",
+        search: "",
+      })
+    );
+  }, []);
+
   useEffect(() => {
     if (Object.keys(initialData).length) {
       form.setFieldsValue({
         _id: initialData?._id,
-        customBookingId: initialData?.customBookingId,
+        bookingId: initialData?.bookingId,
         bookingType: initialData?.bookingType,
         customerId: [
           {
@@ -133,8 +156,31 @@ const AddNewBookingForm = ({
         bookingStatus: initialData?.bookingStatus,
         address: initialData?.address,
       });
+    } else {
+      form.setFieldsValue({ bookingId: randomCustomBookingId });
     }
-  }, [initialData]);
+  }, [initialData, randomCustomBookingId]);
+
+  const handleToggle = (checked: boolean) => {
+    if (!useThisPassenger) {
+      const bookedBy = form.getFieldValue("bookedBy") || [];
+
+      // Set the new passengers array with the new data
+      form.setFieldsValue({
+        passengers: [
+          {
+            name: bookedBy.name,
+            phoneNo: bookedBy.phoneNo,
+          },
+        ],
+      });
+    } else {
+      form.setFieldsValue({
+        passengers: [],
+      });
+    }
+    setUseThisPassenger(!useThisPassenger);
+  };
 
   return (
     <Form
@@ -146,7 +192,6 @@ const AddNewBookingForm = ({
         console.log("Failed:", errorInfo);
       }}
       onFinish={(values) => {
-        // handleFormSubmit(value);
         if (isEditable && initialData._id) {
           dispatch(updateBooking({ id: initialData._id, ...values }));
         } else {
@@ -157,15 +202,15 @@ const AddNewBookingForm = ({
       className={styles.form}
     >
       <Form.Item
-        name="customBookingId"
-        label="Custom booking Id"
+        name="bookingId"
+        label="Booking ID"
         rules={[{ required: true }]}
       >
-        <Input value={randomCustomBookingId} type={"text"} disabled/>
+        <Input type="text" disabled />
       </Form.Item>
       <Form.Item
         name={"customerId"}
-        rules={[{ required: true }]}
+        rules={[{ required: true, message: "Please select Customer" }]}
         label="Customer"
         style={{ marginTop: "12px" }}
       >
@@ -173,9 +218,15 @@ const AddNewBookingForm = ({
           placeholder="Select customer"
           allowClear
           showSearch
-          options={customersOption}
+          options={customersOption?.map(
+            (option: { value: any; label: any }) => ({
+              value: option.value,
+              label: option.label,
+            })
+          )}
           onSearch={(text) => getCustomerList(text)}
           fieldNames={{ label: "label", value: "value" }}
+          filterOption={false}
           notFoundContent={<div>No search result</div>}
         />
       </Form.Item>
@@ -191,62 +242,44 @@ const AddNewBookingForm = ({
             <Form.Item
               name={["bookedBy", "name"]}
               label="Booked by name"
-              rules={[{ required: true }]}
+              style={{ marginTop: "12px" }}
             >
               <Input />
             </Form.Item>
             <Form.Item
-              name={["bookedBy", "phoneNumber"]}
+              name={["bookedBy", "phoneNo"]}
               label="Phone Number"
               rules={[
-                { required: true, message: "Please enter your phone number." },
+                { required: false },
                 {
                   pattern: /^(\+91)?[6-9][0-9]{9}$/,
                   message: "Please enter a valid Indian phone number",
                 },
               ]}
+              style={{ marginTop: "12px" }}
             >
               <Input />
             </Form.Item>
             <Form.Item
               name={["bookedBy", "email"]}
               label="Email"
-              rules={[{ required: true, type: "email" }]}
+              rules={[{ required: false, type: "email" }]}
+              style={{ marginTop: "12px" }}
             >
               <Input type="email" />
             </Form.Item>
           </Input.Group>
         </Form.Item>
-
-        <Radio
-          value={useThisPassenger}
-          checked={useThisPassenger}
-          onClick={() => {
-            if (!useThisPassenger) {
-              const currentPassengers = form.getFieldValue("passengers") || [];
-              const bookedBy = form.getFieldValue("bookedBy") || [];
-              // Set the new passengers array with the new data
-              form.setFieldsValue({
-                passengers: [
-                  {
-                    name: bookedBy.name,
-                    phoneNumber: bookedBy.phoneNumber,
-                  },
-                ],
-              });
-            } else {
-              form.setFieldsValue({
-                passengers: [],
-              });
-            }
-            setUseThisPassenger(!useThisPassenger);
-          }}
-          style={{
-            marginTop: "0.8rem",
-          }}
-        >
-          Use this same details for passenger
-        </Radio>
+        <div className={styles[`passenger-switch`]}>
+          <Switch
+            checked={useThisPassenger}
+            onChange={handleToggle}
+            size="small"
+          />
+          <span className={styles["passenger-switch__label"]}>
+            Use the same details for passenger
+          </span>
+        </div>
       </Card>
       {/*  passenger detail */}
       <Card className={styles.PassengerCardContainer}>
@@ -260,25 +293,28 @@ const AddNewBookingForm = ({
                     {...restField}
                     name={[name, "name"]}
                     label="Passenger name"
-                    rules={[{ required: true, message: "Please input name" }]}
                   >
                     <Input placeholder="Passenger name" />
                   </Form.Item>
 
                   <Form.Item
                     {...restField}
-                    name={[name, "phoneNumber"]}
-                    label="Passenger phone number"
+                    name={[name, "phoneNo"]}
                     rules={[
-                      { required: true, message: "Please input phone number" },
+                      { required: false },
+                      {
+                        pattern: /^(\+91)?[6-9][0-9]{9}$/,
+                        message: "Please enter a valid Indian phone number",
+                      },
                     ]}
+                    label="Passenger phone number"
+                    style={{ marginTop: "16px" }}
                   >
                     <Input placeholder="Passenger phone number" />
                   </Form.Item>
 
                   {fields.length > 1 && (
                     <Button
-                      shape="circle"
                       icon={<DeleteOutlined />}
                       onClick={() => remove(name)}
                       className={styles.deletePassengerButton}
@@ -309,7 +345,12 @@ const AddNewBookingForm = ({
         <Select
           allowClear
           showSearch
-          options={dutyTypeOption}
+          options={dutyTypeList?.data?.map(
+            (option: { _id: string; dutyTypeName: string }) => ({
+              value: option._id,
+              label: option.dutyTypeName,
+            })
+          )}
           onSearch={(text) => getDutyTypeValue(text)}
           placeholder="Select Duty type"
           fieldNames={{ label: "label", value: "value" }}
@@ -320,11 +361,17 @@ const AddNewBookingForm = ({
         name="vehicleGroupId"
         rules={[{ required: true }]}
         label="Vehicle Group"
+        style={{ paddingTop: "16px" }}
       >
         <Select
           allowClear
           showSearch
-          options={vehicleGroupSelectOption}
+          options={vehicleGroupData?.data?.map(
+            (option: { _id: string; name: string }) => ({
+              value: option._id,
+              label: option.name,
+            })
+          )}
           onSearch={(text) => getVehicleGroupValue(text)}
           placeholder="Search vehicle group"
           fieldNames={{ label: "label", value: "value" }}
@@ -374,6 +421,7 @@ const AddNewBookingForm = ({
           },
         ]}
         label="Drop Address"
+        style={{ paddingTop: "16px" }}
       >
         <TextArea placeholder="Location (Google map link)"></TextArea>
       </Form.Item>
@@ -609,7 +657,11 @@ const AddNewBookingForm = ({
         <Form.Item name="operatorNotes" label="Operator Notes">
           <TextArea placeholder="Add a note...."></TextArea>
         </Form.Item>
-        <Form.Item name="driverNotes" label="Driver Notes">
+        <Form.Item
+          name="driverNotes"
+          label="Driver Notes"
+          style={{ paddingTop: "16px" }}
+        >
           <TextArea placeholder="Add a note...."></TextArea>
         </Form.Item>
       </div>

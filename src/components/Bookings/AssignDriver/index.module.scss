@@ -1,0 +1,64 @@
+.contact-list-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+
+  .contact-table {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    .ant-table {
+      background-color: transparent;
+
+      .ant-table-thead > tr > th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 500;
+        font-size: 16px;
+        padding: 16px 24px;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .ant-table-tbody > tr > td {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e9ecef;
+        font-size: 16px;
+        transition: background 0.2s;
+      }
+
+      .ant-table-tbody > tr:hover > td {
+        background-color: #f8f9fa;
+      }
+
+      .name-column {
+        color: #212529;
+        font-weight: 500;
+      }
+
+      .phone-column {
+        color: #6c757d;
+        text-align: right;
+      }
+
+      // Remove the last row's bottom border
+      .ant-table-tbody > tr:last-child > td {
+        border-bottom: none;
+      }
+    }
+
+    // Override antd table header cell styles
+    .ant-table-thead > tr > th:first-child {
+      text-align: left;
+    }
+
+    .ant-table-thead > tr > th:last-child {
+      text-align: right;
+    }
+
+    // Remove default hover background
+    .ant-table-tbody > tr.ant-table-row:hover > td {
+      background: transparent;
+    }
+  }
+}

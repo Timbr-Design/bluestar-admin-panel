@@ -12,4 +12,5 @@ export const RouteName = {
   VEHICLE_EXPENSE: "/vehicle-expense",
   AVAILABILITY: "/availability",
   VEHICLE_TRACKER: "/vehicle-tracker",
+  SETTINGS: "/settings",
 };

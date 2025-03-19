@@ -1,4 +1,6 @@
 /* eslint-disable */
+// Single Booking page with all the Duties of that Booking in it.
+
 import { EditFilled, SearchOutlined } from "@ant-design/icons";
 import { Input, DatePicker, Button, Drawer, Form } from "antd";
 import { ChangeEvent, useEffect } from "react";

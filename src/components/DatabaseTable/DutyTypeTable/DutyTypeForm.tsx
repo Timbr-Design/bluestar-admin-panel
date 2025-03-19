@@ -8,8 +8,8 @@ import {
   updateDutyType,
   addDutyType,
   setViewContentDatabase,
-  getVehicleGroupById,
 } from "../../../redux/slices/databaseSlice";
+import { capitalize } from "../../../helper";
 import { debounce } from "lodash";
 import apiClient from "../../../utils/configureAxios";
 import SecondaryBtn from "../../SecondaryBtn";
@@ -37,69 +37,12 @@ interface VehicleGroupName {
   name: string;
 }
 
-type NotificationType = "success" | "info" | "warning" | "error";
-
-const rowsArray = [
-  {
-    vehicleGroup: "Swift Dzire/Etios",
-    baseRate: 2,
-    extraKmRate: 3,
-    extraHrRate: 4,
-  },
-  {
-    vehicleGroup: "Toyota Innova",
-    baseRate: 2,
-    extraKmRate: 3,
-    extraHrRate: 4,
-  },
-  {
-    vehicleGroup: "Mini hatchbacks",
-    baseRate: 2,
-    extraKmRate: 3,
-    extraHrRate: 4,
-  },
-];
-
-export const useVehicleGroupNames = (ids: string[]) => {
-  const [names, setNames] = useState<VehicleGroupName[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchVehicleGroupNames = async () => {
-      try {
-        setLoading(true);
-        const promises = ids.map((id) =>
-          apiClient
-            .get(`/database/vehicle-group/${id}`)
-            .then((response) => ({ id, name: response.data.name }))
-        );
-        const results = await Promise.all(promises);
-        setNames(results);
-      } catch (err) {
-        setError("Failed to fetch vehicle group names");
-        console.error("Error fetching vehicle group names:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (ids.length > 0) {
-      fetchVehicleGroupNames();
-    } else {
-      setNames([]);
-      setLoading(false);
-    }
-  }, [ids]);
-
-  return { names, loading, error };
-};
-
 const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
   const [items, setItems] = useState(DUTY_TYPES_TYPE);
   const [value, setValue] = useState("P2P");
-  const [typename, setTypeName] = useState("");
   const [thresholdKM, setThresholdKM] = useState<number>(0);
+  const [ratePerKM, setRatePerKM] = useState<number>();
+  const [vehicleGroup, setVehicleGroup] = useState<string>("");
   const [api, contextHolder] = notification.useNotification();
   const dispatch = useAppDispatch();
   const [dutyType, setDutyType] = useState("");
@@ -113,7 +56,31 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
     viewContentDatabase,
   } = useAppSelector((state) => state.database);
   const [vehicleGroupDataArray, setVehicleGroupDataArray] = useState<any[]>([]);
-  // const { names, loading, error } = useVehicleGroupNames(vehicleGroupIds);
+  const [data, setData] = useState<RateData[]>([
+    {
+      key: "o-6",
+      hours: "0 - 6 hours",
+      baseRate: 0,
+    },
+    {
+      key: "6-12",
+      hours: "6 - 12 hours",
+      baseRate: 0,
+    },
+    {
+      key: "12+",
+      hours: "12+ hours",
+      baseRate: 0,
+    },
+  ]);
+
+  const handleBaseRateChange = (value: number | null, key: string) => {
+    setData((prevData) =>
+      prevData.map((item) =>
+        item.key === key ? { ...item, baseRate: value ?? 0 } : item
+      )
+    );
+  };
 
   useEffect(() => {
     dispatch(getVehicleGroup({ page: "1", search: "", limit: 10 }));
@@ -132,9 +99,35 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
       });
 
       setVehicleGroupDataArray(tempArr);
-      setDutyType(selectedDutyType?.data?.type);
-      setName(selectedDutyType?.data?.name);
+      setDutyType(capitalize(selectedDutyType?.data?.category));
+      setName(selectedDutyType?.data?.dutyTypeName);
       setValue(selectedDutyType?.data?.secondaryType);
+
+      if (capitalize(selectedDutyType?.data?.category) === "Custom") {
+        setThresholdKM(selectedDutyType?.data?.customDutyType?.thresholdKm);
+        setVehicleGroup(selectedDutyType?.data?.customDutyType?.vehicleGroupId);
+        setRatePerKM(selectedDutyType?.data?.ratePerKm);
+        setData([
+          {
+            key: "o-6",
+            hours: "0 - 6 hours",
+            baseRate:
+              selectedDutyType?.data?.customDutyType?.rateBasePerHour["o-6"],
+          },
+          {
+            key: "6-12",
+            hours: "6 - 12 hours",
+            baseRate:
+              selectedDutyType?.data?.customDutyType?.rateBasePerHour["6-12"],
+          },
+          {
+            key: "12+",
+            hours: "12+ hours",
+            baseRate:
+              selectedDutyType?.data?.customDutyType?.rateBasePerHour["12+"],
+          },
+        ]);
+      }
     } else {
       const tempArr = vehicleGroupData?.data?.map((data: any) => {
         return {
@@ -154,16 +147,15 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
     setDutyType(value);
   };
 
+  const handleVehicleGroupChange = (value: string) => {
+    setVehicleGroup(value);
+  };
   const onChange = (e: RadioChangeEvent) => {
     setValue(e.target.value);
   };
 
   const handleNameChange = (e: any) => {
     setName(e.target.value);
-  };
-
-  const handleTypeName = (e: any) => {
-    setTypeName(e.target.value);
   };
 
   const columnHeader = [
@@ -175,11 +167,77 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
 
   const handleSave = () => {
     if (Object.keys(selectedDutyType).length) {
-      dispatch(
-        updateDutyType({
-          payload: {
-            name,
-            type: dutyType,
+      if (capitalize(dutyType) === "Custom") {
+        const customDutyType = {
+          vehicleGroupId: vehicleGroup,
+          thresholdKm: thresholdKM,
+          ratePerKm: ratePerKM,
+          rateBasePerHour: {
+            "o-6": data[0]?.baseRate,
+            "6-12": data[1]?.baseRate,
+            "12+": data[2]?.baseRate,
+          },
+        };
+        dispatch(
+          updateDutyType({
+            payload: {
+              dutyTypeName: name,
+              category: "custom",
+              secondaryType: value,
+              customDutyType,
+            },
+            id: selectedDutyType?.data?._id,
+          })
+        );
+      } else {
+        dispatch(
+          updateDutyType({
+            payload: {
+              dutyTypeName: name,
+              category: dutyType,
+              secondaryType: value,
+              pricing: vehicleGroupDataArray?.map((data: any) =>
+                omit(
+                  {
+                    ...data,
+                    baseRate: Number(data.baseRate),
+                    extraKmRate: Number(data.extraKmRate),
+                    extraHrRate: Number(data.extraHrRate),
+                  },
+                  "name"
+                )
+              ),
+            },
+            id: selectedDutyType?.data?._id,
+          })
+        );
+      }
+    } else {
+      if (capitalize(dutyType) === "Custom") {
+        const customDutyType = {
+          vehicleGroupId: vehicleGroup,
+          thresholdKm: thresholdKM,
+          ratePerKm: ratePerKM,
+          rateBasePerHour: {
+            "o-6": data[0]?.baseRate,
+            "6-12": data[1]?.baseRate,
+            "12+": data[2]?.baseRate,
+          },
+        };
+
+        dispatch(
+          addDutyType({
+            dutyTypeName: name,
+            category: "custom",
+            secondaryType: value,
+            customDutyType,
+          })
+        );
+      } else {
+        dispatch(
+          addDutyType({
+            dutyTypeName: name,
+            category: dutyType,
             secondaryType: value,
             pricing: vehicleGroupDataArray?.map((data: any) =>
               omit(
@@ -192,29 +250,9 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                 "name"
               )
             ),
-          },
-          id: selectedDutyType?.data?._id,
-        })
-      );
-    } else {
-      dispatch(
-        addDutyType({
-          name,
-          type: dutyType,
-          secondaryType: value,
-          pricing: vehicleGroupDataArray?.map((data: any) =>
-            omit(
-              {
-                ...data,
-                baseRate: Number(data.baseRate),
-                extraKmRate: Number(data.extraKmRate),
-                extraHrRate: Number(data.extraHrRate),
-              },
-              "name"
-            )
-          ),
-        })
-      );
+          })
+        );
+      }
     }
   };
 
@@ -233,7 +271,11 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
   };
 
   const handleThresholdKM = (e: any) => {
-    setThresholdKM(e.target.value);
+    setThresholdKM(Number(e.target.value));
+  };
+
+  const handleRatePerKM = (e: any) => {
+    setRatePerKM(Number(e.target.value));
   };
 
   const getVehicleGroupValue = debounce((searchText: string) => {
@@ -245,32 +287,6 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
       );
     }
   }, 200);
-
-  const [data, setData] = useState<RateData[]>([
-    {
-      key: "1",
-      hours: "0 - 6 hours",
-      baseRate: 0,
-    },
-    {
-      key: "2",
-      hours: "6 - 12 hours",
-      baseRate: 0,
-    },
-    {
-      key: "3",
-      hours: "12+ hours",
-      baseRate: 0,
-    },
-  ]);
-
-  const handleBaseRateChange = (value: number | null, key: string) => {
-    setData((prevData) =>
-      prevData.map((item) =>
-        item.key === key ? { ...item, baseRate: value ?? 0 } : item
-      )
-    );
-  };
 
   const columns = [
     {
@@ -285,13 +301,14 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
       align: "right" as const,
       render: (value: number, record: RateData) => (
         <InputNumber
-          className={styles["base-rate-input"]}
+          className={"input-number"}
           value={value}
           onChange={(newValue) => handleBaseRateChange(newValue, record.key)}
           min={0}
-          precision={2}
-          bordered={false}
+          precision={0}
           placeholder="Enter rate"
+          controls={false}
+          disabled={viewContentDatabase}
         />
       ),
     },
@@ -345,8 +362,8 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
             <input
               className={styles.input}
               disabled={viewContentDatabase}
-              value={typename}
-              onChange={handleTypeName}
+              value={name}
+              onChange={handleNameChange}
               placeholder="Enter Type name"
             />
           </div>
@@ -363,12 +380,14 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                   label: option.name,
                 })
               )}
-              value={undefined}
+              value={vehicleGroup}
+              onChange={handleVehicleGroupChange}
               onSearch={(text) => getVehicleGroupValue(text)}
               placeholder="Search vehicle group"
               fieldNames={{ label: "label", value: "value" }}
               notFoundContent={<div>No search result</div>}
               filterOption={false}
+              disabled={viewContentDatabase}
             />
           </div>
           <div className={styles.typeContainer}>
@@ -378,8 +397,9 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
             </div>
             <input
               className={styles.input}
+              type="number"
               disabled={viewContentDatabase}
-              value={typename}
+              value={thresholdKM}
               onChange={handleThresholdKM}
               placeholder="Enter Threshold KMs"
             />
@@ -406,10 +426,21 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
             </p>
             <sup>*</sup>
           </div>
-          <div className={styles.text}>
-            <p>Rate per kilometer</p>
-            <sup>*</sup>
+          <div className={styles.typeContainer}>
+            <div className={styles.text}>
+              <p>Rate per kilometer</p>
+              <sup>*</sup>
+            </div>
+            <input
+              type="number"
+              className={styles.input}
+              disabled={viewContentDatabase}
+              value={ratePerKM}
+              onChange={handleRatePerKM}
+              placeholder="Enter Rate per KM"
+            />
           </div>
+
           <div className={styles.radio}>
             <Radio.Group
               onChange={onChange}

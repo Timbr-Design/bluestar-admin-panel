@@ -15,6 +15,10 @@
         top: 1rem;
         right: 1rem;
         color: red;
+        border: none !important;
+        width: 20px;
+        height: 20px;
+        background-color: none;
       }
     }
     .addPassengerButton {
@@ -71,4 +75,18 @@
   background-color: white;
   border: 1px solid gray;
   // padding: 1rem;
+}
+
+.passenger-switch {
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+  
+  &__label {
+    color: #344054;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 20px;
+  }
 }

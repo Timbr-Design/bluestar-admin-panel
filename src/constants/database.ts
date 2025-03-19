@@ -58,16 +58,6 @@ export const DATABASE_ITEMS = [
 
 export const DUTY_TYPES = [
   {
-    title: "Name",
-    dataIndex: "name",
-    className: "custom-header", // CSS class for header
-  },
-  {
-    title: "Type",
-    dataIndex: "type",
-    className: "custom-column",
-  },
-  {
     title: "Max. Kilometers",
     dataIndex: "max_kilometers",
     className: "custom-column",

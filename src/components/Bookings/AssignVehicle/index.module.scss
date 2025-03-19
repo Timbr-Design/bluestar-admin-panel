@@ -1,0 +1,158 @@
+.duty-details-container {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+// Duty Info Section
+.duty-info-section {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.duty-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.duty-info-label {
+  font-size: 14px;
+  color: #344054;
+  font-weight: 500;
+}
+
+.duty-info-value {
+  font-size: 14px;
+  color: #667085;
+  text-align: right;
+}
+
+// Vehicles Section
+.vehicles-section {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.vehicles-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.car-icon {
+  font-size: 24px;
+  color: #667085;
+  margin-right: 12px;
+}
+
+.vehicles-title-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.vehicles-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #344054;
+  margin-bottom: 4px;
+}
+
+.vehicles-subtitle {
+  font-size: 14px;
+  color: #667085;
+}
+
+// Vehicles Table Styling
+.vehicles-table {
+  .ant-table {
+    font-size: 14px;
+  }
+
+  .ant-table-thead > tr > th {
+    background-color: #f9fafb;
+    color: #344054;
+    font-weight: 500;
+    padding: 12px 24px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ant-table-tbody > tr:last-child > td {
+    border-bottom: none;
+  }
+
+  .model-name {
+    font-weight: 500;
+    color: #344054;
+  }
+
+  .driver-avatar {
+    background-color: #f2f4f7;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .driver-name {
+    color: #667085;
+  }
+
+  .no-driver {
+    color: #667085;
+  }
+
+  .vehicle-number {
+    color: #667085;
+  }
+
+  // Row selection styling
+}
+
+// Remove default table hover effect
+.ant-table-tbody > tr.ant-table-row:hover > td {
+  background: transparent;
+}
+
+.driverNameContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .driverProfile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
+    width: 40px;
+    height: 40px;
+    border: 0.75px solid rgba(0, 0, 0, 0.08);
+    background-color: #f2f4f7;
+    color: #667085;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+  }
+  .driverName {
+    color: #101828;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+  }
+}

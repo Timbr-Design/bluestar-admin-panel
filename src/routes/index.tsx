@@ -13,6 +13,7 @@ import CreateBilling from "../pages/Billings/Create";
 import VehicleExpense from "../pages/VehicleExpense";
 import SingleBookings from "../pages/Bookings/SingleBookingDuties";
 import AllDuties from "../pages/Duties";
+import Settings from "../pages/Settings";
 import VehicleTrackerPage from "../pages/VehicleTracker";
 
 const AppRoutes = () => {
@@ -29,10 +30,10 @@ const AppRoutes = () => {
       <Route path={RouteName.BILLINGS} element={<Billings />} />
       <Route path={RouteName.CREATE_INVOICE} element={<CreateBilling />} />
       <Route path={RouteName.CREATE_RECEIPT} element={<CreateBilling />} />
-      <Route
+      {/* <Route
         path={`${RouteName.DUTIES}/:bookingId`}
         element={<SingleBookings />}
-      />
+      /> */}
       <Route path={`${RouteName.DUTIES}`} element={<AllDuties />} />
       <Route
         path={`${RouteName.VEHICLE_TRACKER}`}
@@ -41,6 +42,7 @@ const AppRoutes = () => {
       <Route path={RouteName.AVAILABILITY} element={<Availability />} />
       <Route path={RouteName.VEHICLE_EXPENSE} element={<VehicleExpense />} />
       <Route path={RouteName.DRIVERS} element={<DriversAttendancePayroll />} />
+      <Route path={`${RouteName.SETTINGS}`} element={<Settings />} />
     </Routes>
   );
 };

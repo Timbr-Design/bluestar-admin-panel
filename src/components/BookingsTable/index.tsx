@@ -256,9 +256,10 @@ const BookingsTable = () => {
       title: "Status",
       dataIndex: "bookingStatus",
       key: "bookingStatus",
-      // render: (data: any) => {
-      //   return <BookingsStates status={data.toLowerCase()} />;
-      // },
+      render: (_, record) => {
+        const status = record?.status;
+        return <BookingsStates status={status} />;
+      },
     },
     {
       title: "",
