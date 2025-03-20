@@ -35,6 +35,7 @@ export const BOOKINGS_DUTY_TABS = [
   { id: 4, name: "Completed", type: "Completed" },
   { id: 5, name: "Billed", type: "Billed" },
   { id: 6, name: "Cancelled", type: "Cancelled" },
+  { id: 7, name: "Needs attention", type: "Needs attention" },
 ];
 
 export const BOOKINGS_TABLE = [

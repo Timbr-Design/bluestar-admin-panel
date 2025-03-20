@@ -1,7 +1,29 @@
 /* eslint-disable */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import apiClient from "../../utils/configureAxios";
+import { IBookingResponse } from "../../types/booking";
 
-const initialState = {
+interface IDutiesState {
+  isViewDrawerOpen: boolean;
+  duties: IBookingResponse[];
+  filters: {
+    status: string;
+    search: string;
+  };
+  currentSelectedDuties: IBookingResponse | {};
+  dutiesState: {
+    status: "idle" | "loading" | "succeeded" | "failed";
+    loading: boolean;
+    error: string;
+  };
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+  };
+}
+
+const initialState: IDutiesState = {
   isViewDrawerOpen: false,
   duties: [],
   filters: {
@@ -12,66 +34,32 @@ const initialState = {
   dutiesState: { status: "idle", loading: false, error: "" },
   pagination: {
     total: 0,
-    page: 0,
+    page: 1,
     limit: 10,
   },
 };
 
+interface IGetDutiesParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+}
+
 export const getDuties = createAsyncThunk(
   "duties/getDuties",
-  async (params: any) => {
-    // const response = await apiClient.get("/auth/admin/login", { params });
-    // return response.data;
-
-    return {
-      total: 10,
-      page: 1,
-      limit: 10,
-      data: [
-        {
-          _id: "670bc8047ee5c8eb784ae10e",
-          customBookingId: "hkhekhewkjw",
-          customerId: {
-            _id: "66de14c441dbbf838fb9c329",
-            name: "Pratham",
-          },
-          bookedBy: {
-            name: "Arunava Modak 2",
-            phoneNumber: "1234567890",
-            email: "a@gamil.com",
-          },
-          passengers: [
-            {
-              name: "Danish Bhai",
-              phone: 1234567890,
-            },
-          ],
-          vehicleGroupId: {
-            _id: "66dd5588f99ce9a75770a2f0",
-            name: "new 33445",
-          },
-          dutyTypeId: {
-            _id: "66f191ca76e4cc284bdf23c7",
-            name: "hello world 1",
-          },
-          assignAlternateVehicles: false,
-          reportingAddress: "https://maps.app.goo.gl/4yJeXcy87uEagQug6",
-          dropAddress: "https://maps.app.goo.gl/4yJeXcy87uEagQug6",
-          isAirportBooking: true,
-          duration: {
-            startTime: "2024-09-02T10:30:00.000Z",
-            endTime: "2024-09-02T10:30:00.000Z",
-            startBefore: "1",
-          },
-          operatorNotes: "",
-          driverNotes: "",
-          isUnconfirmed: false,
-          isDeleted: false,
-          bookingStatus: "Booked",
-          __v: 0,
-        },
-      ],
-    };
+  async (params: IGetDutiesParams, { dispatch }) => {
+    const response = await apiClient.get("/booking/duty", { params });
+    if (response.status === 200) {
+      dispatch(
+        setPagination({
+          total: response.data.total,
+          page: response.data.page,
+          limit: response.data.limit,
+        })
+      );
+      return response.data;
+    }
   }
 );
 
@@ -88,14 +76,18 @@ export const dutiesSlice = createSlice({
     setIsViewDrawerOpen: (state) => {
       state.isViewDrawerOpen = true;
     },
-
     setIsViewDrawerClose: (state) => {
       state.isViewDrawerOpen = false;
+    },
+    setCurrentSelectedDuties: (state, action: PayloadAction<IBookingResponse>) => {
+      state.currentSelectedDuties = action.payload;
+    },
+    setPagination: (state, action: PayloadAction<{ total: number; page: number; limit: number }>) => {
+      state.pagination = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
-
       .addCase(getDuties.pending, (state) => {
         state.dutiesState.status = "loading";
         state.dutiesState.loading = true;
@@ -104,24 +96,22 @@ export const dutiesSlice = createSlice({
         state.dutiesState.status = "succeeded";
         state.dutiesState.loading = false;
         state.dutiesState.error = "";
-        state.duties = action.payload.data as any;
-        state.pagination = {
-          total: action.payload.total,
-          page: action.payload.page,
-          limit: action.payload.limit,
-        };
+        state.duties = action.payload.data;
       })
-      .addCase(getDuties.rejected, (state) => {
+      .addCase(getDuties.rejected, (state, action) => {
         state.dutiesState.status = "failed";
         state.dutiesState.loading = false;
-        state.dutiesState.error = "Error";
+        state.dutiesState.error = action.error.message || "Error fetching duties";
       });
   },
 });
+
 export const { actions, reducer } = dutiesSlice;
 export const {
   setAttendanceFilter,
   setIsViewDrawerClose,
   setIsViewDrawerOpen,
+  setCurrentSelectedDuties,
+  setPagination,
 } = actions;
 export default dutiesSlice.reducer;

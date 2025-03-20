@@ -8,6 +8,5 @@ export const formatEpochToDate = (epoch: number) => {
 };
 
 export function capitalize(str: string) {
-  console.log(str, "string");
   return str.charAt(0).toUpperCase() + str.slice(1);
 }

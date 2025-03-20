@@ -15,6 +15,7 @@ import {
   setIsAddEditDrawerOpen,
   setBookingFilter,
   setIsEditingBooking,
+  setCurrentSelectedBooking,
 } from "../../redux/slices/bookingSlice";
 import AssignVehicle from "../../components/Bookings/AssignVehicle";
 import AssignDriver from "../../components/Bookings/AssignDriver";
@@ -52,22 +53,35 @@ const BookingsTabs = () => {
 };
 
 const Bookings = () => {
-  // const [searchTerm, setSearchTerm] = useState<string>("");
-  // const debouncedSearch = useDebounce(searchTerm, 300);
   const dispatch = useAppDispatch();
-  const { q } = useAppSelector((state) => state.database);
-
-  const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    dispatch(setBookingFilter({ search: value }));
-  };
-
   const {
     isAddEditDrawerOpen,
     isEditingBooking,
     filters,
     currentSelectedBooking,
   } = useSelector((state: RootState) => state.booking);
+  const { q } = useAppSelector((state) => state.database);
+
+  const randomCustomBookingId = useMemo(() => {
+    return Math.floor(100000 + Math.random() * 900000);
+  }, []);
+
+  const [bookingValues, setBookingValues] = useState<any>({
+    bookingId: randomCustomBookingId.toString(),
+  });
+
+  useEffect(() => {
+    setBookingValues(currentSelectedBooking);
+  }, [currentSelectedBooking]);
+
+  const handleSetBookingValues = (values: any) => {
+    setBookingValues(values);
+  };
+
+  const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    dispatch(setBookingFilter({ search: value }));
+  };
 
   const [form] = Form.useForm();
   const [formStep, setFormSetp] = useState(1);
@@ -88,6 +102,7 @@ const Bookings = () => {
   const handleCloseSidePanel = () => {
     dispatch(setIsAddEditDrawerClose());
     dispatch(setIsEditingBooking(false));
+    dispatch(setCurrentSelectedBooking({}));
   };
 
   const primaryBtnText = useMemo(() => {
@@ -106,9 +121,15 @@ const Bookings = () => {
     }
   }, [formStep]);
 
-  const handlePrimaryBtn = () => {
+  const handlePrimaryBtn = async () => {
     if (formStep === 1) {
-      setFormSetp(2);
+      try {
+        await form.validateFields();
+        form.submit();
+        setFormSetp(2);
+      } catch (error) {
+        // Form validation failed
+      }
     } else if (formStep === 2) {
       setFormSetp(3);
     }
@@ -195,6 +216,7 @@ const Bookings = () => {
       </div>
       <Drawer
         destroyOnClose
+        width={630}
         size="large"
         closable={false} // Remove the default close button
         mask
@@ -211,7 +233,10 @@ const Bookings = () => {
         }
         footer={
           isEditingBooking ? (
-            <div className={styles.bottomContainer}>
+            <div
+              className={`${styles.bottomContainer}`}
+              style={{ height: "72px" }}
+            >
               <PrimaryBtn
                 btnText={"Edit"}
                 onClick={() => {}}
@@ -219,7 +244,10 @@ const Bookings = () => {
               />
             </div>
           ) : (
-            <div className={styles.bottomContainer}>
+            <div
+              className={`${styles.bottomContainer}`}
+              style={{ height: "72px" }}
+            >
               <SecondaryBtn
                 btnText={secondaryBtnText}
                 onClick={handleSecondaryBtn}
@@ -245,7 +273,8 @@ const Bookings = () => {
             <AddNewBookingForm
               form={form}
               isEditable={isEditingBooking}
-              initialData={currentSelectedBooking}
+              initialData={bookingValues}
+              handleSetBookingValues={handleSetBookingValues}
             />
           )}
           {formStep == 2 && <AssignVehicle />}

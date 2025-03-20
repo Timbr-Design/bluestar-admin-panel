@@ -81,7 +81,7 @@
   display: flex;
   gap: 12px;
   padding-top: 16px;
-  
+
   &__label {
     color: #344054;
     font-size: 14px;
@@ -89,4 +89,10 @@
     font-weight: 500;
     line-height: 20px;
   }
+}
+
+.timeRow {
+  display: flex;
+  gap: 16px;
+  padding-top: 16px;
 }

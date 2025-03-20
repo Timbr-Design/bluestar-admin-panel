@@ -37,11 +37,13 @@ interface AddNewBookingForm {
   initialData?: any;
   isEditable?: boolean;
   form: any;
+  handleSetBookingValues?: (values: any) => void;
 }
 const AddNewBookingForm = ({
   initialData,
   isEditable = true,
   form,
+  handleSetBookingValues,
 }: AddNewBookingForm) => {
   const { dutyTypeList, customersOption, vehicleGroupData } = useAppSelector(
     (state: RootState) => state.database
@@ -77,10 +79,6 @@ const AddNewBookingForm = ({
   };
   const [useThisPassenger, setUseThisPassenger] = useState<boolean>(false);
 
-  const randomCustomBookingId = useMemo(() => {
-    return Math.floor(100000 + Math.random() * 900000);
-  }, []);
-
   useEffect(() => {
     dispatch(
       getCustomer({
@@ -108,11 +106,9 @@ const AddNewBookingForm = ({
   }, []);
 
   useEffect(() => {
-    if (Object.keys(initialData).length) {
+    if (initialData?._id) {
       form.setFieldsValue({
-        _id: initialData?._id,
         bookingId: initialData?.bookingId,
-        bookingType: initialData?.bookingType,
         customerId: [
           {
             label: initialData?.customerId?.name,
@@ -120,7 +116,7 @@ const AddNewBookingForm = ({
           },
         ],
         bookedBy: initialData?.bookedBy,
-        passengers: initialData?.passengers,
+        passenger: initialData?.passenger,
         dutyTypeId: [
           {
             label: initialData?.dutyTypeId?.name,
@@ -136,7 +132,8 @@ const AddNewBookingForm = ({
         assignAlternateVehicles: initialData?.assignAlternateVehicles,
         reportingAddress: initialData?.reportingAddress,
         dropAddress: initialData?.dropAddress,
-        isAirportBooking: initialData?.isAirportBooking,
+        bookingType: initialData?.localBooking ? "Local" : "Outstation",
+        airportBooking: initialData?.airportBooking,
         duration: {
           startTime: initialData?.duration?.startTime
             ? dayjs(initialData?.duration?.startTime)
@@ -150,24 +147,23 @@ const AddNewBookingForm = ({
             : null,
         },
         operatorNotes: initialData?.operatorNotes,
-        driverNotes: initialData?.driverNotes,
-        isUnconfirmed: initialData?.isUnconfirmed,
-        isDeleted: initialData?.isDeleted,
-        bookingStatus: initialData?.bookingStatus,
-        address: initialData?.address,
+        notes: initialData?.notes,
+        status: initialData?.status,
       });
     } else {
-      form.setFieldsValue({ bookingId: randomCustomBookingId });
+      form.setFieldsValue({
+        bookingId: initialData?.bookingId,
+      });
     }
-  }, [initialData, randomCustomBookingId]);
+  }, [initialData]);
 
   const handleToggle = (checked: boolean) => {
     if (!useThisPassenger) {
       const bookedBy = form.getFieldValue("bookedBy") || [];
 
-      // Set the new passengers array with the new data
+      // Set the new passenger array with the new data
       form.setFieldsValue({
-        passengers: [
+        passenger: [
           {
             name: bookedBy.name,
             phoneNo: bookedBy.phoneNo,
@@ -176,7 +172,7 @@ const AddNewBookingForm = ({
       });
     } else {
       form.setFieldsValue({
-        passengers: [],
+        passenger: [],
       });
     }
     setUseThisPassenger(!useThisPassenger);
@@ -192,11 +188,12 @@ const AddNewBookingForm = ({
         console.log("Failed:", errorInfo);
       }}
       onFinish={(values) => {
-        if (isEditable && initialData._id) {
-          dispatch(updateBooking({ id: initialData._id, ...values }));
-        } else {
-          dispatch(addNewBooking(values));
-        }
+        console.log(values, "values");
+        handleSetBookingValues({
+          ...values,
+          localBooking: values?.bookingType === "Local",
+          outstationBooking: values?.bookingType === "Outstation",
+        });
       }}
       requiredMark={CustomizeRequiredMark}
       className={styles.form}
@@ -284,7 +281,7 @@ const AddNewBookingForm = ({
       {/*  passenger detail */}
       <Card className={styles.PassengerCardContainer}>
         <p>Passenger Details</p>
-        <Form.List name="passengers">
+        <Form.List name="passenger">
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }, index) => (
@@ -452,122 +449,143 @@ const AddNewBookingForm = ({
           </Radio.Group>
         </Form.Item>
       </Form.Item>
-      <Form.Item name="isAirportBooking" valuePropName="checked">
+      <Form.Item name="airportBooking" valuePropName="checked">
         <Checkbox>This is an airport booking</Checkbox>
       </Form.Item>
 
       <Card className={styles.durationDetailsCard}>
         <b>Duration Details </b>
         <Input.Group>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-                name={["duration", "startTime"]}
-                label="Start Date"
-              >
-                <CustomDatePicker
-                  disabledDate={(current) =>
-                    current && current < dayjs().startOf("day")
-                  }
-                  showHour={true}
-                  showMinute={true}
-                  showTime={true}
-                  format="DD-MM-YYYY hh:mm A"
-                  use12Hours
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-                name={["duration", "endTime"]}
-                label="End Date"
-              >
-                <CustomDatePicker
-                  showHour={true}
-                  showMinute={true}
-                  showTime={true}
-                  use12Hours
-                  disabledDate={(current) => {
-                    // Get the start time from form values
-                    const startTime = form.getFieldValue([
-                      "duration",
-                      "startTime",
-                    ]);
+          <div className={styles.timeRow}>
+            <Form.Item
+              style={{ width: "100%" }}
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+              name={["durationDetails", "startDate"]}
+              label="Start Date"
+            >
+              <CustomDatePicker
+                disabledDate={(current) =>
+                  current && current < dayjs().startOf("day")
+                }
+                showHour={true}
+                showMinute={true}
+                showTime={true}
+                format="DD-MM-YYYY hh:mm A"
+                use12Hours
+              />
+            </Form.Item>
+            <Form.Item
+              style={{ width: "100%" }}
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+              name={["durationDetails", "endDate"]}
+              label="End Date"
+            >
+              <CustomDatePicker
+                showHour={true}
+                showMinute={true}
+                showTime={true}
+                use12Hours
+                disabledDate={(current) => {
+                  // Get the start time from form values
+                  const startTime = form.getFieldValue([
+                    "durationDetails",
+                    "startDate",
+                  ]);
 
-                    return (
-                      current &&
-                      (current < dayjs(startTime || undefined).startOf("day") ||
-                        current < dayjs().startOf("day"))
-                    );
-                  }}
-                  format="DD-MM-YYYY hh:mm A"
-                />
-              </Form.Item>
-            </Col>
+                  return (
+                    current &&
+                    (current < dayjs(startTime || undefined).startOf("day") ||
+                      current < dayjs().startOf("day"))
+                  );
+                }}
+                format="DD-MM-YYYY hh:mm A"
+              />
+            </Form.Item>
+          </div>
+          <div className={styles.timeRow}>
+            <Form.Item
+              style={{ width: "100%" }}
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+              name={["durationDetails", "reportingTime"]}
+              label="Reporting Time"
+            >
+              <CustomDatePicker
+                disabledDate={(current) =>
+                  current && current < dayjs().startOf("day")
+                }
+                showHour={true}
+                showMinute={true}
+                showTime={true}
+                format="DD-MM-YYYY hh:mm A"
+                use12Hours
+              />
+            </Form.Item>
+            <Form.Item
+              style={{ width: "100%" }}
+              name={["durationDetails", "dropTime"]}
+              label="Est Drop Time"
+            >
+              <CustomDatePicker
+                showHour={true}
+                showMinute={true}
+                showTime={true}
+                use12Hours
+                disabledDate={(current) => {
+                  // Get the start time from form values
+                  const startTime = form.getFieldValue([
+                    "durationDetails",
+                    "reportingTime",
+                  ]);
 
-            {/* <Col span={12}>
-              <Form.Item label="Reporting Time">
-                <TimePicker
-                  use12Hours
-                  format="h:mm:ss A"
-                  style={{
-                    width: "100%",
-                  }}
-                  onChange={() => {}}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item label="Est Drop Time">
-                <TimePicker
-                  use12Hours
-                  format="h:mm:ss A"
-                  style={{
-                    width: "100%",
-                  }}
-                  onChange={() => {}}
-                />
-              </Form.Item>
-            </Col> */}
+                  return (
+                    current &&
+                    (current < dayjs(startTime || undefined).startOf("day") ||
+                      current < dayjs().startOf("day"))
+                  );
+                }}
+                format="DD-MM-YYYY hh:mm A"
+              />
+            </Form.Item>
+          </div>
 
-            <Col span={24}>
-              <Form.Item
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-                name={["duration", "startBefore"]}
-                label="Start from garage before (in mins)"
-              >
-                <TimePicker
-                  format="mm"
-                  style={{
-                    width: "100%",
-                  }}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+            name={["durationDetails", "garageStartTime"]}
+            label="Start from garage before (in mins)"
+            style={{ paddingTop: "16px" }}
+          >
+            <TimePicker
+              format="mm"
+              style={{
+                width: "100%",
+              }}
+            />
+          </Form.Item>
         </Input.Group>
       </Card>
       <Card className={styles.pricingDetailsCard}>
         <div className={styles.pricingDetails}>
           <b>Pricing Details</b>
-          <span>
+          {/* <span>
             <SyncOutlined />
             Fetch from Contract
-          </span>
+          </span> */}
         </div>
         <div>
           <Input.Group>
@@ -575,6 +593,7 @@ const AddNewBookingForm = ({
               <Col span={24}>
                 <Form.Item
                   name={["pricingDetails", "baseRate"]}
+                  style={{ paddingTop: "16px" }}
                   label="Base Rate"
                   rules={[
                     {
@@ -585,15 +604,36 @@ const AddNewBookingForm = ({
                   <InputNumber
                     style={{
                       width: "100%",
+                      textAlign: "left",
+                      border: "1px solid #d9d9d9",
+                      borderRadius: "6px",
+                      height: "40px",
                     }}
                     min={0}
                     placeholder="Prefilled based on Duty Type"
+                    precision={0}
+                    controls={false}
+                    onKeyDown={(e) => {
+                      if (
+                        !/[0-9]/.test(e.key) &&
+                        ![
+                          "Backspace",
+                          "Delete",
+                          "ArrowLeft",
+                          "ArrowRight",
+                          "Tab",
+                        ].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item
-                  name={["pricingDetails", "extraKmRate"]}
+                  name={["pricingDetails", "perExtraKm"]}
+                  style={{ paddingTop: "16px" }}
                   label="Per Extra KM Rate"
                   rules={[
                     {
@@ -604,9 +644,29 @@ const AddNewBookingForm = ({
                   <InputNumber
                     style={{
                       width: "100%",
+                      textAlign: "left",
+                      border: "1px solid #d9d9d9",
+                      borderRadius: "6px",
+                      height: "40px",
                     }}
                     min={0}
+                    precision={0}
+                    controls={false}
                     placeholder="Per Extra KM Rate"
+                    onKeyDown={(e) => {
+                      if (
+                        !/[0-9]/.test(e.key) &&
+                        ![
+                          "Backspace",
+                          "Delete",
+                          "ArrowLeft",
+                          "ArrowRight",
+                          "Tab",
+                        ].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                 </Form.Item>
               </Col>
@@ -617,34 +677,62 @@ const AddNewBookingForm = ({
                       required: true,
                     },
                   ]}
-                  name={["pricingDetails", "extraHrRate"]}
+                  name={["pricingDetails", "perExtraHour"]}
+                  style={{ paddingTop: "16px" }}
                   label="Per Extra Hour Rate"
                 >
                   <InputNumber
                     style={{
                       width: "100%",
+                      textAlign: "left",
+                      border: "1px solid #d9d9d9",
+                      borderRadius: "6px",
+                      height: "40px",
                     }}
                     min={0}
                     placeholder="Per Extra Hour Rate"
+                    precision={0}
+                    controls={false}
+                    onKeyDown={(e) => {
+                      if (
+                        !/[0-9]/.test(e.key) &&
+                        ![
+                          "Backspace",
+                          "Delete",
+                          "ArrowLeft",
+                          "ArrowRight",
+                          "Tab",
+                        ].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                 </Form.Item>
               </Col>
-
-              {/* <Col span={24}>
-                <Form.Item label="Bill to">
+              <Col span={24}>
+                <Form.Item
+                  label="Bill to"
+                  name={["pricingDetails", "billTo"]}
+                  style={{ paddingTop: "16px" }}
+                >
                   <Select
-                    placeholder="Company/Customer (Default)"
-                    style={{ width: "100%" }}
-                    onChange={() => {}}
-                    options={[
-                      { value: "jack", label: "Jack" },
-                      { value: "lucy", label: "Lucy" },
-                      { value: "Yiminghe", label: "yiminghe" },
-                      { value: "disabled", label: "Disabled", disabled: true },
-                    ]}
+                    placeholder="Select customer"
+                    allowClear
+                    showSearch
+                    options={customersOption?.map(
+                      (option: { value: any; label: any }) => ({
+                        value: option.value,
+                        label: option.label,
+                      })
+                    )}
+                    onSearch={(text) => getCustomerList(text)}
+                    fieldNames={{ label: "label", value: "value" }}
+                    filterOption={false}
+                    notFoundContent={<div>No search result</div>}
                   />
                 </Form.Item>
-              </Col> */}
+              </Col>
             </Row>
           </Input.Group>
         </div>
@@ -658,7 +746,7 @@ const AddNewBookingForm = ({
           <TextArea placeholder="Add a note...."></TextArea>
         </Form.Item>
         <Form.Item
-          name="driverNotes"
+          name="notes"
           label="Driver Notes"
           style={{ paddingTop: "16px" }}
         >

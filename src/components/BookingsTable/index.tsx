@@ -112,6 +112,7 @@ const BookingsTable = () => {
           </div>
         ),
         onClick: (e) => {
+          console.log(row, "row")
           e.domEvent.stopPropagation();
           dispatch(setCurrentSelectedBooking(row));
           dispatch(setIsEditingBooking(false));

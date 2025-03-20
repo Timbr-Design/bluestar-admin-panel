@@ -8,6 +8,7 @@ import dutiesSlice from "./slices/dutiesSlice";
 import vehicleTrackerSlice from "./slices/vehicleTrackerSlice";
 import bookingDutiesSlice from "./slices/bookingDutiesSlice";
 import billingSlice from "./slices/billingSlice";
+import loginSlice from "./slices/loginSlice";
 
 const store = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ const store = configureStore({
     vehicleTracker: vehicleTrackerSlice,
     bookingDuties: bookingDutiesSlice,
     billing: billingSlice,
+    login: loginSlice,
   },
 });
 

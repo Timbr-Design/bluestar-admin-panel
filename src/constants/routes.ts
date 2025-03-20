@@ -1,5 +1,6 @@
 /* eslint-disable */
 export const RouteName = {
+  LOGIN: "/login",
   HOME: "/",
   DASHBOARD: "/dashboard",
   BOOKINGS: "/bookings",

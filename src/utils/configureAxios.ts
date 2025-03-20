@@ -1,7 +1,7 @@
 /* eslint-disable */
 import axios from "axios";
 import { getCookie } from "../helper/getCookie";
-
+import { RouteName } from "../constants/routes";
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL,
 });
@@ -9,9 +9,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (request) => {
     let accessToken = getCookie("token");
-    let collabid = getCookie("collabid");
     if (accessToken) {
-      request.headers.collabid = collabid;
       request.headers.Authorization = `Bearer ${accessToken}`;
     }
     return request;
@@ -23,7 +21,20 @@ apiClient.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => Promise.reject(error)
+  async (error) => {
+    let accessToken = getCookie('token');
+    if (
+      error?.response?.status === 401 &&
+      accessToken !== '' &&
+      accessToken !== undefined
+    ) {
+      const change = new Date(0).toUTCString();
+
+      document.cookie = `token=;expires=${change};path=/`;
+      window.location.href = RouteName.LOGIN;
+    }
+    return Promise.reject(error);
+  }
 );
 
 export default apiClient;

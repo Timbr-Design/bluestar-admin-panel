@@ -31,7 +31,7 @@ dayjs.extend(utc);
 
 const { RangePicker } = DatePicker;
 
-const BookingsTabs = () => {
+const DutiesTabs = () => {
   const dispatch = useAppDispatch();
   const { filters } = useSelector((state: RootState) => state.bookingDuties);
 
@@ -80,27 +80,12 @@ const SingleBookingDuties = () => {
             Back to all bookings
           </a>
 
-          <div className={styles.heading}>{`Booking ID: ${bookingId}`}</div>
-          <div className={styles.text}>12/06/2024 to 18/06/2024</div>
-        </div>
-        <div className={styles.btnContainer}>
-          <SecondaryBtn
-            onClick={() => {
-              dispatch(setIsAddEditDrawerOpen());
-            }}
-            btnText="Add Duty"
-          />
-          <PrimaryBtn
-            LeadingIcon={EditFilled}
-            onClick={() => {
-              dispatch(setIsAddEditDrawerOpen());
-            }}
-            btnText="Edit"
-          />
+          <div className={styles.heading}>{`All Duties`}</div>
+          <div className={styles.text}>{"Manage all duties from here"}</div>
         </div>
       </div>
       <div className={styles.mainContainer}>
-        <BookingsTabs />
+        <DutiesTabs />
 
         <div className={styles.searchContainer}>
           <Input

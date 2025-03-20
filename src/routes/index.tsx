@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { Route, Routes } from "react-router-dom";
 import { RouteName } from "../constants/routes";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 //Page Components
 import Availability from "../pages/Availability";
@@ -15,34 +16,126 @@ import SingleBookings from "../pages/Bookings/SingleBookingDuties";
 import AllDuties from "../pages/Duties";
 import Settings from "../pages/Settings";
 import VehicleTrackerPage from "../pages/VehicleTracker";
+import LoginPage from "../pages/Login";
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path={RouteName.HOME} element={<Dashboard />} />
-      <Route path={`${RouteName.DATABASE}/:tabId`} element={<Database />} />
-      <Route path={`${RouteName.DATABASE}/:tabId/:id`} element={<Database />} />
-      <Route path={RouteName.BOOKINGS} element={<Bookings />} />
+      <Route path={RouteName.LOGIN} element={<LoginPage />} />
+      
+      {/* Protected Routes */}
+      <Route
+        path={RouteName.HOME}
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={`${RouteName.DATABASE}/:tabId`}
+        element={
+          <ProtectedRoute>
+            <Database />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={`${RouteName.DATABASE}/:tabId/:id`}
+        element={
+          <ProtectedRoute>
+            <Database />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={RouteName.BOOKINGS}
+        element={
+          <ProtectedRoute>
+            <Bookings />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path={`${RouteName.BOOKINGS}/:bookingId`}
-        element={<SingleBookings />}
+        element={
+          <ProtectedRoute>
+            <SingleBookings />
+          </ProtectedRoute>
+        }
       />
-      <Route path={RouteName.BILLINGS} element={<Billings />} />
-      <Route path={RouteName.CREATE_INVOICE} element={<CreateBilling />} />
-      <Route path={RouteName.CREATE_RECEIPT} element={<CreateBilling />} />
-      {/* <Route
-        path={`${RouteName.DUTIES}/:bookingId`}
-        element={<SingleBookings />}
-      /> */}
-      <Route path={`${RouteName.DUTIES}`} element={<AllDuties />} />
+      <Route
+        path={RouteName.BILLINGS}
+        element={
+          <ProtectedRoute>
+            <Billings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={RouteName.CREATE_INVOICE}
+        element={
+          <ProtectedRoute>
+            <CreateBilling />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={RouteName.CREATE_RECEIPT}
+        element={
+          <ProtectedRoute>
+            <CreateBilling />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={`${RouteName.DUTIES}`}
+        element={
+          <ProtectedRoute>
+            <AllDuties />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path={`${RouteName.VEHICLE_TRACKER}`}
-        element={<VehicleTrackerPage />}
+        element={
+          <ProtectedRoute>
+            <VehicleTrackerPage />
+          </ProtectedRoute>
+        }
       />
-      <Route path={RouteName.AVAILABILITY} element={<Availability />} />
-      <Route path={RouteName.VEHICLE_EXPENSE} element={<VehicleExpense />} />
-      <Route path={RouteName.DRIVERS} element={<DriversAttendancePayroll />} />
-      <Route path={`${RouteName.SETTINGS}`} element={<Settings />} />
+      <Route
+        path={RouteName.AVAILABILITY}
+        element={
+          <ProtectedRoute>
+            <Availability />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={RouteName.VEHICLE_EXPENSE}
+        element={
+          <ProtectedRoute>
+            <VehicleExpense />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={RouteName.DRIVERS}
+        element={
+          <ProtectedRoute>
+            <DriversAttendancePayroll />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={`${RouteName.SETTINGS}`}
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };
