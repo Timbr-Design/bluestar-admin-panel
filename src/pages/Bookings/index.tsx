@@ -62,13 +62,7 @@ const Bookings = () => {
   } = useSelector((state: RootState) => state.booking);
   const { q } = useAppSelector((state) => state.database);
 
-  const randomCustomBookingId = useMemo(() => {
-    return Math.floor(100000 + Math.random() * 900000);
-  }, []);
-
-  const [bookingValues, setBookingValues] = useState<any>({
-    bookingId: randomCustomBookingId.toString(),
-  });
+  const [bookingValues, setBookingValues] = useState<any>({});
 
   useEffect(() => {
     setBookingValues(currentSelectedBooking);
@@ -211,7 +205,6 @@ const Bookings = () => {
             </span>
           </div>
         </div>
-        {/* <Divider /> */}
         <BookingsTable />
       </div>
       <Drawer

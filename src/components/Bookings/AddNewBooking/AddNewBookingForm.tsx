@@ -50,6 +50,10 @@ const AddNewBookingForm = ({
   );
   const dispatch = useAppDispatch();
 
+  const randomCustomBookingId = useMemo(() => {
+    return Math.floor(100000 + Math.random() * 900000);
+  }, []);
+
   const getDutyTypeValue = (searchText: string) => {
     if (searchText) {
       dispatch(
@@ -152,7 +156,7 @@ const AddNewBookingForm = ({
       });
     } else {
       form.setFieldsValue({
-        bookingId: initialData?.bookingId,
+        bookingId: randomCustomBookingId.toString(),
       });
     }
   }, [initialData]);

@@ -72,6 +72,17 @@ const BookingsStates = ({ status }: IBookingsStates) => {
                 </div>
               </div>
             );
+          case BOOKINGS_STATUS.unconfirmed:
+            return (
+              <div className={cn(styles.container, styles.unconfirmed)}>
+                <div className={cn(styles.dot, styles.unconfirmed)}></div>
+                <div className={cn(styles.text, styles.unconfirmed)}>
+                  {"Unconfirmed"}
+                </div>
+              </div>
+            );
+          default:
+            return null;
         }
       })()}
     </>

@@ -146,18 +146,6 @@ const BookingsTable = () => {
     return items;
   }
 
-  const getCustomer = async (id: string) => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/database/customer/${id}`
-      );
-      return response.data.data.name;
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
-  };
-
   const columns: TableColumnsType<any> = [
     {
       title: "Start date",

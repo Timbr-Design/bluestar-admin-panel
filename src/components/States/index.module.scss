@@ -66,6 +66,12 @@
     width: 87px;
   }
 
+  &.unconfirmed {
+    border: 1px solid #f04438;
+    background: #fef3f2;
+    width: 110px;
+  }
+
   .dot {
     width: 6px;
     height: 6px;
@@ -101,6 +107,9 @@
     }
     &.confirmed {
       background-color: #17b26a;
+    }
+    &.unconfirmed {
+      background-color: #f04438;
     }
   }
 
@@ -138,6 +147,9 @@
     }
     &.confirmed {
       color: #067647;
+    }
+    &.unconfirmed {
+      color: #f04438; 
     }
   }
 }
