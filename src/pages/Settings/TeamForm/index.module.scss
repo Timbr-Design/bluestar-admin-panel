@@ -1,0 +1,93 @@
+@import "../../../styles/mixins";
+
+.formContainer {
+  height: 100%;
+  padding: 24px;
+  overflow-y: auto;
+
+  .formHeader {
+    margin-bottom: 24px;
+
+    .header {
+      font-size: 20px;
+      font-weight: 600;
+      color: #101828;
+      line-height: 30px;
+      margin-bottom: 8px;
+    }
+
+    .primaryText {
+      font-size: 14px;
+      color: #667085;
+      line-height: 20px;
+    }
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .typeContainer {
+      width: 100%;
+    }
+  }
+
+  .formActions {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+
+    .cancelButton {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid #d0d5dd;
+      background: #fff;
+      box-shadow:
+        0px 0px 0px 1px rgba(16, 24, 40, 0.18) inset,
+        0px -2px 0px 0px rgba(16, 24, 40, 0.05) inset,
+        0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+      width: 170px;
+      height: 44px;
+      color: #344054;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 24px;
+      cursor: pointer;
+      font-family: "Inter", sans-serif !important;
+    }
+
+    button[type="submit"] {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      background: #1890ff;
+      box-shadow:
+        0px 0px 0px 1px rgba(16, 24, 40, 0.18) inset,
+        0px -2px 0px 0px rgba(16, 24, 40, 0.05) inset,
+        0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+      width: 170px;
+      height: 44px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 24px;
+      cursor: pointer;
+      font-family: "Inter", sans-serif !important;
+    }
+  }
+}
+
+.searchContainer {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  cursor: pointer;
+
+  .search {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    width: 400px;
+  }
+}

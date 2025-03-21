@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ReactComponent as CrossIcon } from "../../../icons/x.svg";
 import { ReactComponent as PlusIcon } from "../../../icons/plus.svg";
 import SearchComponent from "../../../components/SearchComponent";
+import { ReactComponent as SearchIcon } from "../../../icons/SearchIcon.svg";
 import PrimaryBtn from "../../../components/PrimaryBtn";
 import type { TableProps, MenuProps } from "antd";
 import { ReactComponent as DeleteIconRed } from "../../../icons/trash-red.svg";
@@ -166,7 +167,7 @@ const Companies = () => {
             <SearchComponent
               value={""}
               onChange={searchHandler}
-              LeadingIcon={SearchComponent}
+              LeadingIcon={SearchIcon}
               placeholder={`Search by company name`}
             />
           </div>
@@ -208,6 +209,7 @@ const Companies = () => {
             ),
           };
         })}
+        className={styles.table}
       />
       <Modal show={openDeleteModal} onClose={handleCloseModal}>
         <div className={styles.deleteContainer}>

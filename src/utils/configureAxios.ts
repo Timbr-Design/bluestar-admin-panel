@@ -31,6 +31,9 @@ apiClient.interceptors.response.use(
       const change = new Date(0).toUTCString();
 
       document.cookie = `token=;expires=${change};path=/`;
+      document.cookie = `fullName=;expires=${change};path=/`;
+      document.cookie = `email=;expires=${change};path=/`;
+      document.cookie = `role=;expires=${change};path=/`;
       window.location.href = RouteName.LOGIN;
     }
     return Promise.reject(error);

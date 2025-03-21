@@ -48,9 +48,13 @@ export const login = createAsyncThunk(
       date.setTime(expiry);
       const change = date.toUTCString();
       const { data } = response;
-      const { token } = data;
+      const { token, user } = data;
+      const { fullName, email, role } = user;
 
       document.cookie = `token=${token};expires=${change};path=/`;
+      document.cookie = `fullName=${fullName};expires=${change};path=/`;
+      document.cookie = `email=${email};expires=${change};path=/`;
+      document.cookie = `role=${role};expires=${change};path=/`;  
 
       // Navigate to dashboard
       window.location.href = RouteName.HOME;
@@ -71,6 +75,10 @@ export const loginSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       document.cookie = `token=;expires=${change};path=/`;
+      document.cookie = `fullName=;expires=${change};path=/`;
+      document.cookie = `email=;expires=${change};path=/`;
+      document.cookie = `role=;expires=${change};path=/`;
+      window.location.href = RouteName.LOGIN;
     },
     clearError: (state) => {
       state.error = null;

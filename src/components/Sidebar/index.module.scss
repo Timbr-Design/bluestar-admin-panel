@@ -42,7 +42,77 @@
 
   .settings {
     position: absolute;
-    bottom: 1rem;
+    bottom: 5rem;
     cursor: pointer;
+  }
+
+  .profileContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: auto;
+    padding: 1rem 0;
+
+    .profileCircle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #1890ff;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 500;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  }
+}
+
+.popoverContent {
+  min-width: 200px;
+  padding: 8px 0;
+}
+
+.userInfo {
+  padding: 0 12px 8px;
+  border-bottom: 1px solid #f0f0f0;
+
+  .userName {
+    font-weight: 500;
+    font-size: 14px;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+
+  .userEmail {
+    font-size: 12px;
+    color: #666;
+  }
+}
+
+.logoutButton {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  height: auto;
+  font-size: 14px;
+  color: #ff4d4f;
+  border: none;
+  background: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #fff1f0;
+  }
+}
+
+:global(.profilePopover) {
+  .ant-popover-inner {
+    padding: 0;
+  }
+  
+  .ant-popover-inner-content {
+    padding: 0;
   }
 }
