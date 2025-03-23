@@ -1,20 +1,19 @@
 /* eslint-disable */
 
 import type React from "react";
-import { useState } from "react";
 import { Form, Input, Button, Card, Typography, Divider, message } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "../../hooks/store";
 import styles from "./index.module.scss";
-import { login } from "../../redux/slices/loginSlice";
+import { login, clearError } from "../../redux/slices/loginSlice";
 interface LoginFormValues {
   email: string;
   password: string;
 }
 
 const LoginPage: React.FC = () => {
-  const {loading} = useAppSelector((state) => state.login);
   const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector((state) => state.login);
   const { Title, Text } = Typography;
 
   const onFinish = async (values: LoginFormValues) => {
@@ -56,6 +55,7 @@ const LoginPage: React.FC = () => {
                 <UserOutlined className={styles["site-form-item-icon"]} />
               }
               placeholder="Email"
+              onChange={() => dispatch(clearError())}
               size="large"
             />
           </Form.Item>
@@ -68,9 +68,12 @@ const LoginPage: React.FC = () => {
             <Input.Password
               prefix={<LockOutlined className={styles.siteFormItemIcon} />}
               placeholder="Password"
+              onChange={() => dispatch(clearError())}
               size="large"
             />
           </Form.Item>
+          {error && <div className={styles.errorMessage}>{error}</div>}
+
 
           <Form.Item className={styles.loginFormButton}>
             <Button

@@ -14,6 +14,7 @@ interface ILoginResponse {
   success: boolean;
   token: string;
   user: IUser;
+  message?: string;
 }
 
 interface ILoginRequest {
@@ -39,29 +40,31 @@ const initialState: ILoginState = {
 
 export const login = createAsyncThunk(
   "login/login",
-  async (body: ILoginRequest) => {
-    const response = await apiClient.post("/auth/login", body);
-    if (response.data.success) {
-      // Store token in localStorage
-      const date = new Date();
-      const expiry = date.getTime() + 36000 * 10000000000;
-      date.setTime(expiry);
-      const change = date.toUTCString();
-      const { data } = response;
-      const { token, user } = data;
-      const { fullName, email, role } = user;
+  async (body: ILoginRequest, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.post("/auth/login", body);
+      if (response.data.success) {
+        const date = new Date();
+        const expiry = date.getTime() + 36000 * 10000000000;
+        date.setTime(expiry);
+        const change = date.toUTCString();
+        const { data } = response;
+        const { token, user } = data;
+        const { fullName, email, role } = user;
 
-      document.cookie = `token=${token};expires=${change};path=/`;
-      document.cookie = `fullName=${fullName};expires=${change};path=/`;
-      document.cookie = `email=${email};expires=${change};path=/`;
-      document.cookie = `role=${role};expires=${change};path=/`;  
+        document.cookie = `token=${token};expires=${change};path=/`;
+        document.cookie = `fullName=${fullName};expires=${change};path=/`;
+        document.cookie = `email=${email};expires=${change};path=/`;
+        document.cookie = `role=${role};expires=${change};path=/`;  
 
-      // Navigate to dashboard
-      window.location.href = RouteName.HOME;
-
-      return response.data;
+        window.location.href = RouteName.HOME;
+        return response.data;
+      } else {
+        return rejectWithValue(response.data.message || "Login failed");
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Login failed");
     }
-    throw new Error("Login failed");
   }
 );
 
@@ -102,7 +105,7 @@ export const loginSlice = createSlice({
       )
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Login failed";
+        state.error = action.payload as string;
       });
   },
 });
