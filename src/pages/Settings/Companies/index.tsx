@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ReactComponent as CrossIcon } from "../../../icons/x.svg";
 import { ReactComponent as PlusIcon } from "../../../icons/plus.svg";
 import SearchComponent from "../../../components/SearchComponent";
@@ -17,6 +17,7 @@ import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import CustomPagination from "../../../components/Common/Pagination";
 import styles from "./index.module.scss";
+import { getCompanies, getCompanyById, deleteCompany, clearCurrentCompany } from "../../../redux/slices/companySlice";
 
 interface ICompaniesData {
   key: string;
@@ -54,6 +55,9 @@ const companiesList = {
 };
 
 const Companies = () => {
+  const { companies, loading, error, pagination } = useAppSelector((state) => state.company);
+  const dispatch = useAppDispatch();
+  const [currentCompany, setCurrentCompany] = useState<any>(null);
   const [openSidePanel, setOpenSidePanel] = useState<boolean>(false);
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -65,8 +69,16 @@ const Companies = () => {
     },
   ];
 
+  useEffect(()=> {
+    dispatch(getCompanies({page: 1, limit: 10}))
+
+
+  }, [])
+
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     if (e.key === "1") {
+      dispatch(getCompanyById(currentCompany?._id))
+      setOpenSidePanel(true);
     }
   };
 
@@ -87,8 +99,14 @@ const Companies = () => {
     setOpenDeleteModal(false);
   };
 
-  const handleDeleteDriver = () => {
-    setOpenDeleteModal(false);
+  const handleDeleteCompany = () => {
+    if (currentCompany?._id) {
+      dispatch(deleteCompany(currentCompany._id)).then(() => {
+        setOpenDeleteModal(false);
+        setCurrentCompany(null)
+        dispatch(getCompanies({ page: pagination.page, limit: pagination.limit }));
+      });
+    }
   };
 
   const columns: TableProps<ICompaniesData>["columns"] = [
@@ -102,11 +120,11 @@ const Companies = () => {
     },
     {
       title: "Email",
-      dataIndex: "email",
+      dataIndex: "emailId",
     },
     {
       title: "Phone",
-      dataIndex: "phone",
+      dataIndex: "phoneNumber",
     },
     {
       title: "",
@@ -116,6 +134,7 @@ const Companies = () => {
         <div className={styles.editButton} onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => {
+              setCurrentCompany(record);
               setOpenDeleteModal(true);
             }}
             className={styles.deleteBtn}
@@ -123,7 +142,12 @@ const Companies = () => {
             <DeleteIcon />
           </button>
           <Dropdown menu={menuProps} trigger={["click"]}>
-            <button className={styles.button} onClick={() => {}}>
+            <button 
+              className={styles.button} 
+              onClick={() => {
+                setCurrentCompany(record);
+              }}
+            >
               <DotsHorizontal />
             </button>
           </Dropdown>
@@ -195,7 +219,7 @@ const Companies = () => {
         scroll={{
           x: 756,
         }}
-        dataSource={companiesList?.data?.map((data: any) => {
+        dataSource={companies?.map((data: any) => {
           return {
             ...data,
             key: data?._id,
@@ -220,25 +244,37 @@ const Companies = () => {
             <div className={styles.primaryText}>Remove company</div>
             <div className={styles.secondaryText}>
               Are you sure you want to remove this company?{" "}
-              <div className={styles.selectedSecondaryText}>{"XYZ"}</div>
+              <div className={styles.selectedSecondaryText}>
+                {currentCompany?.companyName || ""}
+              </div>
             </div>
           </div>
           <div className={styles.bottomBtns}>
             <button className={styles.cancelBtn} onClick={handleCloseModal}>
               Cancel
             </button>
-            <button className={styles.deleteBtn} onClick={handleDeleteDriver}>
-              Delete
+            <button 
+              className={styles.deleteBtn} 
+              onClick={handleDeleteCompany}
+              disabled={loading}
+            >
+              {loading ? "Deleting..." : "Delete"}
             </button>
           </div>
         </div>
       </Modal>
       {openSidePanel && (
         <div className={cn(styles.sidebar, { [styles.open]: openSidePanel })}>
-          <button className={styles.closeBtn} onClick={handleCloseSidePanel}>
+          <button 
+            className={styles.closeBtn} 
+            onClick={() => {
+              handleCloseSidePanel();
+              dispatch(clearCurrentCompany());
+            }}
+          >
             <CrossIcon />
           </button>
-          <CompanyForm />
+            <CompanyForm handleCloseSidePanel={handleCloseSidePanel} />
         </div>
       )}
     </div>

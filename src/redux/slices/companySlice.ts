@@ -66,7 +66,7 @@ const initialState: ICompanyState = {
 // Get Companies
 export const getCompanies = createAsyncThunk(
   "company/getCompanies",
-  async (params: { page: number; limit: number; status?: string }, { rejectWithValue }) => {
+  async (params: { page: number; limit: number; status?: string, search?: string }, { rejectWithValue }) => {
     try {
       const response = await apiClient.get<IGetCompaniesResponse>("/setting/company", { params });
       if (response.status === 200) {

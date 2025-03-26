@@ -451,3 +451,54 @@ input {
   height: 128px !important;
   overflow-y: auto;
 }
+
+.details-collapse {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  
+  .ant-collapse-header {
+    padding: 0 !important;
+  }
+  
+  .ant-collapse-content {
+    border-top: 1px solid #f0f0f0;
+  }
+  
+  .details-panel {
+    border-radius: 8px !important;
+    
+    .ant-collapse-header {
+      background-color: #f9fafb;
+    }
+  }
+  
+  .details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 16px;
+    color: #344054;
+    font-weight: 500;
+  }
+  
+  .details-arrow {
+    color: #667085;
+    font-size: 14px;
+    transition: transform 0.3s;
+  }
+  
+  // Rotate arrow when panel is expanded
+  .ant-collapse-item-active {
+    .details-arrow {
+      transform: rotate(180deg);
+    }
+  }
+  
+  .ant-collapse-content-box {
+    padding: 16px 24px;
+  }
+}
+
