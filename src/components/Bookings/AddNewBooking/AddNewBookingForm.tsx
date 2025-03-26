@@ -30,6 +30,7 @@ import {
   addNewBooking,
   updateBooking,
 } from "../../../redux/slices/bookingSlice";
+import { getCompanies } from "../../../redux/slices/companySlice";
 import dayjs from "dayjs";
 
 const { TextArea } = Input;
@@ -48,6 +49,7 @@ const AddNewBookingForm = ({
   const { dutyTypeList, customersOption, vehicleGroupData } = useAppSelector(
     (state: RootState) => state.database
   );
+  const { companies } = useAppSelector((state: RootState) => state.company);
   const dispatch = useAppDispatch();
 
   const randomCustomBookingId = useMemo(() => {
@@ -72,6 +74,15 @@ const AddNewBookingForm = ({
       );
     }
   };
+
+  const getCompanyValue = (searchText: string) => {
+    if (searchText) {
+      dispatch(
+        getCompanies({ search: searchText })
+      );
+    }
+  };
+
   const getVehicleGroupValue = (searchText: string) => {
     if (searchText) {
       dispatch(
@@ -107,6 +118,8 @@ const AddNewBookingForm = ({
         search: "",
       })
     );
+
+    dispatch(getCompanies({ page: 1, limit: 10 }));
   }, []);
 
   useEffect(() => {
@@ -724,13 +737,11 @@ const AddNewBookingForm = ({
                     placeholder="Select customer"
                     allowClear
                     showSearch
-                    options={customersOption?.map(
-                      (option: { value: any; label: any }) => ({
-                        value: option.value,
-                        label: option.label,
-                      })
-                    )}
-                    onSearch={(text) => getCustomerList(text)}
+                    options={companies?.map((option: any) => ({
+                      value: option._id,
+                      label: option.companyName,
+                    }))}
+                    onSearch={(text) => getCompanyValue(text)}
                     fieldNames={{ label: "label", value: "value" }}
                     filterOption={false}
                     notFoundContent={<div>No search result</div>}

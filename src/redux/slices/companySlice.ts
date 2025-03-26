@@ -67,7 +67,7 @@ const initialState: ICompanyState = {
 // Get Companies
 export const getCompanies = createAsyncThunk(
   "company/getCompanies",
-  async (params: { page: number; limit: number; status?: string, search?: string }, { rejectWithValue }) => {
+  async (params: { page?: number; limit?: number; status?: string, search?: string }, { rejectWithValue }) => {
     try {
       const response = await apiClient.get<IGetCompaniesResponse>("/setting/company", { params });
       if (response.status === 200) {
@@ -78,7 +78,7 @@ export const getCompanies = createAsyncThunk(
       return rejectWithValue(error.response?.data?.message || "Failed to fetch companies");
     }
   }
-);
+);  
 
 // Get Company by ID
 export const getCompanyById = createAsyncThunk(

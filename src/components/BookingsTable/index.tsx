@@ -222,24 +222,19 @@ const BookingsTable = () => {
       dataIndex: "vehicleGroupId",
       key: "vehicleGroupId",
       render: (_, record) => {
-        const vehicleGroupName = record?.vehicleGroup[0]?.name;
+        const vehicleGroupName = record?.vehicleGroup?.name;
 
         return <span>{vehicleGroupName}</span>;
       },
     },
     {
       title: "Duty type",
-      dataIndex: "dutyTypeId",
-      key: "dutyTypeId",
+      dataIndex: "dutyType",
+      key: "dutyType",
       render: (_, record) => {
-        const dutyTypeName = record?.dutyType?.name;
+        const dutyTypeName = record?.dutyType ? record?.dutyType?.dutyTypeName : "";
         return <span style={{}}>{dutyTypeName}</span>;
       },
-    },
-    {
-      title: "Duties",
-      dataIndex: "duties",
-      key: "duties",
     },
     {
       title: "Status",

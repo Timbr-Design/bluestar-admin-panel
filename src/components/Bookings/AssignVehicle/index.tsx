@@ -10,17 +10,41 @@ import styles from "./index.module.scss";
 
 const { Text } = Typography;
 
-interface DutyInfo {
+interface BookingInfo {
   label: string;
   value: string;
 }
 
-const AssignVehicle = () => {
+interface IAssignVehicle {  
+  form: any;
+}
+
+const AssignVehicle = ({ form }: IAssignVehicle) => {
   const dispatch = useAppDispatch();
   const [selectedVehicle, setSelectedVehicle] = useState({ _id: "" });
   const { vehicleList, q, pagination } = useAppSelector(
     (state) => state.database
   );
+
+  console.log(form, "form");
+
+  const bookingInfo: BookingInfo[] = [
+    { label: "Duty ID", value: form.getFieldValue("dutyTypeId") },
+    { label: "Start Date", value: new Date(form.getFieldValue("durationDetails").startDate).toLocaleDateString() },
+    { label: "End Date", value: new Date(form.getFieldValue("durationDetails").endDate).toLocaleDateString() },
+    { label: "Garage Start Time", value: "10:00" },
+    { label: "Reporting Time", value: new Date(form.getFieldValue("durationDetails").reportingTime).toLocaleTimeString() },
+    { label: "City", value: "Mumbai" },
+    { label: "Duty Type", value: form.getFieldValue("dutyTypeId") },
+    { label: "Vehicle Group", value: form.getFieldValue("vehicleGroupId")},
+    {
+      label: "Reporting Address",
+      value: form.getFieldValue("reportingAddress"),
+    },
+    {
+      label: "Drop Address",
+      value: form.getFieldValue("dropAddress"),
+    },]
 
   const getInitials = (name: string) => {
     const names = name.split(" "); // Split the name by spaces
@@ -29,25 +53,6 @@ const AssignVehicle = () => {
 
     return firstInitial + (lastInitial || ""); // Combine the initials
   };
-
-  const dutyInfoItems: DutyInfo[] = [
-    { label: "Duty ID", value: "123425-1" },
-    { label: "Start Date", value: "12/08/2024" },
-    { label: "End Date", value: "18/08/2024" },
-    { label: "Garage Start Time", value: "10:00" },
-    { label: "Reporting Time", value: "16:00" },
-    { label: "City", value: "Mumbai" },
-    { label: "Duty Type", value: "300KM per day" },
-    { label: "Vehicle Group", value: "Swift/Amaze/Dzire" },
-    {
-      label: "Reporting Address",
-      value: "1901 Thornridge Cir. Shiloh, Hawaii 81063",
-    },
-    {
-      label: "Drop Address",
-      value: "9921 Blackridge Cir. Bolars, Hawaii 81063",
-    },
-  ];
 
   const columns: ColumnsType<any> = [
     {
@@ -99,7 +104,7 @@ const AssignVehicle = () => {
   return (
     <div className={styles["duty-details-container"]}>
       <div className={styles["duty-info-section"]}>
-        {dutyInfoItems.map((item, index) => (
+        {bookingInfo.map((item, index) => (
           <div className={styles["duty-info-row"]} key={index}>
             <Text className={styles["duty-info-label"]}>{item.label}</Text>
             <Text className={styles["duty-info-value"]}>{item.value}</Text>

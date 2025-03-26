@@ -139,15 +139,6 @@ const Bookings = () => {
     }
   };
 
-  const checkValidation = async () => {
-    try {
-      await form.validateFields(); // Resolves if valid
-      return true;
-    } catch (error) {
-      return false;
-    }
-  };
-
   return (
     <div className={cn("container", styles.container)}>
       <div className={styles.headingContainer}>
@@ -270,7 +261,7 @@ const Bookings = () => {
               handleSetBookingValues={handleSetBookingValues}
             />
           )}
-          {formStep == 2 && <AssignVehicle />}
+          {formStep == 2 && <AssignVehicle form={form}/>}
           {formStep == 3 && <AssignDriver />}
         </div>
       </Drawer>
