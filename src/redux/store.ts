@@ -10,6 +10,7 @@ import bookingDutiesSlice from "./slices/bookingDutiesSlice";
 import billingSlice from "./slices/billingSlice";
 import loginSlice from "./slices/loginSlice";
 import companySlice from "./slices/companySlice";
+import teamMemberReducer from './slices/teamMemberSlice';
 
 const store = configureStore({
   reducer: {
@@ -23,6 +24,7 @@ const store = configureStore({
     billing: billingSlice,
     login: loginSlice,
     company: companySlice,
+    teamMember: teamMemberReducer,
   },
 });
 

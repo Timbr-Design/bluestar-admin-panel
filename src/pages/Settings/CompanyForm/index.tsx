@@ -7,18 +7,13 @@ import {
   Collapse,
   Select,
   notification,
-  Switch,
 } from "antd";
-import { ReactComponent as UploadIcon } from "../../../icons/uploadCloud.svg";
-import { ReactComponent as EditIcon } from "../../../icons/edit-icon.svg";
-import { ReactComponent as CrossIcon } from "../../../icons/x.svg";
 import { DownOutlined } from "@ant-design/icons";
 import { useState, useEffect, Fragment } from "react";
 import styles from "./index.module.scss";
 import CustomizeRequiredMark from "../../../components/Common/CustomizeRequiredMark";
 import UploadComponent from "../../../components/Upload";
 import SecondaryBtn from "../../../components/SecondaryBtn";
-import PrimaryBtn from "../../../components/PrimaryBtn";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import {
   createCompany,
@@ -40,12 +35,15 @@ const CompanyForm = ({ handleCloseSidePanel }: ICompanyForm) => {
   const [api, contextHolder] = notification.useNotification();
   const [signature, setSignature] = useState<IFile>();
 
-  // State for collapsible sections
-  const [showDetails, setShowDetails] = useState(false);
-  const [showGST, setShowGST] = useState(false);
-
   const handleSignature = (file: IFile) => {
+    console.log(file, "file");
     setSignature(file);
+    form.setFields([
+      {
+        name: "signature",
+        errors: [],
+      },
+    ]);
   };
 
   const customHeader = (
@@ -68,8 +66,6 @@ const CompanyForm = ({ handleCloseSidePanel }: ICompanyForm) => {
         notes: currentCompany.notes,
       });
       setSignature(currentCompany.signature);
-      setShowDetails(!!currentCompany.details);
-      setShowGST(!!currentCompany.details?.gstInNumber);
     }
   }, [currentCompany, form]);
 
@@ -81,21 +77,16 @@ const CompanyForm = ({ handleCloseSidePanel }: ICompanyForm) => {
       };
 
       if (currentCompany?._id) {
-        await dispatch(
-          updateCompany({
-            id: currentCompany._id,
-            companyData: formData,
-          })
-        ).unwrap();
+        await dispatch(updateCompany({
+          id: currentCompany._id,
+          companyData: formData
+        })).unwrap();
       } else {
         await dispatch(createCompany(formData)).unwrap();
       }
       handleCloseSidePanel();
-    } catch (error: any) {
-      api.error({
-        message: "Error",
-        description: error.message || "Something went wrong",
-      });
+    } catch (error) {
+      // Error notifications are handled in the slice
     }
   };
 
@@ -240,10 +231,24 @@ const CompanyForm = ({ handleCloseSidePanel }: ICompanyForm) => {
           </div>
 
           <div className={styles.typeContainer}>
-            <Form.Item label="Signature" name="signature">
+            <Form.Item
+              label="Attach Signature"
+              name="signature"
+              rules={[
+                {
+                  required: true,
+                  validator: async (_) => {
+                    if (!signature) {
+                      throw new Error("Please upload signature");
+                    }
+                  },
+                },
+              ]}
+            >
               <UploadComponent
                 handleUploadUrl={handleSignature}
                 isMultiple={false}
+                files={signature}
               />
             </Form.Item>
           </div>

@@ -2,15 +2,14 @@
 import { Upload, notification } from "antd";
 import { IFile } from "../../constants/database";
 import type { RcFile, UploadProps, UploadFile } from "antd/es/upload/interface";
-import apiClient from "../../utils/configureAxios";
 import axios from "axios";
 import { ReactComponent as UploadIcon } from "../../icons/uploadCloud.svg";
 import styles from "./index.module.scss";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 interface IUploadComponent {
   handleUploadUrl: (file: IFile) => void;
-  files?: IFile[];
+  files?: IFile;
   isMultiple: boolean;
 }
 
@@ -22,6 +21,24 @@ const UploadComponent = ({
   files,
 }: IUploadComponent) => {
   const { Dragger } = Upload;
+  const [fileList, setFileList] = useState<any[]>([]);
+
+  console.log(files, "files");
+
+  useEffect(() => {
+    if (files) {
+      setFileList([
+        {
+          uid: files._id || '-1',
+          name: files.fileUrl.split('/').pop() || 'file',
+          status: 'done',
+          url: files.fileUrl,
+          type: files.fileType,
+          size: files.fileSize,
+        },
+      ]);
+    }
+  }, [files]);
 
   const handleCustomRequest = async ({
     file,
@@ -50,28 +67,35 @@ const UploadComponent = ({
       );
       onSuccess(response.data); // Handle successful response
       console.log(response.data.files[0], "Response");
-      handleUploadUrl(response.data.files[0]);
+
+      handleUploadUrl({
+        fileSize: response.data.files[0]?.data?.fileSize,
+        fileType: response.data.files[0]?.data?.fileType,
+        fileUrl: response.data.files[0]?.data?.file,
+      });
     } catch (error) {
       onError(error);
       console.error(`${file.name} file upload failed`);
     }
   };
 
-  const defaultFileList: UploadFile[] = useMemo(() => {
-    return (
-      files?.map((file, index) => ({
-        uid: `${index}`,
-        name: `doc-${index}`, // File name
-        status: "done", // File status (done, uploading, error)
-        url: file.fileUrl, // URL if file is already uploaded
-      })) || []
-    );
-  }, [files]);
+
+  const handleChange = (info: any) => {
+    let newFileList = [...info.fileList];
+
+    if (!isMultiple) {
+      newFileList = newFileList.slice(-1);
+    }
+
+    setFileList(newFileList);
+  };
 
   const props: UploadProps = {
     name: "file",
     multiple: isMultiple,
     accept: ".png,.jpeg,.doc,.pdf",
+    fileList: fileList,
+    onChange: handleChange,
     customRequest: handleCustomRequest,
     beforeUpload: (file) => {
       const sizeInKbs = file.size / 1024;
@@ -82,7 +106,6 @@ const UploadComponent = ({
       }
       return true;
     },
-    defaultFileList,
   };
 
   return (

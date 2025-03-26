@@ -1,118 +1,166 @@
 /* eslint-disable */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Input, Select, Button } from "antd";
 import styles from "./index.module.scss";
 import CustomizeRequiredMark from "../../../components/Common/CustomizeRequiredMark";
+import { useAppDispatch, useAppSelector } from "../../../hooks/store";
+import {
+  createTeamMember,
+  updateTeamMember,
+} from "../../../redux/slices/teamMemberSlice";
+import SecondaryBtn from "../../../components/SecondaryBtn";
 
 const { Option } = Select;
+const { TextArea } = Input;
 
-const TeamForm = () => {
+interface ITeamForm {
+  handleCloseSidePanel: () => void;
+}
+
+const ROLES = ["owner", "admin", "managers", "staff"];
+
+const TeamForm = ({ handleCloseSidePanel }: ITeamForm) => {
   const [form] = Form.useForm();
+  const dispatch = useAppDispatch();
+  const { currentTeamMember, loading } = useAppSelector(
+    (state) => state.teamMember
+  );
 
-  const handleSubmitForm = (values: any) => {
-    console.log(values);
-    // Handle form submission
+  console.log(currentTeamMember, "currentTeamMember");
+
+  useEffect(() => {
+    if (currentTeamMember) {
+      form.setFieldsValue({
+        fullName: currentTeamMember.fullName,
+        email: currentTeamMember.email,
+        phoneNumber: currentTeamMember.phoneNumber,
+        address: currentTeamMember.address,
+        notes: currentTeamMember.notes,
+        role: currentTeamMember.role,
+      });
+    }
+  }, [currentTeamMember, form]);
+
+  const handleSubmit = async (values: any) => {
+    try {
+      if (currentTeamMember?._id) {
+        await dispatch(
+          updateTeamMember({
+            id: currentTeamMember._id,
+            teamMemberData: values,
+          })
+        ).unwrap();
+      } else {
+        await dispatch(createTeamMember(values)).unwrap();
+      }
+      handleCloseSidePanel();
+    } catch (error: any) {}
   };
 
   return (
     <div className={styles.formContainer}>
-      <div className={styles.formHeader}>
-        <div className={styles.header}>Add Team Member</div>
-        <div className={styles.primaryText}>
-          Add a new team member to your workspace
+      <div className={styles.container}>
+        <div className={styles.formHeader}>
+          <div className={styles.header}>
+            {currentTeamMember ? "Edit Team Member" : "Add Team Member"}
+          </div>
+          <div className={styles.primaryText}>
+            {currentTeamMember
+              ? "Update team member details"
+              : "Add a new team member to your workspace"}
+          </div>
         </div>
-      </div>
-      <Form
-        name="TeamForm"
-        layout="vertical"
-        onFinishFailed={(err) => {
-          console.log(err);
-        }}
-        onFinish={handleSubmitForm}
-        form={form}
-        initialValues={{
-          name: "",
-          email: "",
-          phone: "",
-          role: "",
-        }}
-        autoComplete="off"
-        requiredMark={CustomizeRequiredMark}
-      >
-        <div className={styles.form}>
+        <Form
+          name="TeamForm"
+          layout="vertical"
+          onFinish={handleSubmit}
+          form={form}
+          initialValues={{
+            fullName: "",
+            email: "",
+            phoneNumber: "",
+            address: "",
+            notes: "",
+            role: "",
+          }}
+          autoComplete="off"
+          requiredMark={CustomizeRequiredMark}
+          className={styles.form}
+        >
           <div className={styles.typeContainer}>
             <Form.Item
-              rules={[
-                {
-                  required: true,
-                  message: "Full name is required",
-                },
-              ]}
+              rules={[{ required: true, message: "Full name is required" }]}
               label="Full Name"
-              name="name"
+              name="fullName"
             >
-              <Input type="text" placeholder="Enter full name" />
+              <Input placeholder="Enter full name" />
             </Form.Item>
           </div>
+
           <div className={styles.typeContainer}>
             <Form.Item
               rules={[
-                {
-                  required: true,
-                  message: "Email is required",
-                },
-                {
-                  type: "email",
-                  message: "Please enter a valid email",
-                },
+                { required: true, message: "Email is required" },
+                { type: "email", message: "Please enter a valid email" },
               ]}
               label="Email"
               name="email"
             >
-              <Input type="email" placeholder="Enter email address" />
+              <Input placeholder="Enter email address" />
             </Form.Item>
           </div>
+
           <div className={styles.typeContainer}>
             <Form.Item
-              rules={[
-                {
-                  required: true,
-                  message: "Phone number is required",
-                },
-              ]}
+              rules={[{ required: true, message: "Phone number is required" }]}
               label="Phone Number"
-              name="phone"
+              name="phoneNumber"
             >
-              <Input type="tel" placeholder="Enter phone number" />
+              <Input placeholder="Enter phone number" />
             </Form.Item>
           </div>
+
           <div className={styles.typeContainer}>
             <Form.Item
-              rules={[
-                {
-                  required: true,
-                  message: "Role is required",
-                },
-              ]}
+              rules={[{ required: true, message: "Role is required" }]}
               label="Role"
               name="role"
             >
               <Select placeholder="Select role">
-                <Option value="admin">Admin</Option>
-                <Option value="manager">Manager</Option>
-                <Option value="user">User</Option>
-                <Option value="viewer">Viewer</Option>
+                {ROLES.map((role) => (
+                  <Option key={role} value={role}>
+                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
           </div>
-        </div>
-        <div className={styles.formActions}>
-          <Button className={styles.cancelButton}>Cancel</Button>
-          <Button type="primary" htmlType="submit">
-            Add Member
-          </Button>
-        </div>
-      </Form>
+
+          <div className={styles.typeContainer}>
+            <Form.Item label="Address" name="address">
+              <TextArea placeholder="Enter address" />
+            </Form.Item>
+          </div>
+
+          <div className={styles.typeContainer}>
+            <Form.Item label="Notes" name="notes">
+              <TextArea placeholder="Add notes" />
+            </Form.Item>
+          </div>
+        </Form>
+      </div>
+      <div className={styles.bottomContainer}>
+        <SecondaryBtn btnText="Cancel" onClick={handleCloseSidePanel} />
+        <Button
+          type="primary"
+          htmlType="submit"
+          onClick={() => form.submit()}
+          loading={loading}
+          className="primary-btn"
+        >
+          {currentTeamMember ? "Update" : "Save"}
+        </Button>
+      </div>
     </div>
   );
 };

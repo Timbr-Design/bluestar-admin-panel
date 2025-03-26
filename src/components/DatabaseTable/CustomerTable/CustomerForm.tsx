@@ -433,7 +433,7 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
             <UploadComponent
               handleUploadUrl={handleUploadUrl}
               isMultiple
-              files={filesArr}
+              files={filesArr[0]}
             />
           </div>
           <div className={styles.typeContainer}>

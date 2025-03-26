@@ -17,7 +17,12 @@ import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import CustomPagination from "../../../components/Common/Pagination";
 import styles from "./index.module.scss";
-import { getCompanies, getCompanyById, deleteCompany, clearCurrentCompany } from "../../../redux/slices/companySlice";
+import {
+  getCompanies,
+  getCompanyById,
+  deleteCompany,
+  clearCurrentCompany,
+} from "../../../redux/slices/companySlice";
 
 interface ICompaniesData {
   key: string;
@@ -55,7 +60,9 @@ const companiesList = {
 };
 
 const Companies = () => {
-  const { companies, loading, error, pagination } = useAppSelector((state) => state.company);
+  const { companies, loading, error, pagination } = useAppSelector(
+    (state) => state.company
+  );
   const dispatch = useAppDispatch();
   const [currentCompany, setCurrentCompany] = useState<any>(null);
   const [openSidePanel, setOpenSidePanel] = useState<boolean>(false);
@@ -69,15 +76,13 @@ const Companies = () => {
     },
   ];
 
-  useEffect(()=> {
-    dispatch(getCompanies({page: 1, limit: 10}))
-
-
-  }, [])
+  useEffect(() => {
+    dispatch(getCompanies({ page: 1, limit: 10 }));
+  }, []);
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     if (e.key === "1") {
-      dispatch(getCompanyById(currentCompany?._id))
+      dispatch(getCompanyById(currentCompany?._id));
       setOpenSidePanel(true);
     }
   };
@@ -103,8 +108,10 @@ const Companies = () => {
     if (currentCompany?._id) {
       dispatch(deleteCompany(currentCompany._id)).then(() => {
         setOpenDeleteModal(false);
-        setCurrentCompany(null)
-        dispatch(getCompanies({ page: pagination.page, limit: pagination.limit }));
+        setCurrentCompany(null);
+        dispatch(
+          getCompanies({ page: pagination.page, limit: pagination.limit })
+        );
       });
     }
   };
@@ -142,8 +149,8 @@ const Companies = () => {
             <DeleteIcon />
           </button>
           <Dropdown menu={menuProps} trigger={["click"]}>
-            <button 
-              className={styles.button} 
+            <button
+              className={styles.button}
               onClick={() => {
                 setCurrentCompany(record);
               }}
@@ -166,7 +173,7 @@ const Companies = () => {
   };
 
   const getInitials = (name: string) => {
-    const names = name.split(" "); // Split the name by spaces
+    const names = name?.split(" "); // Split the name by spaces
     const firstInitial = names[0]?.charAt(0).toUpperCase(); // Get the first letter of the first name
     const lastInitial = names[1]?.charAt(0).toUpperCase(); // Get the first letter of the last name (if exists)
 
@@ -234,6 +241,14 @@ const Companies = () => {
           };
         })}
         className={styles.table}
+        footer={() => (
+          <CustomPagination
+            total={pagination?.total ?? 0}
+            current={pagination?.page ?? 1}
+            pageSize={pagination.limit ?? 10}
+            onPageChange={(page: number) => {}}
+          />
+        )}
       />
       <Modal show={openDeleteModal} onClose={handleCloseModal}>
         <div className={styles.deleteContainer}>
@@ -253,8 +268,8 @@ const Companies = () => {
             <button className={styles.cancelBtn} onClick={handleCloseModal}>
               Cancel
             </button>
-            <button 
-              className={styles.deleteBtn} 
+            <button
+              className={styles.deleteBtn}
               onClick={handleDeleteCompany}
               disabled={loading}
             >
@@ -265,8 +280,8 @@ const Companies = () => {
       </Modal>
       {openSidePanel && (
         <div className={cn(styles.sidebar, { [styles.open]: openSidePanel })}>
-          <button 
-            className={styles.closeBtn} 
+          <button
+            className={styles.closeBtn}
             onClick={() => {
               handleCloseSidePanel();
               dispatch(clearCurrentCompany());
@@ -274,7 +289,7 @@ const Companies = () => {
           >
             <CrossIcon />
           </button>
-            <CompanyForm handleCloseSidePanel={handleCloseSidePanel} />
+          <CompanyForm handleCloseSidePanel={handleCloseSidePanel} />
         </div>
       )}
     </div>

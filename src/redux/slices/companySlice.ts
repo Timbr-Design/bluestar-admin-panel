@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import apiClient from "../../utils/configureAxios";
+import { notification } from 'antd';
 
 interface ICompanyDetails {
   businessType: string;
@@ -169,6 +170,9 @@ const companySlice = createSlice({
       .addCase(getCompanies.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        notification.error({
+          message: 'Error',
+        });
       })
       // Get Company by ID
       .addCase(getCompanyById.pending, (state) => {
@@ -193,10 +197,17 @@ const companySlice = createSlice({
         state.loading = false;
         state.companies.push(action.payload.data);
         state.error = null;
+        notification.success({
+          message: 'Success',
+          description: 'Company created successfully',
+        });
       })
       .addCase(createCompany.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        notification.error({
+          message: 'Error',
+        });
       })
       // Update Company
       .addCase(updateCompany.pending, (state) => {

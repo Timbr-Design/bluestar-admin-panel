@@ -386,4 +386,5 @@ export interface IFile {
   fileSize: number;
   fileType: string;
   fileUrl: string;
+  _id?: string;
 }
