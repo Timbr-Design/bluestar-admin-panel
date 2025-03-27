@@ -25,7 +25,7 @@ import {
   PushpinOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import axios from "axios";
+import _ from "lodash";
 import { ReactComponent as DotsHorizontal } from "../../icons/dots-horizontal.svg";
 import { ReactComponent as DeleteIcon } from "../../icons/trash.svg";
 import { ReactComponent as EyeIcon } from "../../icons/eye2.svg";
@@ -39,34 +39,32 @@ import Modal from "../Modal";
 import { useAppDispatch } from "../../hooks/store";
 import {
   setIsAddEditDrawerOpen,
-  setCurrentSelectedBooking,
   getBookings,
   setIsEditingBooking,
   deleteBooking,
+  clearCurrentSelectedBooking,
+  getBookingById,
+  updateBooking,
 } from "../../redux/slices/bookingSlice";
 import BookingsStates from "../States/BookingsStates";
 import { useSelector } from "react-redux";
 import { RootState } from "../../types/store";
-import apiClient from "../../utils/configureAxios";
 import { formatEpochToDate, capitalize } from "../../helper";
 import CustomPagination from "../Common/Pagination";
 import { RouteName } from "../../constants/routes";
 import { useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
-import row from "antd/es/row";
 
 const BookingsTable = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [conformedBookingModal, setConformedBookingModal] = useState(false);
   const {
-    isAddEditDrawerOpen,
     currentSelectedBooking,
     bookings,
     bookingStates,
     pagination,
     filters,
   } = useSelector((state: RootState) => state.booking);
-  const [currentSelectedBookingId, setCurrentBookingId] = useState("");
+  const [selectedBooking, setSelectedBooking] = useState<any>({});
 
   const dispatch = useAppDispatch();
 
@@ -81,10 +79,7 @@ const BookingsTable = () => {
           </div>
         ),
         onClick: (e) => {
-          // setCurrentSelectedBooking(row);
           e.domEvent.stopPropagation();
-          setCurrentBookingId(row?._id);
-          dispatch(setCurrentSelectedBooking(row));
           setConformedBookingModal(true);
         },
       },
@@ -92,8 +87,7 @@ const BookingsTable = () => {
         key: "2",
         onClick: (e) => {
           e.domEvent.stopPropagation();
-          dispatch(setCurrentSelectedBooking(row));
-          dispatch(setIsEditingBooking(true));
+          dispatch(setIsEditingBooking(false));
           dispatch(setIsAddEditDrawerOpen());
         },
         label: (
@@ -112,10 +106,9 @@ const BookingsTable = () => {
           </div>
         ),
         onClick: (e) => {
-          console.log(row, "row")
+          console.log(row, "row");
           e.domEvent.stopPropagation();
-          dispatch(setCurrentSelectedBooking(row));
-          dispatch(setIsEditingBooking(false));
+          dispatch(setIsEditingBooking(true));
           dispatch(setIsAddEditDrawerOpen());
         },
       },
@@ -139,7 +132,6 @@ const BookingsTable = () => {
         onClick: (e) => {
           e.domEvent.stopPropagation();
           setDeleteModal(true);
-          dispatch(setCurrentSelectedBooking(row));
         },
       },
     ];
@@ -232,7 +224,9 @@ const BookingsTable = () => {
       dataIndex: "dutyType",
       key: "dutyType",
       render: (_, record) => {
-        const dutyTypeName = record?.dutyType ? record?.dutyType?.dutyTypeName : "";
+        const dutyTypeName = record?.dutyType
+          ? record?.dutyType?.dutyTypeName
+          : "";
         return <span style={{}}>{dutyTypeName}</span>;
       },
     },
@@ -242,7 +236,7 @@ const BookingsTable = () => {
       key: "bookingStatus",
       render: (_, record) => {
         const status = record?.status;
-        return <BookingsStates status={status} />;
+        return <BookingsStates status={status} isConfirmed={record?.isConfirmed} />;
       },
     },
     {
@@ -260,7 +254,7 @@ const BookingsTable = () => {
               onClick={(e) => {
                 e.stopPropagation();
                 setDeleteModal(true);
-                dispatch(setCurrentSelectedBooking(row));
+                setSelectedBooking(row);
               }}
               className={styles.deleteBtn}
             >
@@ -273,7 +267,13 @@ const BookingsTable = () => {
               }}
               trigger={["click"]}
             >
-              <button className={styles.button}>
+              <button
+                className={styles.button}
+                onClick={() => {
+                  setSelectedBooking(row);
+                  dispatch(getBookingById({ id: row?._id }));
+                }}
+              >
                 <DotsHorizontal />
               </button>
             </Dropdown>
@@ -299,6 +299,8 @@ const BookingsTable = () => {
     });
   }
 
+  console.log(currentSelectedBooking, "currentSelectedBooking");
+
   // rowSelection object indicates the need for row selection
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: any[]) => {
@@ -316,17 +318,64 @@ const BookingsTable = () => {
 
   function handleCloseModal() {
     setDeleteModal(false);
-    dispatch(setCurrentSelectedBooking({}));
+    dispatch(clearCurrentSelectedBooking());
   }
   function handleCloseBookingModal() {
     setConformedBookingModal(false);
-    dispatch(setCurrentSelectedBooking({}));
+    dispatch(clearCurrentSelectedBooking());
   }
 
   useEffect(() => {
     dispatch(getBookings({ ...filters }));
   }, [filters.search, filters.status]);
   let navigate = useNavigate();
+
+  const handleConfirmBooking = () => {
+    handleCloseBookingModal();
+    const tempObj = _.omit(currentSelectedBooking, ["_id"]);
+
+    const bookingDataUpdate = {
+      ...tempObj,
+      isConfirmed: true,
+      customerId: currentSelectedBooking?.customer?._id,
+      bookedBy: _.omit(currentSelectedBooking?.bookedBy, ["_id"]),
+      passenger: currentSelectedBooking?.passenger.map(
+        (ele: { name: string; phoneNo: string; email: string }) => ({
+          name: ele.name,
+          phoneNo: ele.phoneNo,
+          email: ele.email,
+        })
+      ),
+      dutyTypeId: currentSelectedBooking?.dutyType?._id,
+      vehicleGroupId: [currentSelectedBooking?.vehicleGroup?._id],
+      vehicleId:
+        currentSelectedBooking?.vehicle !== undefined
+          ? currentSelectedBooking?.vehicle?._id
+          : null,
+      driverId:
+        currentSelectedBooking?.driver !== undefined
+          ? currentSelectedBooking?.driver?._id
+          : null,
+      durationDetails: _.omit(currentSelectedBooking?.durationDetails, ["_id"]),
+      pricingDetails: _.omit(currentSelectedBooking?.pricingDetails, [
+        "company",
+      ]),
+    };
+
+    dispatch(
+      updateBooking({
+        id: currentSelectedBooking?._id,
+        body: _.omit(bookingDataUpdate, [
+          "isActive",
+          "customer",
+          "dutyType",
+          "vehicleGroup",
+          "vehicle",
+          "driver",
+        ]),
+      })
+    );
+  };
 
   return (
     <>
@@ -375,7 +424,7 @@ const BookingsTable = () => {
           <div className={styles.textContainer}>
             <div className={styles.primaryText}>Delete booking</div>
             <div className={styles.secondaryText}>
-              {`Are you sure you want to delete this booking? Booking ID: ${currentSelectedBooking?.id}`}
+              {`Are you sure you want to delete this booking? Booking ID: ${selectedBooking?.bookingId}`}
             </div>
           </div>
           <div className={styles.bottomBtns}>
@@ -385,7 +434,7 @@ const BookingsTable = () => {
             <button
               className={styles.deleteBtn}
               onClick={() => {
-                dispatch(deleteBooking({ id: currentSelectedBooking._id }));
+                dispatch(deleteBooking({ id: selectedBooking._id }));
                 handleCloseModal();
               }}
             >
@@ -406,7 +455,7 @@ const BookingsTable = () => {
           <div className={styles.textContainer}>
             <div className={styles.primaryText}>Confirm booking</div>
             <div className={styles.secondaryText}>
-              {`Are you sure you want to confirm this booking? Booking ID: ${currentSelectedBookingId}`}
+              {`Are you sure you want to confirm this booking? Booking ID: ${selectedBooking?.bookingId}`}
             </div>
           </div>
           <div className={styles.bottomBtns}>
@@ -418,9 +467,7 @@ const BookingsTable = () => {
             </button>
             <button
               className={styles.confirmBtn}
-              onClick={() => {
-                handleCloseBookingModal();
-              }}
+              onClick={handleConfirmBooking}
             >
               Confirm
             </button>

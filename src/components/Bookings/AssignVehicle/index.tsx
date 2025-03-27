@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getVehicle } from "../../../redux/slices/databaseSlice";
 import { Typography, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
@@ -17,26 +17,29 @@ interface BookingInfo {
 
 interface IAssignVehicle {  
   form: any;
+  handleSetVehicle: (values: any) => void;
+  vehicle: any;
 }
 
-const AssignVehicle = ({ form }: IAssignVehicle) => {
+const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
   const dispatch = useAppDispatch();
   const [selectedVehicle, setSelectedVehicle] = useState({ _id: "" });
-  const { vehicleList, q, pagination } = useAppSelector(
+  const { vehicleList, q, pagination, selectedDutyType, selectedVehicleGroup } = useAppSelector(
     (state) => state.database
   );
 
-  console.log(form, "form");
+  useEffect(() => {
+    setSelectedVehicle(vehicle)
+  }, [vehicle]);
 
   const bookingInfo: BookingInfo[] = [
-    { label: "Duty ID", value: form.getFieldValue("dutyTypeId") },
+    { label: "Booking ID", value: form.getFieldValue("bookingId") },
     { label: "Start Date", value: new Date(form.getFieldValue("durationDetails").startDate).toLocaleDateString() },
     { label: "End Date", value: new Date(form.getFieldValue("durationDetails").endDate).toLocaleDateString() },
-    { label: "Garage Start Time", value: "10:00" },
+    { label: "Garage Start Time", value: new Date(form.getFieldValue("durationDetails").garageStartTime).toLocaleTimeString() },
     { label: "Reporting Time", value: new Date(form.getFieldValue("durationDetails").reportingTime).toLocaleTimeString() },
-    { label: "City", value: "Mumbai" },
-    { label: "Duty Type", value: form.getFieldValue("dutyTypeId") },
-    { label: "Vehicle Group", value: form.getFieldValue("vehicleGroupId")},
+    { label: "Duty Type", value: selectedDutyType?.data?.dutyTypeName },
+    { label: "Vehicle Group", value: selectedVehicleGroup?.data?.name},
     {
       label: "Reporting Address",
       value: form.getFieldValue("reportingAddress"),
@@ -91,6 +94,7 @@ const AssignVehicle = ({ form }: IAssignVehicle) => {
     return {
       onClick: () => {
         setSelectedVehicle(record);
+        handleSetVehicle(record);
       },
     };
   };

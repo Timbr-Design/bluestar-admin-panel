@@ -5,9 +5,10 @@ import styles from "./index.module.scss";
 
 interface IBookingsStates {
   status: string;
+  isConfirmed?: boolean;
 }
 
-const BookingsStates = ({ status }: IBookingsStates) => {
+const BookingsStates = ({ status, isConfirmed }: IBookingsStates) => {
   return (
     <>
       {(() => {
@@ -22,9 +23,9 @@ const BookingsStates = ({ status }: IBookingsStates) => {
 
           case BOOKINGS_STATUS.booked:
             return (
-              <div className={cn(styles.container, styles.booked)}>
-                <div className={cn(styles.dot, styles.booked)}></div>
-                <div className={cn(styles.text, styles.booked)}>{"Booked"}</div>
+              <div className={cn(styles.container, styles.booked, { [styles.isConfirmed]: isConfirmed })}>
+                <div className={cn(styles.dot, styles.booked, { [styles.isConfirmed]: isConfirmed })}></div>
+                <div className={cn(styles.text, styles.booked, { [styles.isConfirmed]: isConfirmed })}>{"Booked"}</div>
               </div>
             );
           case BOOKINGS_STATUS.cancelled:
@@ -45,30 +46,12 @@ const BookingsStates = ({ status }: IBookingsStates) => {
                 </div>
               </div>
             );
-          case BOOKINGS_STATUS["on-going"]:
+          case BOOKINGS_STATUS.onGoing:
             return (
               <div className={cn(styles.container, styles["on-going"])}>
                 <div className={cn(styles.dot, styles["on-going"])}></div>
                 <div className={cn(styles.text, styles["on-going"])}>
                   {"On-going"}
-                </div>
-              </div>
-            );
-          case BOOKINGS_STATUS.dispatched:
-            return (
-              <div className={cn(styles.container, styles.dispatched)}>
-                <div className={cn(styles.dot, styles.dispatched)}></div>
-                <div className={cn(styles.text, styles.dispatched)}>
-                  {"Dispatched"}
-                </div>
-              </div>
-            );
-          case BOOKINGS_STATUS.allotted:
-            return (
-              <div className={cn(styles.container, styles.allotted)}>
-                <div className={cn(styles.dot, styles.allotted)}></div>
-                <div className={cn(styles.text, styles.allotted)}>
-                  {"Allotted"}
                 </div>
               </div>
             );

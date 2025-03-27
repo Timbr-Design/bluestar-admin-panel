@@ -13,7 +13,12 @@ interface ContactData {
   phoneNumber: string;
 }
 
-const AssignDriver = () => {
+interface IAssignDriver {
+  handleSetDriver: (values: any) => void;
+  driver: any;
+}
+
+const AssignDriver = ({ handleSetDriver, driver }: IAssignDriver) => {
   const [selectedDriver, setSelectedDriver] = useState({ _id: "" });
   const dispatch = useAppDispatch();
   const { driverList, driverStates, deleteDriverStates, q, pagination } =
@@ -26,6 +31,10 @@ const AssignDriver = () => {
       })
     );
   }, [q]);
+
+  useEffect(() => {
+    setSelectedDriver(driver);
+  }, [driver]);
 
   const columns: ColumnsType<ContactData> = [
     {
@@ -47,6 +56,7 @@ const AssignDriver = () => {
     return {
       onClick: () => {
         setSelectedDriver(record);
+        handleSetDriver(record);
       },
     };
   };

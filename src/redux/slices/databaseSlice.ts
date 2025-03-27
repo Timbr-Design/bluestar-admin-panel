@@ -1010,6 +1010,54 @@ export const databaseSlice = createSlice({
         pagination: action.payload,
       };
     },
+    clearSelectedVehicleGroup: (state) => {
+      return {
+        ...state,
+        selectedVehicleGroup: {},
+      };
+    },
+    clearSelectedCustomer: (state) => {
+      return {
+        ...state,
+        selectedCustomer: {},
+      };
+    },
+    clearSelectedTax: (state) => {
+      return {
+        ...state,
+        selectedTax: {},
+      };
+    },
+    clearSelectedBankAccount: (state) => {
+      return {
+        ...state,
+        selectedBankAccount: {},
+      };
+    },
+    clearSelectedVehicle: (state) => {
+      return {
+        ...state,
+        selectedVehicle: {},
+      };
+    },
+    clearSelectedDriver: (state) => {
+      return {
+        ...state,
+        selectedDriver: {},
+      };
+    },
+    clearSelectedAllowance: (state) => {
+      return {
+        ...state,
+        selectedAllowance: {},
+      };
+    },
+    clearSelectedDutyType: (state) => {
+      return {
+        ...state,
+        selectedDutyType: {},
+      };
+    },
     setResetSelectedStates: (state) => {
       return {
         ...state,
@@ -1771,6 +1819,14 @@ export const {
   setPagination,
   setResetSelectedStates,
   setViewContentDatabase,
+  clearSelectedVehicleGroup,
+  clearSelectedCustomer,
+  clearSelectedTax,
+  clearSelectedBankAccount,
+  clearSelectedVehicle,
+  clearSelectedDriver,
+  clearSelectedAllowance,
+  clearSelectedDutyType,
 } = actions;
 
 export default databaseSlice.reducer;

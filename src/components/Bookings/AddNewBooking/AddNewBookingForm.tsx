@@ -19,17 +19,16 @@ import {
 import { DeleteOutlined, PlusOutlined, SyncOutlined } from "@ant-design/icons";
 import CustomizeRequiredMark from "../../Common/CustomizeRequiredMark";
 import CustomDatePicker from "../../Common/CustomDatePicker";
+import { BOOKINGS_STATUS } from "../../../constants/bookings";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import { RootState } from "../../../types/store";
 import {
   getAllDutyTypes,
   getCustomer,
+  getDutyTypeById,
   getVehicleGroup,
+  getVehicleGroupById,
 } from "../../../redux/slices/databaseSlice";
-import {
-  addNewBooking,
-  updateBooking,
-} from "../../../redux/slices/bookingSlice";
 import { getCompanies } from "../../../redux/slices/companySlice";
 import dayjs from "dayjs";
 
@@ -46,9 +45,8 @@ const AddNewBookingForm = ({
   form,
   handleSetBookingValues,
 }: AddNewBookingForm) => {
-  const { dutyTypeList, customersOption, vehicleGroupData } = useAppSelector(
-    (state: RootState) => state.database
-  );
+  const { dutyTypeList, customersOption, vehicleGroupData, currentDutyType } =
+    useAppSelector((state: RootState) => state.database);
   const { companies } = useAppSelector((state: RootState) => state.company);
   const dispatch = useAppDispatch();
 
@@ -77,9 +75,7 @@ const AddNewBookingForm = ({
 
   const getCompanyValue = (searchText: string) => {
     if (searchText) {
-      dispatch(
-        getCompanies({ search: searchText })
-      );
+      dispatch(getCompanies({ search: searchText }));
     }
   };
 
@@ -126,46 +122,58 @@ const AddNewBookingForm = ({
     if (initialData?._id) {
       form.setFieldsValue({
         bookingId: initialData?.bookingId,
-        customerId: [
+        customer: [
           {
-            label: initialData?.customerId?.name,
-            value: initialData?.customerId?._id,
+            label: initialData?.customer?.name,
+            value: initialData?.customer?._id,
           },
         ],
         bookedBy: initialData?.bookedBy,
         passenger: initialData?.passenger,
-        dutyTypeId: [
+        dutyType: [
           {
-            label: initialData?.dutyTypeId?.name,
-            value: initialData?.dutyTypeId?._id,
+            label: initialData?.dutyType?.dutyTypeName,
+            value: initialData?.dutyType?._id,
           },
         ],
-        vehicleGroupId: [
+        vehicleGroup: [
           {
-            label: initialData?.vehicleGroupId?.name,
-            value: initialData?.vehicleGroupId?._id,
+            label: initialData?.vehicleGroup?.name,
+            value: initialData?.vehicleGroup?._id,
           },
         ],
-        assignAlternateVehicles: initialData?.assignAlternateVehicles,
+        to: initialData?.to,
+        from: initialData?.from,
         reportingAddress: initialData?.reportingAddress,
         dropAddress: initialData?.dropAddress,
         bookingType: initialData?.localBooking ? "Local" : "Outstation",
         airportBooking: initialData?.airportBooking,
-        duration: {
-          startTime: initialData?.duration?.startTime
-            ? dayjs(initialData?.duration?.startTime)
+        durationDetails: {
+          startDate: initialData?.durationDetails?.startDate
+            ? dayjs(initialData?.durationDetails?.startDate)
             : null,
-          endTime: initialData?.duration?.endTime
-            ? dayjs(initialData.duration.endTime)
+          endDate: initialData?.durationDetails?.endDate
+            ? dayjs(initialData?.durationDetails?.endDate)
             : null,
-
-          startBefore: initialData?.duration?.startBefore
-            ? dayjs(initialData.duration.startBefore)
+          reportingTime: initialData?.durationDetails?.reportingTime
+            ? dayjs(initialData?.durationDetails?.reportingTime)
             : null,
+          dropTime: initialData?.durationDetails?.dropTime
+            ? dayjs(initialData?.durationDetails?.dropTime)
+            : null,
+          garageStartTime: initialData?.durationDetails?.garageStartTime
+            ? dayjs(initialData?.durationDetails?.garageStartTime)
+            : null,
+        },
+        pricingDetails: {
+          baseRate: initialData?.pricingDetails?.baseRate,
+          perExtraKm: initialData?.pricingDetails?.perExtraKm,
+          perExtraHour: initialData?.pricingDetails?.perExtraHour,
+          billTo: initialData?.pricingDetails?.billTo,
         },
         operatorNotes: initialData?.operatorNotes,
         notes: initialData?.notes,
-        status: initialData?.status,
+        isUnconfirmed: initialData?.status === BOOKINGS_STATUS.unconfirmed,
       });
     } else {
       form.setFieldsValue({
@@ -195,12 +203,35 @@ const AddNewBookingForm = ({
     setUseThisPassenger(!useThisPassenger);
   };
 
+  useEffect(() => {
+    dispatch(getDutyTypeById({ id: initialData?.dutyType?._id }));
+    dispatch(getVehicleGroupById({ id: initialData?.vehicleGroup?._id }));
+  }, [initialData]);
+
+  const handleDutyTypeChange = (value: string) => {
+    dispatch(getDutyTypeById({ id: value }));
+  };
+
+  const handleVehicleGroupChange = (value: string) => {
+    dispatch(getVehicleGroupById({ id: value }));
+  };
+
+  useEffect(() => {
+    if (currentDutyType?.category === "custom") {
+      form.setFieldsValue({
+        baseRate: currentDutyType?.customDutyType?.ratePerKm,
+        perExtraKm: currentDutyType?.customDutyType?.["12+"].perExtraKm,
+        perExtraHour: currentDutyType?.customDutyType?.perExtraHour,
+      });
+    }
+  }, [form.getFieldValue("vehicleGroup")]);
+
   return (
     <Form
       layout="vertical"
       form={form}
       name="control-hooks"
-      disabled={isEditable}
+      disabled={!isEditable}
       onFinishFailed={(errorInfo) => {
         console.log("Failed:", errorInfo);
       }}
@@ -223,7 +254,7 @@ const AddNewBookingForm = ({
         <Input type="text" disabled />
       </Form.Item>
       <Form.Item
-        name={"customerId"}
+        name={"customer"}
         rules={[{ required: true, message: "Please select Customer" }]}
         label="Customer"
         style={{ marginTop: "12px" }}
@@ -351,11 +382,7 @@ const AddNewBookingForm = ({
           )}
         </Form.List>
       </Card>
-      <Form.Item
-        name="dutyTypeId"
-        rules={[{ required: true }]}
-        label="Duty type"
-      >
+      <Form.Item name="dutyType" rules={[{ required: true }]} label="Duty type">
         <Select
           allowClear
           showSearch
@@ -366,13 +393,14 @@ const AddNewBookingForm = ({
             })
           )}
           onSearch={(text) => getDutyTypeValue(text)}
+          onChange={handleDutyTypeChange}
           placeholder="Select Duty type"
           fieldNames={{ label: "label", value: "value" }}
           notFoundContent={<div>No search result</div>}
         />
       </Form.Item>
       <Form.Item
-        name="vehicleGroupId"
+        name="vehicleGroup"
         rules={[{ required: true }]}
         label="Vehicle Group"
         style={{ paddingTop: "16px" }}
@@ -387,6 +415,7 @@ const AddNewBookingForm = ({
             })
           )}
           onSearch={(text) => getVehicleGroupValue(text)}
+          onChange={handleVehicleGroupChange}
           placeholder="Search vehicle group"
           fieldNames={{ label: "label", value: "value" }}
           notFoundContent={<div>No search result</div>}
@@ -410,9 +439,43 @@ const AddNewBookingForm = ({
 
       <Space></Space>
 
+      <div className={styles.locationContainer}>
+        <Form.Item
+          label="From (Service Location)"
+          name="from"
+          rules={[
+            {
+              required: true,
+              message: "Please enter the From location",
+            },
+            {
+              pattern:
+                /^(https:\/\/(www\.)?google\.(com|[a-z]{2})\/maps\/.+|https:\/\/maps\.app\.goo\.gl\/.+)/,
+              message: "Please enter a valid Google Maps URL!",
+            },
+          ]}
+          style={{ width: "100%" }}
+        >
+          <Input placeholder="Enter the location" />
+        </Form.Item>
+        <Form.Item
+          label="To"
+          name="to"
+          rules={[
+            {
+              pattern:
+                /^(https:\/\/(www\.)?google\.(com|[a-z]{2})\/maps\/.+|https:\/\/maps\.app\.goo\.gl\/.+)/,
+              message: "Please enter a valid Google Maps URL!",
+            },
+          ]}
+          style={{ width: "100%" }}
+        >
+          <Input placeholder="Enter the location" />
+        </Form.Item>
+      </div>
+
       <Form.Item
         rules={[
-          { required: true, message: "Please provide a Google Maps link!" },
           {
             pattern:
               /^(https:\/\/(www\.)?google\.(com|[a-z]{2})\/maps\/.+|https:\/\/maps\.app\.goo\.gl\/.+)/,
@@ -427,7 +490,6 @@ const AddNewBookingForm = ({
       <Form.Item
         name="dropAddress"
         rules={[
-          { required: true, message: "Please provide a Google Maps link!" },
           {
             pattern:
               /^(https:\/\/(www\.)?google\.(com|[a-z]{2})\/maps\/.+|https:\/\/maps\.app\.goo\.gl\/.+)/,

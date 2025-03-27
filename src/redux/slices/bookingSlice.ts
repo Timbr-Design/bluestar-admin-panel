@@ -11,8 +11,8 @@ const initialState = {
     status: undefined,
     search: undefined,
   },
-  isEditingBooking: true,
-  bookingStates: { status: "idle", loading: false, error: "" },
+  isEditingBooking: false,
+  bookingStates: { status: "idle", loading: false, error: "", loadingById: false },
   pagination: {
     total: 0,
     page: 0,
@@ -40,7 +40,7 @@ export const deleteBooking = createAsyncThunk(
     const { booking } = getState();
     const response = await apiClient.delete(`/booking/${params.id}`);
     if (response.status === 200) {
-      dispatch(setCurrentSelectedBooking({}));
+      dispatch(clearCurrentSelectedBooking());
       notification.success({
         message: "Success",
         description: "Booking deleted successfully",
@@ -60,12 +60,11 @@ export const addNewBooking = createAsyncThunk(
   async (body: any, { dispatch }: any) => {
     const response = await apiClient.post("/booking", body);
     if (response.status === 201) {
-      dispatch(setCurrentSelectedBooking({}));
+      dispatch(clearCurrentSelectedBooking());
       notification.success({
         message: "Success",
         description: "New Booking added successfully",
       });
-      console.log("CLOSE");
       dispatch(setIsAddEditDrawerClose());
       dispatch(getBookings({ page: 1, search: "", limit: 10 }));
       return response.data;
@@ -74,16 +73,27 @@ export const addNewBooking = createAsyncThunk(
 );
 export const updateBooking = createAsyncThunk(
   "booking/updateBooking",
-  async (body: any, { dispatch }: any) => {
-    const response = await apiClient.patch(`/booking/${body.id}`, body);
+  async ({ body, id }: any, { dispatch }: any) => {
+    const response = await apiClient.put(`/booking/${id}`, body);
     if (response.status === 200) {
-      dispatch(setCurrentSelectedBooking({}));
+      dispatch(clearCurrentSelectedBooking());
       notification.success({
         message: "Success",
         description: "Booking updated successfully",
       });
       dispatch(setIsAddEditDrawerClose());
       dispatch(getBookings({}));
+      return response.data;
+    }
+  }
+);
+export const getBookingById = createAsyncThunk(
+  "booking/getBookingById",
+  async (params: any) => {
+    const { id } = params;
+    const response = await apiClient.get(`/booking/${id}`);
+    if (response.status === 200) {
+      console.log(response.data, "response.data");
       return response.data;
     }
   }
@@ -115,6 +125,9 @@ export const bookingSlice = createSlice({
     },
     setCurrentSelectedBooking: (state, action: PayloadAction<any | {}>) => {
       state.currentSelectedBooking = action.payload;
+    },
+    clearCurrentSelectedBooking: (state) => {
+      state.currentSelectedBooking = {} as any;
     },
   },
   extraReducers: (builder) => {
@@ -177,6 +190,23 @@ export const bookingSlice = createSlice({
         state.bookingStates.status = "failed";
         state.bookingStates.loading = false;
         state.bookingStates.error = "Error";
+      })
+      // get booking by id
+      .addCase(getBookingById.pending, (state) => {
+        state.bookingStates.status = "loading";
+        state.bookingStates.loadingById = true;
+        state.bookingStates.error = "";
+      })
+      .addCase(getBookingById.fulfilled, (state, action) => {
+        state.bookingStates.status = "succeeded";
+        state.bookingStates.loadingById = false;
+        state.bookingStates.error = "";
+        state.currentSelectedBooking = action.payload.data;
+      })
+      .addCase(getBookingById.rejected, (state) => {
+        state.bookingStates.status = "failed";
+        state.bookingStates.loadingById = false;
+        state.bookingStates.error = "Error";
       });
   },
 });
@@ -188,5 +218,6 @@ export const {
   setBookingFilter,
   setBookings,
   setIsEditingBooking,
+  clearCurrentSelectedBooking,
 } = actions;
 export default bookingSlice.reducer;

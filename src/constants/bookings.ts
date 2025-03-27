@@ -6,7 +6,7 @@ export const BOOKINGS_TABS = [
     type: undefined,
   },
   { id: 2, name: "Booked", type: "booked" },
-  { id: 3, name: "On-Going", type: "on-going" },
+  { id: 3, name: "On-Going", type: "onGoing" },
   { id: 4, name: "Completed", type: "completed" },
   { id: 5, name: "Billed", type: "billed" },
   { id: 6, name: "Cancelled", type: "cancelled" },
@@ -15,12 +15,10 @@ export const BOOKINGS_TABS = [
 
 export const BOOKINGS_STATUS = {
   booked: "booked",
-  "on-going": "on-going",
+  onGoing: "onGoing",
   completed: "completed",
   billed: "billed",
   cancelled: "cancelled",
-  dispatched: "dispatched",
-  allotted: "allotted",
   unconfirmed: "unconfirmed",
 };
 
@@ -30,15 +28,26 @@ export const BOOKINGS_DUTY_TABS = [
     name: "All",
     type: "",
   },
-  { id: 2, name: "Upcoming", type: "Upcoming" },
-  { id: 2, name: "Alloted", type: "Alloted" },
-  { id: 2, name: "Dispatched", type: "Dispatched" },
-  { id: 3, name: "Booked", type: "Booked" },
-  { id: 4, name: "Completed", type: "Completed" },
-  { id: 5, name: "Billed", type: "Billed" },
-  { id: 6, name: "Cancelled", type: "Cancelled" },
-  { id: 7, name: "Needs attention", type: "Needs attention" },
+  { id: 2, name: "Upcoming", type: "upcoming" },
+  { id: 3, name: "Alloted", type: "alloted" },
+  { id: 4, name: "Dispatched", type: "dispatched" },
+  { id: 5, name: "Booked", type: "booked" },
+  { id: 6, name: "Completed", type: "completed" },
+  { id: 7, name: "Billed", type: "billed" },
+  { id: 8, name: "Cancelled", type: "cancelled" },
+  { id: 9, name: "Needs attention", type: "needAttention" },
 ];
+
+export const DUTY_STATUS = {
+  upcoming: "upcoming",
+  alloted: "alloted",
+  dispatched: "dispatched",
+  booked: "booked",
+  completed: "completed",
+  billed: "billed",
+  cancelled: "cancelled",
+  needAttention: "needAttention",
+};
 
 export const BOOKINGS_TABLE = [
   { title: "Start date", dataIndex: "start_date" },
