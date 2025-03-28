@@ -3,7 +3,7 @@ export const BOOKINGS_TABS = [
   {
     id: 1,
     name: "All",
-    type: undefined,
+    type: "",
   },
   { id: 2, name: "Booked", type: "booked" },
   { id: 3, name: "On-Going", type: "onGoing" },

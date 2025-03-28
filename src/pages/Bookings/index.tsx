@@ -18,6 +18,7 @@ import {
   clearCurrentSelectedBooking,
   addNewBooking,
   updateBooking,
+  getBookings
 } from "../../redux/slices/bookingSlice";
 import {
   clearSelectedVehicleGroup,
@@ -36,19 +37,19 @@ import { useNavigate } from "react-router-dom";
 const { RangePicker } = DatePicker;
 
 const BookingsTabs = () => {
-  // const [filter, setFilter] = useState("");
   const dispatch = useAppDispatch();
-  const { filters } = useSelector((state: RootState) => state.booking);
+  const [status, setStatus] = useState<string>("");
 
   return (
     <div className={styles.tabsContainer}>
       {BOOKINGS_TABS?.map((item) => (
         <button
           className={cn(styles.tab, {
-            [styles.selected]: item.type === filters.status,
+            [styles.selected]: item.type === status,
           })}
           onClick={() => {
-            dispatch(setBookingFilter({ status: item.type }));
+            setStatus(item.type);
+            dispatch(getBookings({ page: 1, limit: 10, status: item.type }));
           }}
         >
           {item.name}

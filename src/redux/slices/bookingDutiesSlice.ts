@@ -59,7 +59,7 @@ export const getBookingsDuties = createAsyncThunk(
   async (params: any) => {
     const { bookingId } = params;
 
-    const response = await apiClient.get(`/booking/duty/${bookingId}`);
+    const response = await apiClient.get(`/booking/duty/booking/${bookingId}`);
     return response.data;
   }
 );
