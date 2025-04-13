@@ -304,6 +304,8 @@ const SingleBookingsTable = () => {
     filters.endDate,
   ]);
 
+  console.log("Single Booking")
+
   return (
     <>
       <div className={styles.container}>

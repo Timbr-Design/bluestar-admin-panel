@@ -1,18 +1,19 @@
 /* eslint-disable */
 
-import { Table, TableColumnsType } from "antd";
+import { Table, TableColumnsType, Button, Popconfirm, Space } from "antd";
 import { useEffect, useState } from "react";
 import InvoicesStates from "../States/InvoicesStates";
 import { useAppDispatch, useAppSelector } from "../../hooks/store";
-import { getInvoices } from "../../redux/slices/billingSlice";
+import { getInvoices, deleteInvoice } from "../../redux/slices/invoiceSlice";
 import { RootState } from "../../types/store";
 import { formatDateFull } from "../../utils/date";
 import CustomPagination from "../Common/Pagination";
+import { DeleteOutlined } from "@ant-design/icons";
 
 const InvoiceTable = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const { filters, invoices, pagination } = useAppSelector(
-    (state: RootState) => state.billing
+    (state: RootState) => state.invoice
   );
 
   const dispatch = useAppDispatch();
@@ -24,13 +25,13 @@ const InvoiceTable = () => {
     },
     {
       title: "Invoice Date",
-      dataIndex: "date",
-      key: "date",
+      dataIndex: "invoiceDate",
+      key: "invoiceDate",
     },
     {
       title: "Customer",
-      dataIndex: "customerName",
-      key: "customerName",
+      dataIndex: "customer",
+      key: "customer",
     },
     {
       title: "Amount",
@@ -38,32 +39,52 @@ const InvoiceTable = () => {
       key: "amount",
     },
     {
-      title: "Amount Paid",
-      dataIndex: "amountPaid",
-      key: "amountPaid",
+      title: "Due Date",
+      dataIndex: "dueDate",
+      key: "dueDate",
     },
     {
-      title: "Amount Outstanding",
-      dataIndex: "amountOutstanding",
-      key: "amountOutstanding",
-    },
-    {
-      title: "status",
+      title: "Status",
       dataIndex: "status",
       key: "status",
     },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space>
+          <Popconfirm
+            title="Delete Invoice"
+            description="Are you sure you want to delete this invoice?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+              title="Delete"
+            />
+          </Popconfirm>
+        </Space>
+      ),
+    },
   ];
 
-  const populateDate = () => {
+  const handleDelete = (id: string) => {
+    dispatch(deleteInvoice({ id }));
+  };
+
+  const populateData = () => {
     return invoices?.map((data) => {
       return {
         ...data,
         invoiceNumber: data?.invoiceNumber,
-        customerName: data?.customerDetails?.name,
-        amountPaid: `₹${data?.amountPaid}`,
-        amount: `₹${data?.amount}`,
-        date: `${formatDateFull(data?.date)}`,
-        amountOutstanding: `₹${data?.amountOutstanding}`,
+        customer: data?.customer?.name,
+        amount: `₹${data?.amount || 0}`,
+        invoiceDate: formatDateFull(data?.invoiceDate),
+        dueDate: formatDateFull(data?.dueDate),
         status: <InvoicesStates status={data.status} />,
         key: data?._id,
         id: data?._id,
@@ -71,10 +92,9 @@ const InvoiceTable = () => {
     });
   };
 
-  console.log("invoices", invoices);
   useEffect(() => {
-    dispatch(getInvoices({ ...filters }));
-  }, [filters.search, filters.status]);
+    dispatch(getInvoices({ page: 1, limit: 10 }));
+  }, []);
 
   return (
     <Table
@@ -82,21 +102,20 @@ const InvoiceTable = () => {
       columns={columns}
       rowSelection={{
         type: "checkbox",
-        // onChange: onChange,
         selectedRowKeys: selectedRowKeys,
       }}
-      dataSource={populateDate()}
+      dataSource={populateData()}
       pagination={false}
       footer={() => (
         <CustomPagination
-          total={pagination?.total ?? 0}
-          current={pagination?.page ?? 1}
-          pageSize={pagination.limit ?? 10}
+          total={pagination?.totalDocuments ?? 0}
+          current={pagination?.currentPage ?? 1}
+          pageSize={10}
           onPageChange={(page: number) => {
             dispatch(
               getInvoices({
-                search: filters.search,
                 page: page,
+                limit: 10,
               })
             );
           }}

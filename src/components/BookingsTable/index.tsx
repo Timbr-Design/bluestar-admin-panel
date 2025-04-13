@@ -81,6 +81,7 @@ const BookingsTable = () => {
         onClick: (e) => {
           e.domEvent.stopPropagation();
           setConformedBookingModal(true);
+          setSelectedBooking(row);
         },
       },
       {
@@ -135,7 +136,9 @@ const BookingsTable = () => {
         },
       },
     ];
-    return items;
+
+    // Filter out the confirm booking option if isConfirmed is true
+    return items.filter(item => !(item.key === "1" && row.isConfirmed));
   }
 
   const columns: TableColumnsType<any> = [

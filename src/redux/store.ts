@@ -11,6 +11,7 @@ import billingSlice from "./slices/billingSlice";
 import loginSlice from "./slices/loginSlice";
 import companySlice from "./slices/companySlice";
 import teamMemberReducer from './slices/teamMemberSlice';
+import invoiceSlice from "./slices/invoiceSlice";
 
 const store = configureStore({
   reducer: {
@@ -25,6 +26,7 @@ const store = configureStore({
     login: loginSlice,
     company: companySlice,
     teamMember: teamMemberReducer,
+    invoice: invoiceSlice,
   },
 });
 
