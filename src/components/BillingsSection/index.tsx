@@ -24,7 +24,7 @@ const BillingsSection = ({ isEdit, isInvoice }: IBillingsSection) => {
       <div className={styles.headingContainer}>
         <a href="/billings" className={styles.backBtn}>
           <ArrowLeftOutlined />
-          {isInvoice ? "Back to Invoices" : "Back to Receipst"}
+          {isInvoice ? "Back to Invoices" : "Back to Receipts"}
         </a>
         <div className={styles.headingSection}>
           <div className={styles.header}>

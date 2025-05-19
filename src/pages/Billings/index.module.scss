@@ -110,3 +110,24 @@
     background: #f9f5ff;
   }
 }
+
+.popoverContainer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.button {
+  background: none;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 35px;
+  height: 35px;
+}

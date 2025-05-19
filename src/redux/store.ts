@@ -12,6 +12,7 @@ import loginSlice from "./slices/loginSlice";
 import companySlice from "./slices/companySlice";
 import teamMemberReducer from './slices/teamMemberSlice';
 import invoiceSlice from "./slices/invoiceSlice";
+import vehicleAvailabilitySlice from "./slices/vehicleAvailabilitySlice";
 
 const store = configureStore({
   reducer: {
@@ -27,6 +28,7 @@ const store = configureStore({
     company: companySlice,
     teamMember: teamMemberReducer,
     invoice: invoiceSlice,
+    vehicleAvailability: vehicleAvailabilitySlice,
   },
 });
 

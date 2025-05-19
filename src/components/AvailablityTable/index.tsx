@@ -17,77 +17,30 @@ interface IDate {
 interface IAvailability {
   key: string;
   vehicle: { name: string; licensePlate: string };
-  dates: IDate[];
+  dates: any[];
 }
 
-const data: IAvailability[] = [
-  {
-    key: "1",
-    vehicle: { name: "Toyota Innova", licensePlate: "MH01 4656" },
-    dates: [
-      {
-        bookings: [{ bookingId: "BS32456901", user: "Anshul G." }],
-        date: "12th May",
-      },
-      {
-        bookings: [{ bookingId: "BS32456901", user: "Anshul G." }],
-        date: "13th May",
-      },
-      {
-        bookings: [{ bookingId: "BS32456901", user: "Anshul G." }],
-        date: "14th May",
-      },
-      {
-        bookings: [{ bookingId: "BS32456901", user: "Anshul G." }],
-        date: "15th May",
-      },
-      {
-        bookings: [],
-        date: "16th May",
-      },
-      {
-        bookings: [],
-        date: "17th May",
-      },
-      {
-        bookings: [
-          { bookingId: "BS32456901", user: "Anshul G." },
-          { bookingId: "BS32452341", user: "Anshul G." },
-        ],
-        date: "18th May",
-      },
-      {
-        bookings: [
-          { bookingId: "BS32456901", user: "Anshul G." },
-          { bookingId: "BS32452341", user: "Anshul G." },
-        ],
-        date: "19th May",
-      },
-      {
-        bookings: [
-          { bookingId: "BS32456901", user: "Anshul G." },
-          { bookingId: "BS32452341", user: "Anshul G." },
-        ],
-        date: "20th May",
-      },
-    ],
-  },
-  // Add more vehicles and their bookings here...
-];
+interface AvailablityTableProps {
+  data: IAvailability[];
+  loading: boolean;
+}
 
-const dates = [
-  "12th May",
-  "13th May",
-  "14th May",
-  "15th May",
-  "16th May",
-  "17th May",
-  "18th May",
-  "19th May",
-  "20th May",
-];
+const AvailablityTable = ({ data, loading }: AvailablityTableProps) => {
+  // Extract unique dates from the data
+  const dates = data?.reduce((acc: string[], item) => {
+    item.dates.forEach(date => {
+      if (!acc.includes(date.date)) {
+        acc.push(date.date);
+      }
+    });
+    return acc;
+  }, []).sort((a, b) => {
+    // Sort dates in ascending order
+    const dateA = new Date(a);
+    const dateB = new Date(b);
+    return dateA.getTime() - dateB.getTime();
+  });
 
-const AvailablityTable = () => {
   const columns: TableProps<IAvailability>["columns"] = [
     {
       title: "Vehicle",
@@ -107,7 +60,7 @@ const AvailablityTable = () => {
       },
     },
     // Dynamically create columns based on the dates
-    ...dates.map((date) => ({
+    ...dates?.map((date) => ({
       title: date,
       key: date,
       width: 200,
@@ -120,7 +73,7 @@ const AvailablityTable = () => {
           return ""; // No bookings on this date
         }
 
-        return dateInfo.bookings.map((booking, index) => (
+        return dateInfo?.bookings?.map((booking, index) => (
           <div
             key={index}
             className={cn(styles.bookingConatiner, {
@@ -156,14 +109,13 @@ const AvailablityTable = () => {
     })),
   ];
 
-  console.log(data, "data");
-
   return (
     <Table
       bordered
       rowClassName={styles.rowstyles}
       columns={columns}
       dataSource={data}
+      loading={loading}
       scroll={{
         x: "max-content", // Horizontal scroll for wide tables
       }}

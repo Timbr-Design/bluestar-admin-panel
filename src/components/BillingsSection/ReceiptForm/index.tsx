@@ -13,15 +13,31 @@ import {
   Table,
 } from "antd";
 import styles from "./index.module.scss";
+import { ReactComponent as SearchIcon } from "../../../icons/SearchIcon.svg";
+import SearchComponent from "../../SearchComponent";
 import { ReactComponent as InvoiceIcon } from "../../../icons/invoice.svg";
 import { SearchOutlined } from "@ant-design/icons";
 import CancelBtn from "../../CancelBtn";
-import { useState } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import UploadComponent from "../../Upload";
 import Preview from "../Preview";
+import { getCustomer } from "../../../redux/slices/databaseSlice";
+import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 const { TextArea } = Input;
 
 const ReceiptForm = () => {
+  const { customersOption } = useAppSelector((state) => state.database);
+
+  useEffect(() => {
+    dispatch(
+      getCustomer({
+        page: "1",
+        limit: "10",
+        search: "",
+      })
+    );
+  }, []);
+
   const columns = [
     {
       title: "ID",
@@ -67,9 +83,24 @@ const ReceiptForm = () => {
     },
   ];
   const [value, setValue] = useState(1);
+  const dispatch = useAppDispatch();
   const onChange = (e: RadioChangeEvent) => {
     console.log("radio checked", e.target.value);
     setValue(e.target.value);
+  };
+
+  const getCustomerList = (searchText: string) => {
+    if (searchText) {
+      dispatch(
+        getCustomer({
+          search: searchText,
+        })
+      );
+    }
+  };
+
+  const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
   };
 
   return (
@@ -94,9 +125,15 @@ const ReceiptForm = () => {
             <Select
               allowClear
               showSearch
-              options={[]}
-              onSearch={(text) => {}}
+              options={customersOption?.map(
+                (option: { value: any; label: any }) => ({
+                  value: option.value,
+                  label: option.label,
+                })
+              )}
+              onSearch={(text) => getCustomerList(text)}
               placeholder="Select customer"
+              filterOption={false}
               fieldNames={{ label: "label", value: "value" }}
               notFoundContent={<div>No search result</div>}
             />
@@ -108,24 +145,27 @@ const ReceiptForm = () => {
               <InvoiceIcon />
             </Col>
             <Col className="gutter-row">
-              <h5>Invoices</h5>
-              <p>
+              <div className={styles.invoicesHeading}>Invoices</div>
+              <div className={styles.invoicesDescription}>
                 Select from the list of available invoices to add to this
                 reciept
-              </p>
+              </div>
             </Col>
           </Row>
           <Row gutter={8} align={"middle"}>
             <Col span={16}>
-              <Input
-                prefix={<SearchOutlined />}
-                placeholder="Search by invoice number"
+              <SearchComponent
+                value={""}
+                onChange={searchHandler}
+                LeadingIcon={SearchIcon}
+                placeholder={`Search by invoice number`}
+                customClass={styles.searchInput}
               />
             </Col>
             <Col span={8}>
               <DatePicker
                 style={{
-                  padding: "0.8rem",
+                  padding: "0.2rem",
                 }}
                 onChange={() => {}}
               />
@@ -241,38 +281,35 @@ const ReceiptForm = () => {
               ))}
             </Radio.Group>
           </div>
-
-          <div>
-            <Form.Item
-              name="bank"
-              rules={[{ required: true }]}
-              label="Recieved in bank"
-              layout="vertical"
-            >
-              <Select
-                allowClear
-                showSearch
-                options={[]}
-                onSearch={(text) => {}}
-                placeholder="Recieved in bank"
-                fieldNames={{ label: "label", value: "value" }}
-                notFoundContent={<div>No search result</div>}
-              />
-            </Form.Item>
-            <Form.Item
-              name="bankDate"
-              rules={[{ required: true }]}
-              label="Bank Credit Date"
-              layout="vertical"
-            >
-              <DatePicker
-                style={{
-                  width: "100%",
-                }}
-                onChange={() => {}}
-              />
-            </Form.Item>
-          </div>
+          <Form.Item
+            name="bank"
+            rules={[{ required: true }]}
+            label="Recieved in bank"
+            layout="vertical"
+          >
+            <Select
+              allowClear
+              showSearch
+              options={[]}
+              onSearch={(text) => {}}
+              placeholder="Recieved in bank"
+              fieldNames={{ label: "label", value: "value" }}
+              notFoundContent={<div>No search result</div>}
+            />
+          </Form.Item>
+          <Form.Item
+            name="bankDate"
+            rules={[{ required: true }]}
+            label="Bank Credit Date"
+            layout="vertical"
+          >
+            <DatePicker
+              style={{
+                width: "100%",
+              }}
+              onChange={() => {}}
+            />
+          </Form.Item>
           <UploadComponent handleUploadUrl={() => {}} isMultiple={false} />
           <Form.Item
             name="comment"

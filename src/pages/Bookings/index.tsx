@@ -33,6 +33,7 @@ import { RootState } from "../../types/store";
 import { useAppDispatch, useAppSelector } from "../../hooks/store";
 import { RouteName } from "../../constants/routes";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 
@@ -72,6 +73,7 @@ const Bookings = () => {
   const [bookingValues, setBookingValues] = useState<any>({});
   const [driver, setDriver] = useState<any>({});
   const [vehicle, setVehicle] = useState<any>({});
+  const [dateRange, setDateRange] = useState<[number, number] | null>(null);
 
   useEffect(() => {
     setBookingValues(currentSelectedBooking);
@@ -232,6 +234,26 @@ const Bookings = () => {
     }
   };
 
+  const handleDateRangeChange = (dates: any) => {
+    if (dates) {
+      // Convert to epoch timestamps (milliseconds)
+      const startDate = dates[0]?.valueOf();
+      const endDate = dates[1]?.valueOf();
+      
+      setDateRange([startDate, endDate]);
+      
+      // You can use these values to filter your data or make API calls
+      console.log("Start Date (epoch):", startDate);
+      console.log("End Date (epoch):", endDate);
+      
+      // If you need to update filters or fetch data based on date range
+      // dispatch(setBookingFilter({ startDate, endDate }));
+      dispatch(getBookings({ startDate, endDate }));
+    } else {
+      setDateRange(null);
+    }
+  };
+
   return (
     <div className={cn("container", styles.container)}>
       <div className={styles.headingContainer}>
@@ -269,24 +291,12 @@ const Bookings = () => {
             className={styles.inputContainer}
             placeholder="Search by name, number, duty type, city or booking id"
           />
-          <div
-            className="flex"
-            style={{
-              gap: "1rem",
-              alignItems: "center",
-            }}
-          >
-            <RangePicker />
-            <span
-              onClick={() => {
-                dispatch(setBookingFilter({ search: undefined }));
-              }}
-              style={{
-                cursor: "pointer",
-              }}
-            >
-              clear
-            </span>
+          <div className={styles.filterContainer}>
+            <DatePicker.RangePicker 
+              onChange={handleDateRangeChange}
+              format="DD/MM/YYYY"
+              placeholder={["Start Date", "End Date"]}
+            />
           </div>
         </div>
         <BookingsTable />

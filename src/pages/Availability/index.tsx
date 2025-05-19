@@ -4,9 +4,51 @@ import { Input, DatePicker } from "antd";
 import AvailablityTable from "../../components/AvailablityTable";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import styles from "./index.module.scss";
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../../hooks/store";
+import { getVehicleAvailability, setVehicleAvailabilityFilter } from "../../redux/slices/vehicleAvailabilitySlice";
+import dayjs from "dayjs";
 
 const Availability = () => {
   const { RangePicker } = DatePicker;
+  const dispatch = useAppDispatch();
+  const { vehicleAvailability, vehicleAvailabilityState, pagination } = useAppSelector((state: any) => state.vehicleAvailability);
+
+  useEffect(() => {
+    // Initial fetch with default parameters
+    dispatch(getVehicleAvailability({
+      page: pagination.page,
+      limit: pagination.limit
+    }) as any);
+
+  }, [dispatch, pagination.page, pagination.limit]);
+
+  const handleDateRangeChange = (dates: any) => {
+    if (dates) {
+      const [startDate, endDate] = dates;
+      dispatch(setVehicleAvailabilityFilter({
+        startDate: startDate?.valueOf(),
+        endDate: endDate?.valueOf()
+      }));
+      dispatch(getVehicleAvailability({
+        page: pagination.page,
+        limit: pagination.limit,
+        startDate: startDate?.valueOf(),
+        endDate: endDate?.valueOf()
+      }) as any);
+    }
+  };
+
+  const handleClear = () => {
+    dispatch(setVehicleAvailabilityFilter({
+      startDate: undefined,
+      endDate: undefined
+    }));
+    dispatch(getVehicleAvailability({
+      page: pagination.page,
+      limit: pagination.limit
+    }) as any);
+  };
 
   return (
     <div className={cn("container", styles.container)}>
@@ -31,12 +73,15 @@ const Availability = () => {
               alignItems: "center",
             }}
           >
-            <RangePicker />
-            <button className={styles.clearText}>Clear</button>
+            <RangePicker onChange={handleDateRangeChange} />
+            <button className={styles.clearText} onClick={handleClear}>Clear</button>
           </div>
         </div>
         <div className={styles.tableContainer}>
-          <AvailablityTable />
+          <AvailablityTable 
+            data={vehicleAvailability}
+            loading={vehicleAvailabilityState.loading}
+          />
         </div>
       </div>
     </div>

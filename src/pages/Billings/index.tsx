@@ -1,15 +1,17 @@
 /* eslint-disable */
 import cn from "classnames";
-import { Input, DatePicker } from "antd";
+import { Input, DatePicker, Button, Dropdown, Menu } from "antd";
 import { useNavigate } from "react-router-dom";
 import { ReactComponent as PlusIcon } from "../../icons/plus.svg";
+import { ReactComponent as DotsIcon } from "../../icons/dots.svg";
+import { ReactComponent as DocumentsIcon } from "../../icons/fileIcon.svg";
 import PrimaryBtn from "../../components/PrimaryBtn";
 import InvoiceTable from "../../components/InvoiceTable";
 import ReceiptTable from "../../components/ReceiptTable";
 import { RouteName } from "../../constants/routes";
 import { ChangeEvent, useState } from "react";
 import styles from "./index.module.scss";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, MoreOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "../../hooks/store";
 import { RootState } from "../../types/store";
 import { setBillingFilter } from "../../redux/slices/billingSlice";
@@ -36,6 +38,24 @@ const Billings = () => {
     const value = e.target.value;
     dispatch(setBillingFilter({ search: value }));
   };
+
+  const getBtnText = () => {
+    if (tab === "invoice") return "Add invoice";
+    else return "Add new receipt";
+  };
+
+  const dropdownItems = [
+    {
+      key: "1",
+      label: (
+        <div className={styles.popoverContainer}>
+          <DocumentsIcon />
+          <div style={{ color: "#344054" }}>Export receipts</div>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className={cn("container", styles.container)}>
       <div className={styles.headingContainer}>
@@ -94,14 +114,25 @@ const Billings = () => {
                 }
               />
             </div>
-            <PrimaryBtn
-              onClick={handleAdd}
-              LeadingIcon={PlusIcon}
-              btnText={`Add ${tab}`}
-            />
-            {/* <Dropdown menu={{ items: vehicleItems }} trigger={["click"]}>
-            <DotsIcon />
-          </Dropdown> */}
+            <div className={styles.btnContainer}>
+              <PrimaryBtn
+                onClick={handleAdd}
+                LeadingIcon={PlusIcon}
+                btnText={`${getBtnText()}`}
+              />
+            </div>
+            {tab === "receipt" && (
+              <Dropdown
+                menu={{ items: dropdownItems }}
+                trigger={["click"]}
+                placement="bottomRight"
+                overlayClassName={styles.dropdownMenu}
+              >
+                <Button className={styles.button}>
+                  <DotsIcon />
+                </Button>
+              </Dropdown>
+            )}
           </div>
         </div>
         <div className={styles.table}>

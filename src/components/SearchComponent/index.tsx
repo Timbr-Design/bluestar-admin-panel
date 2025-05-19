@@ -3,12 +3,14 @@
 import { ChangeEventHandler } from "react";
 import styles from "./index.module.scss";
 import { Input } from "antd";
+import cn from "classnames";
 import { ReactComponent as SearchIcon } from "../../icons/SearchIcon.svg";
 interface ISearchComponent {
   LeadingIcon?: any;
   value: string;
   placeholder: string;
   onChange: ChangeEventHandler<HTMLInputElement>;
+  customClass?: string;
 }
 
 const SearchComponent = ({
@@ -16,6 +18,7 @@ const SearchComponent = ({
   onChange,
   LeadingIcon,
   placeholder,
+  customClass,
 }: ISearchComponent) => {
   return (
     <Input
@@ -25,7 +28,7 @@ const SearchComponent = ({
       suffix={<></>}
       onChange={onChange}
       allowClear
-      className={"custom-search"}
+      className={cn(customClass, "custom-search")}
       placeholder={placeholder}
     />
   );
