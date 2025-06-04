@@ -57,7 +57,7 @@ const LoansTable = ({ handleOpenSidePanel }: ILoansTable) => {
           >
             <Space>
               <Eye />
-              See all car related expense
+              See all car related expenses
             </Space>
           </div>
         ),
@@ -91,34 +91,40 @@ const LoansTable = ({ handleOpenSidePanel }: ILoansTable) => {
       title: "Vehicle Name",
       dataIndex: "vehicleName",
       key: "vehicleName",
+      className: styles.headerfont
     },
     {
       title: "Vehicle Number",
       dataIndex: "vehicleNumber",
       key: "vehicleNumber",
+      className: styles.headerfont
     },
     {
       title: "Loan Amount (₹)",
       dataIndex: "loanAmount",
       key: "loanAmount",
       render: (text) => `₹${text.toLocaleString()}`,
+      className: styles.headerfont
     },
     {
       title: "EMI Amount (₹)",
       dataIndex: "emiAmount",
       key: "emiAmount",
       render: (text) => `₹${text}`,
+      className: styles.headerfont
     },
     {
       title: "Paid Till Date (₹)",
       dataIndex: "paidTillDate",
       key: "paidTillDate",
       render: (text) => `₹${text.toLocaleString()}`,
+      className: styles.headerfont
     },
     {
       title: "Next Payment Date",
       dataIndex: "nextPaymentDate",
       key: "nextPaymentDate",
+      className: styles.headerfont
     },
     {
       title: "Action",
@@ -130,7 +136,7 @@ const LoansTable = ({ handleOpenSidePanel }: ILoansTable) => {
         return (
           <div className={styles.columnsAction}>
             <Dropdown menu={{ items: returnItems(row) }}>
-              <MoreOutlined />
+              <MoreOutlined className={styles.ellipsis}/>
             </Dropdown>
           </div>
         );
@@ -172,10 +178,6 @@ const LoansTable = ({ handleOpenSidePanel }: ILoansTable) => {
           return {
             onClick: () => {},
           };
-        }}
-        rowSelection={{
-          type: "checkbox",
-          onChange: onChange,
         }}
         columns={columns}
         dataSource={loans}

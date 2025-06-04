@@ -92,26 +92,31 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
       title: "Vehicle Name",
       dataIndex: "vehicleName",
       key: "vehicleName",
+      className: styles.headerfont
     },
     {
       title: "Vehicle Number",
       dataIndex: "vehicleNumber",
       key: "vehicleNumber",
+      className: styles.headerfont
     },
     {
       title: "Expense Number",
       dataIndex: "expenseNumber",
       key: "expenseNumber",
+      className: styles.headerfont
     },
     {
       title: "Expense Type",
       dataIndex: "expenseType",
       key: "expenseType",
+      className: styles.headerfont
     },
     {
       title: "Payment Mode",
       dataIndex: "paymentMode",
       key: "paymentMode",
+      className: styles.headerfont
     },
     {
       title: "Amount",
@@ -129,7 +134,7 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
         return (
           <div className={styles.columnsAction}>
             <Dropdown menu={{ items: returnItems(row) }}>
-              <MoreOutlined />
+              <MoreOutlined className={styles.ellipsis}/>
             </Dropdown>
           </div>
         );
@@ -172,14 +177,12 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
             onClick: () => {},
           };
         }}
-        rowSelection={{
-          type: "checkbox",
-          onChange: onChange,
-        }}
+
         columns={columns}
         dataSource={expenses}
         loading={vehicleTrackerState?.loading}
         pagination={false}
+        className={styles.contentfont}
         scroll={{
           x: 756,
         }}
