@@ -88,25 +88,28 @@ const AverageTable = ({ handleOpenSidePanel }: IAverageTable) => {
     return items;
   }
   const columns: TableColumnsType<any> = [
-    {
-      title: "Vehicle Name",
-      dataIndex: "vehicleName",
-      key: "vehicleName",
-    },
-    {
-      title: "Vehicle Number",
-      dataIndex: "vehicleNumber",
-      key: "vehicleNumber",
-    },
+     {
+      title: "Vehicle Name and Number",
+      key: "vehicleNameAndNumber",
+      className: styles.headerfont,
+      render: (_: any, row: any) => (
+        <div className={styles.vehicleNameNumber}>
+          <div>{row.vehicleName}</div>
+          <div>{row.vehicleNumber}</div>
+        </div>
+      ),
+  },
     {
       title: "Active Days/Total Days",
       dataIndex: "activeDays",
       key: "activeDays",
+      className: styles.headerfont
     },
     {
       title: "Driver(s)",
       dataIndex: "drivers",
       key: "drivers",
+      
       render: (drivers) => (
         <Avatar.Group>
           {drivers.map((driver: any) => (
@@ -124,21 +127,24 @@ const AverageTable = ({ handleOpenSidePanel }: IAverageTable) => {
       dataIndex: "distanceTravelled",
       key: "distanceTravelled",
       render: (text) => `${text} km`,
+      className: styles.headerfont
     },
     {
       title: "Fuel Consumed (L)",
       dataIndex: "fuelConsumed",
       key: "fuelConsumed",
       render: (text) => `${text} L`,
+      className: styles.headerfont
     },
     {
       title: "Vehicle Average (km/L)",
       dataIndex: "vehicleAverage",
       key: "vehicleAverage",
       render: (text) => `${text} km/L`,
+      className: styles.headerfont
     },
     {
-      title: "Action",
+      title: "",
       dataIndex: "action",
       key: "action",
       fixed: "right",
@@ -147,7 +153,7 @@ const AverageTable = ({ handleOpenSidePanel }: IAverageTable) => {
         return (
           <div className={styles.columnsAction}>
             <Dropdown menu={{ items: returnItems(row) }}>
-              <MoreOutlined />
+              <MoreOutlined className={styles.ellipsis}/>
             </Dropdown>
           </div>
         );
@@ -190,14 +196,11 @@ const AverageTable = ({ handleOpenSidePanel }: IAverageTable) => {
             onClick: () => {},
           };
         }}
-        rowSelection={{
-          type: "checkbox",
-          onChange: onChange,
-        }}
         columns={columns}
         dataSource={averages}
         loading={vehicleTrackerState?.loading}
         pagination={false}
+        className= {styles.contentfont}
         scroll={{
           x: 756,
         }}

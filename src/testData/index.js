@@ -1,6 +1,7 @@
 /* eslint-disable */
 export const getExpenseData = [
   {
+    id: '1',
     vehicleName: "Honda City",
     vehicleNumber: "MH12AB1234",
     expenseNumber: "EXP001",
@@ -9,6 +10,7 @@ export const getExpenseData = [
     amount: 1500,
   },
   {
+    id: '2',
     vehicleName: "Maruti Swift",
     vehicleNumber: "MH14XY5678",
     expenseNumber: "EXP002",
@@ -17,6 +19,7 @@ export const getExpenseData = [
     amount: 2200,
   },
   {
+    id: '3',
     vehicleName: "Toyota Innova",
     vehicleNumber: "MH15GH4321",
     expenseNumber: "EXP003",
@@ -25,6 +28,7 @@ export const getExpenseData = [
     amount: 12500,
   },
   {
+    id: '4',
     vehicleName: "Hyundai i20",
     vehicleNumber: "MH16IJ7890",
     expenseNumber: "EXP004",
@@ -33,6 +37,7 @@ export const getExpenseData = [
     amount: 1200,
   },
   {
+    id:'5',
     vehicleName: "Mahindra Scorpio",
     vehicleNumber: "MH17KL3456",
     expenseNumber: "EXP005",
@@ -41,6 +46,7 @@ export const getExpenseData = [
     amount: 4500,
   },
   {
+    id: '6',
     vehicleName: "Tata Nexon",
     vehicleNumber: "MH18MN9876",
     expenseNumber: "EXP006",
@@ -49,6 +55,7 @@ export const getExpenseData = [
     amount: 1700,
   },
   {
+    id: '7',
     vehicleName: "Ford Ecosport",
     vehicleNumber: "MH19OP4567",
     expenseNumber: "EXP007",
@@ -57,6 +64,7 @@ export const getExpenseData = [
     amount: 10500,
   },
   {
+    id: '8',
     vehicleName: "Kia Seltos",
     vehicleNumber: "MH20QR8901",
     expenseNumber: "EXP008",
@@ -65,6 +73,7 @@ export const getExpenseData = [
     amount: 3100,
   },
   {
+    id: '9',
     vehicleName: "Renault Duster",
     vehicleNumber: "MH21ST2345",
     expenseNumber: "EXP009",
@@ -73,6 +82,7 @@ export const getExpenseData = [
     amount: 1400,
   },
   {
+    id: '10',
     vehicleName: "Volkswagen Polo",
     vehicleNumber: "MH22UV6789",
     expenseNumber: "EXP010",
@@ -83,6 +93,7 @@ export const getExpenseData = [
 ];
 export const getFuelsData = [
   {
+    id: '1',
     vehicleName: "Honda City",
     vehicleNumber: "MH12AB1234",
     date: "2024-10-01",
@@ -93,6 +104,7 @@ export const getFuelsData = [
     amount: 3150,
   },
   {
+    id: '2',
     vehicleName: "Maruti Swift",
     vehicleNumber: "MH14XY5678",
     date: "2024-10-02",
@@ -103,6 +115,7 @@ export const getFuelsData = [
     amount: 2250,
   },
   {
+    id: '3',
     vehicleName: "Toyota Innova",
     vehicleNumber: "MH15GH4321",
     date: "2024-10-03",
@@ -113,6 +126,7 @@ export const getFuelsData = [
     amount: 3680,
   },
   {
+    id: '4',
     vehicleName: "Hyundai i20",
     vehicleNumber: "MH16IJ7890",
     date: "2024-10-04",
@@ -123,6 +137,7 @@ export const getFuelsData = [
     amount: 2080,
   },
   {
+    id: '5',
     vehicleName: "Mahindra Scorpio",
     vehicleNumber: "MH17KL3456",
     date: "2024-10-05",
@@ -133,6 +148,7 @@ export const getFuelsData = [
     amount: 3185,
   },
   {
+    id: '6',
     vehicleName: "Tata Nexon",
     vehicleNumber: "MH18MN9876",
     date: "2024-10-06",
@@ -143,6 +159,7 @@ export const getFuelsData = [
     amount: 2266,
   },
   {
+    id: '7',
     vehicleName: "Ford Ecosport",
     vehicleNumber: "MH19OP4567",
     date: "2024-10-07",
@@ -153,6 +170,7 @@ export const getFuelsData = [
     amount: 4005,
   },
   {
+    id: '8',
     vehicleName: "Kia Seltos",
     vehicleNumber: "MH20QR8901",
     date: "2024-10-08",
@@ -163,6 +181,7 @@ export const getFuelsData = [
     amount: 1908,
   },
   {
+    id: '9',
     vehicleName: "Renault Duster",
     vehicleNumber: "MH21ST2345",
     date: "2024-10-09",
@@ -173,6 +192,7 @@ export const getFuelsData = [
     amount: 2790,
   },
   {
+    id: '10',
     vehicleName: "Volkswagen Polo",
     vehicleNumber: "MH22UV6789",
     date: "2024-10-10",
@@ -185,6 +205,7 @@ export const getFuelsData = [
 ];
 export const getLoansData = [
   {
+    id: '1',
     vehicleName: "Honda City",
     vehicleNumber: "MH12AB1234",
     loanAmount: 800000,
@@ -193,6 +214,7 @@ export const getLoansData = [
     nextPaymentDate: "2024-11-01",
   },
   {
+    id: '2',
     vehicleName: "Maruti Swift",
     vehicleNumber: "MH14XY5678",
     loanAmount: 600000,
@@ -201,6 +223,7 @@ export const getLoansData = [
     nextPaymentDate: "2024-11-05",
   },
   {
+    id: '3',
     vehicleName: "Toyota Innova",
     vehicleNumber: "MH15GH4321",
     loanAmount: 1200000,
@@ -209,6 +232,7 @@ export const getLoansData = [
     nextPaymentDate: "2024-11-10",
   },
   {
+    id: '4',
     vehicleName: "Hyundai i20",
     vehicleNumber: "MH16IJ7890",
     loanAmount: 500000,
@@ -217,6 +241,7 @@ export const getLoansData = [
     nextPaymentDate: "2024-11-12",
   },
   {
+    id: '5',
     vehicleName: "Mahindra Scorpio",
     vehicleNumber: "MH17KL3456",
     loanAmount: 900000,
@@ -225,6 +250,7 @@ export const getLoansData = [
     nextPaymentDate: "2024-11-15",
   },
   {
+    id: '6',
     vehicleName: "Tata Nexon",
     vehicleNumber: "MH18MN9876",
     loanAmount: 750000,
@@ -233,6 +259,7 @@ export const getLoansData = [
     nextPaymentDate: "2024-11-18",
   },
   {
+    id: '7',
     vehicleName: "Ford Ecosport",
     vehicleNumber: "MH19OP4567",
     loanAmount: 850000,
@@ -241,6 +268,7 @@ export const getLoansData = [
     nextPaymentDate: "2024-11-20",
   },
   {
+    id: '8',
     vehicleName: "Kia Seltos",
     vehicleNumber: "MH20QR8901",
     loanAmount: 950000,
@@ -249,6 +277,7 @@ export const getLoansData = [
     nextPaymentDate: "2024-11-25",
   },
   {
+    id: '9',
     vehicleName: "Renault Duster",
     vehicleNumber: "MH21ST2345",
     loanAmount: 700000,
@@ -257,6 +286,7 @@ export const getLoansData = [
     nextPaymentDate: "2024-11-28",
   },
   {
+    id: '10',
     vehicleName: "Volkswagen Polo",
     vehicleNumber: "MH22UV6789",
     loanAmount: 550000,
@@ -267,6 +297,7 @@ export const getLoansData = [
 ];
 export const getAverageData = [
   {
+    id: '1',
     vehicleName: "Honda City",
     vehicleNumber: "MH12AB1234",
     activeDays: "20/30",
@@ -276,6 +307,7 @@ export const getAverageData = [
     vehicleAverage: 15,
   },
   {
+    id: '2',
     vehicleName: "Maruti Swift",
     vehicleNumber: "MH14XY5678",
     activeDays: "25/30",
@@ -285,6 +317,7 @@ export const getAverageData = [
     vehicleAverage: 16.67,
   },
   {
+    id: '3',
     vehicleName: "Toyota Innova",
     vehicleNumber: "MH15GH4321",
     activeDays: "28/30",
@@ -294,6 +327,7 @@ export const getAverageData = [
     vehicleAverage: 16.67,
   },
   {
+    id: '4',
     vehicleName: "Hyundai i20",
     vehicleNumber: "MH16IJ7890",
     activeDays: "22/30",
@@ -303,6 +337,7 @@ export const getAverageData = [
     vehicleAverage: 15.38,
   },
   {
+    id: '5',
     vehicleName: "Mahindra Scorpio",
     vehicleNumber: "MH17KL3456",
     activeDays: "18/30",
@@ -312,6 +347,7 @@ export const getAverageData = [
     vehicleAverage: 12,
   },
   {
+    id: '6',
     vehicleName: "Tata Nexon",
     vehicleNumber: "MH18MN9876",
     activeDays: "29/30",
@@ -321,6 +357,7 @@ export const getAverageData = [
     vehicleAverage: 16,
   },
   {
+    id: '7',
     vehicleName: "Ford Ecosport",
     vehicleNumber: "MH19OP4567",
     activeDays: "30/30",
@@ -330,6 +367,7 @@ export const getAverageData = [
     vehicleAverage: 15,
   },
   {
+    id: '8',
     vehicleName: "Kia Seltos",
     vehicleNumber: "MH20QR8901",
     activeDays: "27/30",
@@ -338,7 +376,7 @@ export const getAverageData = [
     fuelConsumed: 110,
     vehicleAverage: 16.36,
   },
-  {
+  { id: '9',
     vehicleName: "Renault Duster",
     vehicleNumber: "MH21ST2345",
     activeDays: "26/30",
@@ -348,6 +386,7 @@ export const getAverageData = [
     vehicleAverage: 15.56,
   },
   {
+    id: '10',
     vehicleName: "Volkswagen Polo",
     vehicleNumber: "MH22UV6789",
     activeDays: "24/30",

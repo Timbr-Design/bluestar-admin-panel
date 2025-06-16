@@ -91,48 +91,55 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
     return items;
   }
   const columns: TableColumnsType<any> = [
-    {
-      title: "Vehicle Name",
-      dataIndex: "vehicleName",
-      key: "vehicleName",
-    },
-    {
-      title: "Vehicle Number",
-      dataIndex: "vehicleNumber",
-      key: "vehicleNumber",
-    },
+     {
+      title: "Vehicle Name and Number",
+      key: "vehicleNameAndNumber",
+      className: styles.headerfont,
+      render: (_: any, row: any) => (
+        <div className={styles.vehicleNameNumber}>
+          <div>{row.vehicleName}</div>
+          <div>{row.vehicleNumber}</div>
+        </div>
+      ),
+  },
     {
       title: "Date",
       dataIndex: "date",
       key: "date",
+      className: styles.headerfont
     },
     {
       title: "Driver",
       dataIndex: "driver",
       key: "driver",
+      className: styles.headerfont
     },
     {
       title: "Fuel Type",
       dataIndex: "fuelType",
       key: "fuelType",
+      className: styles.headerfont
     },
     {
       title: "Quantity (Litres)",
       dataIndex: "quantity",
       key: "quantity",
       render: (text) => `${text} L`,
+      className: styles.headerfont
     },
     {
       title: "Rate (₹/Litre)",
       dataIndex: "rate",
       key: "rate",
       render: (text) => `₹${text}`,
+      className: styles.headerfont
     },
     {
       title: "Amount (₹)",
       dataIndex: "amount",
       key: "amount",
       render: (text) => `₹${text}`,
+      className: styles.headerfont
     },
     {
       title: "Action",
@@ -140,11 +147,12 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
       key: "action",
       fixed: "right",
       width: 100,
+      className: styles.headerfont,
       render: (data: any, row: any) => {
         return (
           <div className={styles.columnsAction}>
             <Dropdown menu={{ items: returnItems(row) }}>
-              <MoreOutlined />
+              <MoreOutlined className={styles.ellipsis}/>
             </Dropdown>
           </div>
         );
@@ -187,10 +195,6 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
             onClick: () => {},
           };
         }}
-        rowSelection={{
-          type: "checkbox",
-          onChange: onChange,
-        }}
         columns={columns}
         dataSource={fuels}
         loading={vehicleTrackerState?.loading}
@@ -198,6 +202,7 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
         scroll={{
           x: 756,
         }}
+        className={styles.contentfont}
         footer={() => (
           <CustomPagination
             total={pagination?.total ?? 0}

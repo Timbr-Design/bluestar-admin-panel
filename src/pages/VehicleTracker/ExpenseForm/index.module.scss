@@ -7,6 +7,10 @@
 
   .fullWidth {
     width: 100%;
+    padding-right: 1.5rem;
+    // border-width: 1px;
+    // border-color: aqua;
+    border-radius: 4px;
   }
 
   .recurringSection {
@@ -23,13 +27,17 @@
   }
 
   .reminderText {
-    margin-top: -20px;
+    margin-top: 20px;
     margin-bottom: 24px;
 
     .reminderSubtext {
       color: rgba(0, 0, 0, 0.45);
       font-size: 12px;
     }
+  }
+
+  .inputNumber{ 
+    padding-right: 1.5rem;
   }
 
   .footer {

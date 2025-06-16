@@ -57,7 +57,7 @@ const LoansTable = ({ handleOpenSidePanel }: ILoansTable) => {
           >
             <Space>
               <Eye />
-              See all car related expense
+              See all car related expenses
             </Space>
           </div>
         ),
@@ -87,38 +87,43 @@ const LoansTable = ({ handleOpenSidePanel }: ILoansTable) => {
     return items;
   }
   const columns: TableColumnsType<any> = [
-    {
-      title: "Vehicle Name",
-      dataIndex: "vehicleName",
-      key: "vehicleName",
-    },
-    {
-      title: "Vehicle Number",
-      dataIndex: "vehicleNumber",
-      key: "vehicleNumber",
-    },
+     {
+      title: "Vehicle Name and Number",
+      key: "vehicleNameAndNumber",
+      className: styles.headerfont,
+      render: (_: any, row: any) => (
+        <div className={styles.vehicleNameNumber}>
+          <div>{row.vehicleName}</div>
+          <div>{row.vehicleNumber}</div>
+        </div>
+      ),
+  },
     {
       title: "Loan Amount (₹)",
       dataIndex: "loanAmount",
       key: "loanAmount",
       render: (text) => `₹${text.toLocaleString()}`,
+      className: styles.headerfont
     },
     {
       title: "EMI Amount (₹)",
       dataIndex: "emiAmount",
       key: "emiAmount",
       render: (text) => `₹${text}`,
+      className: styles.headerfont
     },
     {
       title: "Paid Till Date (₹)",
       dataIndex: "paidTillDate",
       key: "paidTillDate",
       render: (text) => `₹${text.toLocaleString()}`,
+      className: styles.headerfont
     },
     {
       title: "Next Payment Date",
       dataIndex: "nextPaymentDate",
       key: "nextPaymentDate",
+      className: styles.headerfont
     },
     {
       title: "Action",
@@ -130,7 +135,7 @@ const LoansTable = ({ handleOpenSidePanel }: ILoansTable) => {
         return (
           <div className={styles.columnsAction}>
             <Dropdown menu={{ items: returnItems(row) }}>
-              <MoreOutlined />
+              <MoreOutlined className={styles.ellipsis}/>
             </Dropdown>
           </div>
         );
@@ -172,10 +177,6 @@ const LoansTable = ({ handleOpenSidePanel }: ILoansTable) => {
           return {
             onClick: () => {},
           };
-        }}
-        rowSelection={{
-          type: "checkbox",
-          onChange: onChange,
         }}
         columns={columns}
         dataSource={loans}
