@@ -1,14 +1,18 @@
 /* eslint-disable */
 import cn from "classnames";
-import { ChangeEvent, useState } from "react";
+import {
+  ChangeEvent,
+  useEffect,
+  useRef,
+  useState,
+  KeyboardEvent,
+} from "react";
 import styles from "./index.module.scss";
 import SearchComponent from "../../components/SearchComponent";
-import { MoreOutlined, SearchOutlined } from "@ant-design/icons";
 import { ReactComponent as SearchIcon } from "../../icons/SearchIcon.svg";
 import { ReactComponent as PlusIcon } from "../../icons/plus.svg";
 import { Button, Form } from "antd";
 import DriverFilter from "../../components/DriverFilter";
-import { ReactComponent as CrossIcon } from "../../icons/x.svg";
 import { useSelector } from "react-redux";
 import { RootState } from "../../types/store";
 import { useAppDispatch } from "../../hooks/store";
@@ -46,8 +50,8 @@ const tab = [
     desc: "Fuel average for all your vehicles",
   },
 ];
+
 const VehicleTabs = ({ setDescVal }: any) => {
-  // const [filter, setFilter] = useState("");
   const dispatch = useAppDispatch();
   const { filters } = useSelector((state: RootState) => state.vehicleTracker);
 
@@ -55,6 +59,7 @@ const VehicleTabs = ({ setDescVal }: any) => {
     <div className={styles.tabs}>
       {tab?.map((item) => (
         <Button
+          key={item.type}
           style={{
             border: "0px",
             boxShadow: "0 0 0 rgb(0, 0, 0)",
@@ -81,24 +86,68 @@ const VehicleTrackerPage = () => {
   const [desc, setDesc] = useState(tab[0].desc);
   const [openExpenseForm, setOpenExpenseForm] = useState(false);
   const [openFuelForm, setOpenFuelForm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(
+    null
+  );
+  const [isFocused, setIsFocused] = useState(false);
+
+  const { filters } = useSelector((state: RootState) => state.vehicleTracker);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("recentSearches");
+    if (stored) setRecentSearches(JSON.parse(stored));
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  }, [debounceTimer]);
+
+  const addSearchToHistory = (term: string) => {
+    if (!term.trim()) return;
+    setRecentSearches((prev) => {
+      const unique = prev.filter((t) => t !== term);
+      const updated = [term, ...unique].slice(0, 5);
+      localStorage.setItem("recentSearches", JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // setSearchTerm(value);
+    setSearchTerm(value);
     dispatch(setVehicleTrackerFilter({ search: value }));
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+    setDebounceTimer(
+      setTimeout(() => {
+        addSearchToHistory(value);
+      }, 1000)
+    );
   };
 
-  const { filters, isViewDrawerOpen } = useSelector(
-    (state: RootState) => state.vehicleTracker
-  );
-
-  const [form] = Form.useForm();
-
-  const renderBtnText = () => {
-    if (filters.currentTab === "expense") {
-    } else if (filters.currentTab === "") {
+  const handleSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      dispatch(setVehicleTrackerFilter({ search: searchTerm }));
+      addSearchToHistory(searchTerm);
     }
   };
+
+  const clearSearch = () => {
+    setSearchTerm("");
+    dispatch(setVehicleTrackerFilter({ search: "" }));
+  };
+
+  const handleSuggestionClick = (value: string) => {
+    setSearchTerm(value);
+    dispatch(setVehicleTrackerFilter({ search: value }));
+    addSearchToHistory(value);
+  };
+
+  const [form] = Form.useForm();
 
   const handleSidePanelForm = () => {
     if (filters.currentTab === "expense") {
@@ -127,17 +176,31 @@ const VehicleTrackerPage = () => {
             <div className={styles.descText}>{desc}</div>
           </div>
           <div className={styles.inputContainer}>
-            <SearchComponent
-              value={""}
-              onChange={searchHandler}
-              LeadingIcon={SearchIcon}
-              placeholder={`Search by car`}
-            />
+            <div className={styles.searchWrapper}>
+              <div className={styles.inputWithIcon}>
+                <SearchComponent
+                  value={searchTerm}
+                  onChange={searchHandler}
+                  LeadingIcon={SearchIcon}
+                  placeholder={`Search by car`}
+                  suggestions={recentSearches}
+                  suggestionsVisible={isFocused && recentSearches.length > 0}
+                  onSuggestionClick={handleSuggestionClick}
+                  onKeyDown={handleSearchKeyDown}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setTimeout(() => setIsFocused(false), 100)}
+                />
+              </div>
+            </div>
+
             {(filters.currentTab === "expense" ||
               filters.currentTab === "fuel") && (
               <PrimaryBtn
                 LeadingIcon={PlusIcon}
-                btnText={`Add ${filters.currentTab.charAt(0).toUpperCase() + filters.currentTab.slice(1)}`}
+                btnText={`Add ${
+                  filters.currentTab.charAt(0).toUpperCase() +
+                  filters.currentTab.slice(1)
+                }`}
                 onClick={handleSidePanelForm}
               />
             )}

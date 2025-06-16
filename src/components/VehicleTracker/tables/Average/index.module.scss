@@ -11,6 +11,12 @@
     font-size: 0.875rem;
 }
 
+.vehicleNameNumber {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
+}
+
 // /* Remove all right borders from all cells */
 // :global(.ant-table-cell) {
 //   border-right: none !important;

@@ -88,12 +88,17 @@ const AverageTable = ({ handleOpenSidePanel }: IAverageTable) => {
     return items;
   }
   const columns: TableColumnsType<any> = [
-    {
+     {
       title: "Vehicle Name and Number",
-      dataIndex: "vehicleNameAndNumber",
-      key: "vehicleNameAndNumer",
-      className: styles.headerfont
-    },
+      key: "vehicleNameAndNumber",
+      className: styles.headerfont,
+      render: (_: any, row: any) => (
+        <div className={styles.vehicleNameNumber}>
+          <div>{row.vehicleName}</div>
+          <div>{row.vehicleNumber}</div>
+        </div>
+      ),
+  },
     {
       title: "Active Days/Total Days",
       dataIndex: "activeDays",

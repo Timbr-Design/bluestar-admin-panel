@@ -87,18 +87,17 @@ const LoansTable = ({ handleOpenSidePanel }: ILoansTable) => {
     return items;
   }
   const columns: TableColumnsType<any> = [
-    {
-      title: "Vehicle Name",
-      dataIndex: "vehicleName",
-      key: "vehicleName",
-      className: styles.headerfont
-    },
-    {
-      title: "Vehicle Number",
-      dataIndex: "vehicleNumber",
-      key: "vehicleNumber",
-      className: styles.headerfont
-    },
+     {
+      title: "Vehicle Name and Number",
+      key: "vehicleNameAndNumber",
+      className: styles.headerfont,
+      render: (_: any, row: any) => (
+        <div className={styles.vehicleNameNumber}>
+          <div>{row.vehicleName}</div>
+          <div>{row.vehicleNumber}</div>
+        </div>
+      ),
+  },
     {
       title: "Loan Amount (₹)",
       dataIndex: "loanAmount",
