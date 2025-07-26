@@ -17,6 +17,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./index.module.scss";
 import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
+import useDebounce from "../../../hooks/common/useDebounce";
 
 interface IBankAccountsTable {
   key: string;
@@ -108,15 +109,17 @@ const BankAccountsTable = ({
     },
   ];
 
+  const debouncedSearch = useDebounce(q, 500);
+
   useEffect(() => {
     dispatch(
       getBankAccount({
         page: pagination.page,
-        search: q,
         limit: pagination.limit,
+        search: debouncedSearch,
       })
     );
-  }, [q]);
+  }, [debouncedSearch]);
 
   const onChange = (
     selectedRowKeys: React.Key[],

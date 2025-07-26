@@ -17,6 +17,7 @@ import cn from "classnames";
 import React, { useEffect, useState } from "react";
 import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
+import useDebounce from "../../../hooks/common/useDebounce";
 
 interface IDriversTableData {
   key: string;
@@ -68,13 +69,11 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
     onClick: handleMenuClick,
   };
 
+  const debouncedSearch = useDebounce(q, 500);
+
   useEffect(() => {
-    dispatch(
-      getDrivers({
-        search: q,
-      })
-    );
-  }, [q]);
+    dispatch(getDrivers({ search: debouncedSearch }));
+  }, [debouncedSearch]);
 
   const columns: TableProps<IDriversTableData>["columns"] = [
     ...DRIVERS,
@@ -191,7 +190,14 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
         loading={driverStates?.loading || deleteDriverStates?.loading}
       />
 
-        <DeleteModal show={openDeleteModal} onClose={handleCloseModal} title={"Delete driver"} desc={"Are you sure you want to delete this driver?"} onDelete={handleDeleteDriver} data={driver?.name}/>
+      <DeleteModal
+        show={openDeleteModal}
+        onClose={handleCloseModal}
+        title={"Delete driver"}
+        desc={"Are you sure you want to delete this driver?"}
+        onDelete={handleDeleteDriver}
+        data={driver?.name}
+      />
     </>
   );
 };

@@ -19,6 +19,7 @@ import cn from "classnames";
 import React, { useState, useEffect } from "react";
 import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
+import useDebounce from "../../../hooks/common/useDebounce";
 
 interface IVehicleTable {
   key: string;
@@ -85,10 +86,17 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
     items,
     onClick: handleMenuClick,
   };
+  const debouncedSearch = useDebounce(q, 500);
 
   useEffect(() => {
-    dispatch(getVehicle({ page: 1, limit: "10", search: q || "" }));
-  }, [q]);
+    dispatch(
+      getVehicle({
+        page: 1,
+        limit: "10",
+        search: debouncedSearch,
+      })
+    );
+  }, [debouncedSearch]);
 
   const columns: TableProps<IVehicleTable>["columns"] = [
     ...VEHICLES,

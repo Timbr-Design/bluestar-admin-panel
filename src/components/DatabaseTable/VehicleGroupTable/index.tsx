@@ -18,6 +18,7 @@ import styles from "./index.module.scss";
 import React, { useEffect, useState, useRef } from "react";
 import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
+import useDebounce from "../../../hooks/common/useDebounce";
 
 interface IVehicleGroupTableData {
   key: string;
@@ -133,15 +134,17 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
     },
   ];
 
+  const debouncedSearch = useDebounce(q, 500);
+
   useEffect(() => {
     dispatch(
       getVehicleGroup({
         page: 1,
         limit: "",
-        search: q,
+        search: debouncedSearch,
       })
     );
-  }, [q]);
+  }, [debouncedSearch]);
 
   const onChange = (
     selectedRowKeys: React.Key[],
@@ -200,7 +203,14 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
           />
         )}
       />
-      <DeleteModal show={openDeleteModal} onClose={handleCloseModal} title={"Delete vehicle group"} desc={"Are you sure you want to delete this vehicle group?"} onDelete={handleDeleteVehicleGroup} data={vehicleGroup?.name} />
+      <DeleteModal
+        show={openDeleteModal}
+        onClose={handleCloseModal}
+        title={"Delete vehicle group"}
+        desc={"Are you sure you want to delete this vehicle group?"}
+        onDelete={handleDeleteVehicleGroup}
+        data={vehicleGroup?.name}
+      />
     </>
   );
 };

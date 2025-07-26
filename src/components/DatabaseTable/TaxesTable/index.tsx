@@ -19,6 +19,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./index.module.scss";
 import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
+import useDebounce from "../../../hooks/common/useDebounce";
 
 interface ITaxesTableData {
   key: string;
@@ -124,13 +125,15 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
     setOpenDeleteModal(false);
   };
 
+  const debouncedSearch = useDebounce(q, 500);
+
   useEffect(() => {
     dispatch(
       getTaxes({
-        search: q,
+        search: debouncedSearch,
       })
     );
-  }, [q]);
+  }, [debouncedSearch]);
 
   const onChange = (
     selectedRowKeys: React.Key[],

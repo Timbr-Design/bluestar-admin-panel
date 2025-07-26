@@ -20,6 +20,7 @@ import styles from "./index.module.scss";
 
 import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
+import useDebounce from "../../../hooks/common/useDebounce";
 
 interface IAllowanceData {
   key: string;
@@ -128,13 +129,15 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
     setOpenDeleteModal(false);
   };
 
+  const debouncedSearch = useDebounce(q, 500);
+
   useEffect(() => {
     dispatch(
       getAllowances({
-        search: q,
+        search: debouncedSearch,
       })
     );
-  }, [q]);
+  }, [debouncedSearch]);
 
   const onChange = (
     selectedRowKeys: React.Key[],
