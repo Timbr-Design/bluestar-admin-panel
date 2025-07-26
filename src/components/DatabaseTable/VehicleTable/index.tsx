@@ -39,6 +39,7 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
   const dispatch = useAppDispatch();
   const { vehicleStates, vehicleList, q, deleteVehicleStates, pagination } =
     useAppSelector((state) => state.database);
+  const {filters} = useAppSelector((state)=>state.vehicleTracker);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [vehicleId, setVehicleId] = useState<string>("");
   const [currentVehicle, setCurrentVehicle] = useState<any>({});
@@ -126,6 +127,7 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
       ),
     },
   ];
+
 
   const onChange = (
     selectedRowKeys: React.Key[],

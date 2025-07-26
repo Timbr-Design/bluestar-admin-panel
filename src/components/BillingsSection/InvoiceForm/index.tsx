@@ -6,11 +6,12 @@ import CustomizeRequiredMark from "../../../components/Common/CustomizeRequiredM
 import { ReactComponent as PlusIcon } from "../../../icons/plus-blue.svg";
 import styles from "./index.module.scss";
 import { useState } from "react";
+import { addInvoice } from "../../../redux/slices/billingSlice";
+import { useAppDispatch } from "../../../hooks/store";
 
-const InvoiceForm = () => {
-  const [form] = Form.useForm();
 
-  const items: MenuProps["items"] = [
+  const TAXES = [{ value: "Preset tax - 10%", label: "Preset tax - 10%" }];
+   const items: MenuProps["items"] = [
     {
       label: "Taxable",
       key: "0",
@@ -21,7 +22,23 @@ const InvoiceForm = () => {
     },
   ];
 
-  const TAXES = [{ value: "Preset tax - 10%", label: "Preset tax - 10%" }];
+const InvoiceForm = ({form}) => {
+
+ 
+
+  const dispatch = useAppDispatch();
+
+    const handleSave = (values: any) => {
+      console.log(values)
+      dispatch(addInvoice(values));
+    // if (Object.keys(selectedExpense).length) {
+    //   dispatch(
+    //     updateExpense({ payload: values, id: selectedExpense._id })
+    //   );
+    // } else {
+    //   dispatch(addNewExpense(values));
+    // }
+  };
 
   return (
     <div className={styles.mainContainer}>
@@ -48,6 +65,13 @@ const InvoiceForm = () => {
             className={styles.form}
             layout="vertical"
             form={form}
+            onFinish={(values) => {
+                    console.log(values)
+            const valuesToSend = {
+              billingAddress: values.billingAddress
+            };
+            handleSave(valuesToSend);
+          }}
           >
             <div className={styles.typeContainer}>
               <Form.Item

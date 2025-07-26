@@ -40,6 +40,7 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
     updateCustomersStates,
     viewContentDatabase,
   } = useAppSelector((state) => state.database);
+  console.log("I RUNI",selectedCustomer)
   const { Dragger } = Upload;
   const [api, contextHolder] = notification.useNotification();
   const [customerPaylod, setCustomerPayload] = useState({
@@ -116,6 +117,7 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
 
   useEffect(() => {
     if (Object.keys(selectedCustomer).length) {
+      console.log(selectedCustomer,"HELLO")
       setFilesArr(selectedCustomer?.data?.files || []);
       form.setFieldsValue({
         customerCode: selectedCustomer?.data?.customerCode,

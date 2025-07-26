@@ -12,13 +12,14 @@ import React, { useState, useEffect } from "react";
 import styles from "./index.module.scss";
 
 import CustomPagination from "../../../Common/Pagination";
-
-import {
-  getExpenses,
-  // getFuels,
-} from "../../../../redux/slices/vehicleTrackerSlice";
-import { getAllowances } from "../../../../redux/slices/databaseSlice";
+import { getFuels } from "../../../../redux/slices/vehicleTrackerSlice";
 import { MoreOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
+import {
+  deleteFuel,
+  setSelectedFuel,
+} from "../../../../redux/slices/FuelSlice";
+import DeleteModal from "../../../Modal/DeleteModal";
 
 interface IFuelsTable {
   handleOpenSidePanel: () => void;
@@ -28,8 +29,23 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
   const { fuels, filters, pagination, vehicleTrackerState } = useAppSelector(
     (state) => state.vehicleTracker
   );
+  const {vehicleList} = useAppSelector((state)=>state.database)
+
+  console.log(vehicleList)
+
   const dispatch = useAppDispatch();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [selectedRow,setSelectedRow] = useState(null);
+
+  const handleEditFuels = (row) => {
+    dispatch(setSelectedFuel(row));
+    handleOpenSidePanel();
+  };
+
+  const handleDeleteFuel = () => {
+    dispatch(deleteFuel({ id: selectedRow?._id }));
+  };
+
   function returnItems(row: any) {
     const items: MenuProps["items"] = [
       {
@@ -38,6 +54,7 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
           <div
             onClick={(e) => {
               e.stopPropagation();
+              handleEditFuels(row);
             }}
           >
             <Space align="center">
@@ -78,6 +95,7 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
             }}
             onClick={(e) => {
               e.stopPropagation();
+              setOpenDeleteModal(true)
             }}
           >
             <Space>
@@ -162,35 +180,17 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
   };
 
   useEffect(() => {
-    // dispatch(
-    //   getFuels({
-    //     search: filters.search,
-    //   })
-    // );
+    dispatch(
+      getFuels({
+        search: filters.search,
+      })
+    );
   }, [filters.search]);
-
-  const onChange = (
-    selectedRowKeys: React.Key[],
-    selectedRows: IFuelsTable[]
-  ) => {
-    console.log(selectedRowKeys, "selectedRowKeys");
-    // setSelectedRowKeys(selectedRowKeys);
-    console.log("Selected Rows: ", selectedRows);
-  };
 
   return (
     <>
       <Table
         bordered
-        onRow={(record) => {
-          return {
-            onClick: () => {},
-          };
-        }}
-        rowSelection={{
-          type: "checkbox",
-          onChange: onChange,
-        }}
         columns={columns}
         dataSource={fuels}
         loading={vehicleTrackerState?.loading}
@@ -205,7 +205,7 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
             pageSize={pagination.limit ?? 10}
             onPageChange={(page: number) => {
               dispatch(
-                getAllowances({
+                getFuels({
                   search: filters.search,
                   page,
                 })
@@ -214,7 +214,9 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
           />
         )}
       />
-      <Modal show={openDeleteModal} onClose={handleCloseModal}>
+      <DeleteModal title={"Delete Fuels"} show={openDeleteModal} onClose={handleCloseModal} onDelete={handleDeleteFuel}  />
+    
+      {/* <Modal show={openDeleteModal} onClose={handleCloseModal}>
         <div className={styles.deleteContainer}>
           <DeleteIconRed />
         </div>
@@ -240,7 +242,7 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
             </button>
           </div>
         </div>
-      </Modal>
+      </Modal> */}
     </>
   );
 };

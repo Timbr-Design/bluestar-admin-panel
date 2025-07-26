@@ -974,6 +974,12 @@ export const databaseSlice = createSlice({
         openSidePanel: action.payload,
       };
     },
+    setSelectedCustomer: (state, action: PayloadAction<any>) => {
+      return {
+        ...state,
+        selectedCustomer: action.payload,
+      };
+    },
     setViewContentDatabase: (state, action: PayloadAction<boolean>) => {
       return {
         ...state,
@@ -1827,6 +1833,7 @@ export const {
   clearSelectedDriver,
   clearSelectedAllowance,
   clearSelectedDutyType,
+  setSelectedCustomer
 } = actions;
 
 export default databaseSlice.reducer;
