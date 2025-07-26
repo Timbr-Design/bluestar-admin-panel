@@ -10,14 +10,13 @@ import {
 import type { MenuProps } from "antd";
 import { Table, Dropdown } from "antd";
 import type { TableProps } from "antd";
-import { ReactComponent as DeleteIconRed } from "../../../icons/trash-red.svg";
-import Modal from "../../Modal";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import React, { useEffect, useState } from "react";
 import styles from "./index.module.scss";
 import CustomPagination from "../../Common/Pagination";
+import DeleteModal from "../../Modal/DeleteModal";
 
 interface IBankAccountsTable {
   key: string;
@@ -171,33 +170,14 @@ const BankAccountsTable = ({
           />
         )}
       />
-      <Modal show={openDeleteModal} onClose={handleCloseModal}>
-        <div className={styles.deleteContainer}>
-          <DeleteIconRed />
-        </div>
-        <div className={styles.modalContainer}>
-          <div className={styles.textContainer}>
-            <div className={styles.primaryText}>Delete bank account</div>
-            <div className={styles.secondaryText}>
-              Are you sure you want to delete this bank account?{" "}
-              <div className={styles.selectedSecondaryText}>
-                {bankAccountName}
-              </div>
-            </div>
-          </div>
-          <div className={styles.bottomBtns}>
-            <button className={styles.cancelBtn} onClick={handleCloseModal}>
-              Cancel
-            </button>
-            <button
-              className={styles.deleteBtn}
-              onClick={handleDeleteBankAccount}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <DeleteModal
+        show={openDeleteModal}
+        onClose={handleCloseModal}
+        title={"Delete bank account"}
+        desc={"Are you sure you want to delete this bank account?"}
+        onDelete={handleDeleteBankAccount}
+        data={bankAccountName}
+      />
     </>
   );
 };

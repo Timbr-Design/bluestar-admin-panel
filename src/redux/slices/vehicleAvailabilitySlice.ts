@@ -75,7 +75,8 @@ export const vehicleAvailabilitySlice = createSlice({
         state.vehicleAvailabilityState.status = "succeeded";
         state.vehicleAvailabilityState.loading = false;
         state.vehicleAvailabilityState.error = "";
-        state.vehicleAvailability = action.payload.data;
+        // console.log(action.payload);
+        state.vehicleAvailability = action.payload.vehicles;
         state.pagination = {
           total: action.payload.total,
           page: action.payload.page,

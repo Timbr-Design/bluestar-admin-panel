@@ -6,6 +6,7 @@ import Modal from "./index";
 
 interface DeleteExpenseModalProps {
   title: string
+  desc: string
   show: boolean
   onClose: () => void
   onDelete: () => void
@@ -13,70 +14,52 @@ interface DeleteExpenseModalProps {
     vehicle: string
     plateNumber: string
   }
+  data?: any
 }
 
 const DeleteModal: React.FC<DeleteExpenseModalProps> = ({
   title,
+  desc,
   show,
   onClose,
   onDelete,
-  expenseDetails = { vehicle: "Swift Dzire", plateNumber: "RJ90AB8264" }
+  data
 }) => {
   const handleDelete = () => {
     onDelete()
     onClose()
   }
 
-  return (
-    <Modal show={show} onClose={onClose}>
-      <div className={styles.deleteExpenseContent}>
-        <div className={styles.header}>
-          <div className={styles.iconContainer}>
-            <DeleteIconRed className={styles.trashIcon} cursor={'pointer'}/>
-          </div>
-          <div className={styles.bg}>
-            <SpiralBg width={200} height={200}/>
+  return (<Modal show={show} onClose={onClose}>
+        <div className={styles.deleteContainer}>
+          <DeleteIconRed />
+        </div>
+        <div className={styles.bg}>
+             <SpiralBg width={150} height={150}/>
+             </div>
+        <div className={styles.modalContainer}>
+          <div className={styles.textContainer}>
+            <div className={styles.primaryText}>{title}</div>
+            <div className={styles.secondaryText}>
+              {desc}
+              <div className={styles.selectedSecondaryText}>
+                {data}
+              </div>
             </div>
-          
+          </div>
+          <div className={styles.bottomBtns}>
+            <button className={styles.cancelBtn} onClick={onClose}>
+              Cancel
+            </button>
+            <button
+              className={styles.deleteBtn}
+              onClick={handleDelete}
+            >
+              Delete
+            </button>
+          </div>
         </div>
-
-        <div className={styles.body}>
-          <h2 className={styles.title}>{title}</h2>
-          <p className={styles.confirmText}>Are you sure you want to delete this expense?</p>
-          <p className={styles.detailText}>
-            Car: {expenseDetails.vehicle} | {expenseDetails.plateNumber}
-          </p>
-        </div>
-
-        <div className={styles.footer}>
-          <button className={styles.cancelButton} onClick={onClose}>
-            Cancel
-          </button>
-          <button className={styles.deleteButton} onClick={handleDelete}>
-            Delete
-          </button>
-        </div>
-      </div>
-    </Modal>
+      </Modal>
   )
 }
 export default DeleteModal;
-
-// Demo component to show the modal
-// export default function Component() {
-//   const [showModal, setShowModal] = useState(true)
-
-//   const handleDelete = () => {
-//     console.log("Expense deleted")
-//   }
-
-//   return (
-//     <div className={styles.demoContainer}>
-//       <button className={styles.triggerButton} onClick={() => setShowModal(true)}>
-//         Show Delete Modal
-//       </button>
-
-//       <DeleteModal show={showModal} onClose={() => setShowModal(false)} onDelete={handleDelete} />
-//     </div>
-//   )
-// }

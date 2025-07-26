@@ -214,7 +214,7 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
           />
         )}
       />
-      <DeleteModal title={"Delete Expense"} show={openDeleteModal} onClose={handleCloseModal} onDelete={handleDeleteExpense}  />
+      <DeleteModal title={"Delete Expense"} desc={" Are you sure you want to delete this expense?"} show={openDeleteModal} onClose={handleCloseModal} onDelete={handleDeleteExpense}  />
     </>
   );
 };

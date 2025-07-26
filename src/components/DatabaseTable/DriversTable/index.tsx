@@ -5,9 +5,7 @@ import {
   deleteDriver,
   setViewContentDatabase,
 } from "../../../redux/slices/databaseSlice";
-import Modal from "../../Modal";
 import type { TableProps, MenuProps } from "antd";
-import { ReactComponent as DeleteIconRed } from "../../../icons/trash-red.svg";
 import { Table, Dropdown } from "antd";
 import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
@@ -18,6 +16,7 @@ import styles from "./index.module.scss";
 import cn from "classnames";
 import React, { useEffect, useState } from "react";
 import CustomPagination from "../../Common/Pagination";
+import DeleteModal from "../../Modal/DeleteModal";
 
 interface IDriversTableData {
   key: string;
@@ -191,28 +190,8 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
         })}
         loading={driverStates?.loading || deleteDriverStates?.loading}
       />
-      <Modal show={openDeleteModal} onClose={handleCloseModal}>
-        <div className={styles.deleteContainer}>
-          <DeleteIconRed />
-        </div>
-        <div className={styles.modalContainer}>
-          <div className={styles.textContainer}>
-            <div className={styles.primaryText}>Delete driver</div>
-            <div className={styles.secondaryText}>
-              Are you sure you want to delete this driver?{" "}
-              <div className={styles.selectedSecondaryText}>{driver?.name}</div>
-            </div>
-          </div>
-          <div className={styles.bottomBtns}>
-            <button className={styles.cancelBtn} onClick={handleCloseModal}>
-              Cancel
-            </button>
-            <button className={styles.deleteBtn} onClick={handleDeleteDriver}>
-              Delete
-            </button>
-          </div>
-        </div>
-      </Modal>
+
+        <DeleteModal show={openDeleteModal} onClose={handleCloseModal} title={"Delete driver"} desc={"Are you sure you want to delete this driver?"} onDelete={handleDeleteDriver} data={driver?.name}/>
     </>
   );
 };

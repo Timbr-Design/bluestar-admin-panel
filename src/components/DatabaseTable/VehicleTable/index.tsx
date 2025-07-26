@@ -10,16 +10,15 @@ import {
 } from "../../../redux/slices/databaseSlice";
 import { VEHICLES } from "../../../constants/database";
 import { ReactComponent as Clipboard } from "../../../icons/clipboard-x.svg";
-import { ReactComponent as DeleteIconRed } from "../../../icons/trash-red.svg";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
-import Modal from "../../Modal";
 import type { MenuProps } from "antd";
 import { Table, TableProps, Dropdown } from "antd";
 import styles from "./index.module.scss";
 import cn from "classnames";
 import React, { useState, useEffect } from "react";
 import CustomPagination from "../../Common/Pagination";
+import DeleteModal from "../../Modal/DeleteModal";
 
 interface IVehicleTable {
   key: string;
@@ -39,7 +38,7 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
   const dispatch = useAppDispatch();
   const { vehicleStates, vehicleList, q, deleteVehicleStates, pagination } =
     useAppSelector((state) => state.database);
-  const {filters} = useAppSelector((state)=>state.vehicleTracker);
+  const { filters } = useAppSelector((state) => state.vehicleTracker);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [vehicleId, setVehicleId] = useState<string>("");
   const [currentVehicle, setCurrentVehicle] = useState<any>({});
@@ -128,7 +127,6 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
     },
   ];
 
-
   const onChange = (
     selectedRowKeys: React.Key[],
     selectedRows: IVehicleTable[]
@@ -198,28 +196,14 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
           />
         )}
       />
-      <Modal show={openDeleteModal} onClose={handleCloseModal}>
-        <div className={styles.deleteContainer}>
-          <DeleteIconRed />
-        </div>
-        <div className={styles.modalContainer}>
-          <div className={styles.textContainer}>
-            <div className={styles.primaryText}>Delete vehicle</div>
-            <div className={styles.secondaryText}>
-              Are you sure you want to delete this vehicle?{" "}
-              <div className={styles.selectedSecondaryText}>{vehicleName}</div>
-            </div>
-          </div>
-          <div className={styles.bottomBtns}>
-            <button className={styles.cancelBtn} onClick={handleCloseModal}>
-              Cancel
-            </button>
-            <button className={styles.deleteBtn} onClick={handleDeleteVehicle}>
-              Delete
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <DeleteModal
+        show={openDeleteModal}
+        onClose={handleCloseModal}
+        title={"Delete vehicle"}
+        desc={"Are you sure you want to delete this vehicle?"}
+        onDelete={handleDeleteVehicle}
+        data={vehicleName}
+      />
     </>
   );
 };

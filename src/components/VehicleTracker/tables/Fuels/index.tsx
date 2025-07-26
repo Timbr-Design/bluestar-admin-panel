@@ -2,19 +2,16 @@
 
 import { useAppDispatch, useAppSelector } from "../../../../hooks/store";
 import { Dropdown, Space, Table } from "antd";
-import { ReactComponent as DeleteIconRed } from "../../../../icons/trash-red.svg";
 import { ReactComponent as Edit02 } from "../../../../icons/edit-02.svg";
 import { ReactComponent as Eye } from "../../../../icons/eye.svg";
 import { ReactComponent as Trash01 } from "../../../../icons/trash-01.svg";
 import type { MenuProps, TableColumnsType } from "antd";
-import Modal from "../../../Modal";
 import React, { useState, useEffect } from "react";
 import styles from "./index.module.scss";
 
 import CustomPagination from "../../../Common/Pagination";
 import { getFuels } from "../../../../redux/slices/vehicleTrackerSlice";
 import { MoreOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
 import {
   deleteFuel,
   setSelectedFuel,
@@ -29,9 +26,7 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
   const { fuels, filters, pagination, vehicleTrackerState } = useAppSelector(
     (state) => state.vehicleTracker
   );
-  const {vehicleList} = useAppSelector((state)=>state.database)
-
-  console.log(vehicleList)
+  // const {vehicleList} = useAppSelector((state)=>state.database)
 
   const dispatch = useAppDispatch();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -174,11 +169,6 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
     setOpenDeleteModal(false);
   };
 
-  const handleDeleteAllowance = () => {
-    // dispatch(deleteAllowance({ id: allowanceId }));
-    setOpenDeleteModal(false);
-  };
-
   useEffect(() => {
     dispatch(
       getFuels({
@@ -214,35 +204,7 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
           />
         )}
       />
-      <DeleteModal title={"Delete Fuels"} show={openDeleteModal} onClose={handleCloseModal} onDelete={handleDeleteFuel}  />
-    
-      {/* <Modal show={openDeleteModal} onClose={handleCloseModal}>
-        <div className={styles.deleteContainer}>
-          <DeleteIconRed />
-        </div>
-        <div className={styles.modalContainer}>
-          <div className={styles.textContainer}>
-            <div className={styles.primaryText}>Delete Fuels</div>
-            <div className={styles.secondaryText}>
-              Are you sure you want to delete this expense?{" "}
-              <div className={styles.selectedSecondaryText}>
-                {"Delete Fuels"}
-              </div>
-            </div>
-          </div>
-          <div className={styles.bottomBtns}>
-            <button className={styles.cancelBtn} onClick={handleCloseModal}>
-              Cancel
-            </button>
-            <button
-              className={styles.deleteBtn}
-              onClick={handleDeleteAllowance}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      </Modal> */}
+      <DeleteModal title={"Delete Fuels"} desc={" Are you sure you want to delete this expense?"} show={openDeleteModal} onClose={handleCloseModal} onDelete={handleDeleteFuel}  />
     </>
   );
 };
