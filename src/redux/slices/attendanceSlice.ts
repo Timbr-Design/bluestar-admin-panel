@@ -22,6 +22,7 @@ const initialState = {
 export const getAttendance = createAsyncThunk(
   "attendance/getAttendance",
   async (params: any) => {
+    console.log(params)
     // const { dates } = params;
     // const response = await apiClient.get("/attendance", {
     //   params: { dates: dates },

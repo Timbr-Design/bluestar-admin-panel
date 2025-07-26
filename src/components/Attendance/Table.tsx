@@ -27,6 +27,7 @@ import Dayjs from "dayjs";
 /* eslint-disable */
 
 import MarkedAttendance from "./MarkAttendance";
+import useDebounce from "../../hooks/common/useDebounce";
 
 function ReturnItems(row: any) {
   const dispatch = useAppDispatch();
@@ -65,6 +66,9 @@ const pagination = {
 
 const AttendanceTable = () => {
   const pastSevenDays = getPastSevenDays();
+  const {
+    filters: { q },
+  } = useAppSelector((state) => state.attendance);
 
   const [col, setCol] = useState(() =>
     pastSevenDays.map((each) => ({
@@ -128,9 +132,11 @@ const AttendanceTable = () => {
     (state: RootState) => state.attendance
   );
 
+  const debouncedSearch = useDebounce(q, 500);
+
   useEffect(() => {
     dispatch(getAttendance({ ...filters, dates: pastSevenDays }));
-  }, []);
+  }, [debouncedSearch]);
 
   const tableData = useMemo(() => {
     // Get unique drivers
@@ -177,7 +183,6 @@ const AttendanceTable = () => {
       return rowData;
     });
   }, [attendance]);
-  console.log("attendance", attendance);
 
   return (
     <>

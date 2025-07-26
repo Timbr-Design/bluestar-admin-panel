@@ -86,7 +86,7 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
     items,
     onClick: handleMenuClick,
   };
-  const debouncedSearch = useDebounce(q, 500);
+  const debouncedSearch = useDebounce(filters.search, 500);
 
   useEffect(() => {
     dispatch(
