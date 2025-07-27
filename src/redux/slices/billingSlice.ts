@@ -37,6 +37,9 @@ export const addInvoice = createAsyncThunk(
   "billings/addInvoice",
   async (body: any, { dispatch }) => {
     const response = await apiClient.post("/invoice", body);
+    console.log(response.data)
+    dispatch(setInvoices(response.data))
+    return {}
   }
 );
 

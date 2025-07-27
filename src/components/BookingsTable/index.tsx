@@ -26,6 +26,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import _ from "lodash";
+import useDebounce from "../../hooks/common/useDebounce";
 import { ReactComponent as DotsHorizontal } from "../../icons/dots-horizontal.svg";
 import { ReactComponent as DeleteIcon } from "../../icons/trash.svg";
 import { ReactComponent as EyeIcon } from "../../icons/eye2.svg";
@@ -302,8 +303,6 @@ const BookingsTable = () => {
     });
   }
 
-  console.log(currentSelectedBooking, "currentSelectedBooking");
-
   // rowSelection object indicates the need for row selection
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: any[]) => {
@@ -328,9 +327,15 @@ const BookingsTable = () => {
     dispatch(clearCurrentSelectedBooking());
   }
 
-  useEffect(() => {
-    dispatch(getBookings({ ...filters }));
-  }, [filters.search, filters.status]);
+  const debouncedSearch = useDebounce(filters.search, 500);
+
+useEffect(() => {
+  dispatch(getBookings({ 
+    ...filters, 
+    search: debouncedSearch 
+  }));
+}, [debouncedSearch, filters.status]);
+
   let navigate = useNavigate();
 
   const handleConfirmBooking = () => {

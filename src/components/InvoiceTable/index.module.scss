@@ -1,0 +1,20 @@
+.editButton {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+//   background-color: red;
+}
+
+.button {
+  background: none;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+}

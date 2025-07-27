@@ -16,6 +16,13 @@ import CustomPagination from "../../../Common/Pagination";
 import { getExpenses } from "../../../../redux/slices/vehicleTrackerSlice";
 
 import { MoreOutlined } from "@ant-design/icons";
+import useDebounce from "../../../../hooks/common/useDebounce";
+import { IExpense } from "../../../../interface/expense";
+import {
+  deleteExpense,
+  setSelectedExpense,
+} from "../../../../redux/slices/expenseSlice";
+import DeleteModal from "../../../Modal/DeleteModal";
 
 interface IExpenseTable {
   handleOpenSidePanel: () => void;
@@ -27,14 +34,26 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
   );
   const dispatch = useAppDispatch();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [selectedRow,setSelectedRow] = useState(null);
+
+  const handleEditExpenses = (row) => {
+    dispatch(setSelectedExpense(row));
+    handleOpenSidePanel();
+  };
+
+  const handleDeleteExpense = () => {
+    dispatch(deleteExpense({ id: selectedRow?._id }));
+  };
+
   function returnItems(row: any) {
     const items: MenuProps["items"] = [
       {
         key: "1",
         label: (
           <div
-            onClick={(e) => {
+            onClick={(e: any) => {
               e.stopPropagation();
+              handleEditExpenses(row);
             }}
           >
             <Space align="center">
@@ -75,6 +94,8 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
             }}
             onClick={(e) => {
               e.stopPropagation();
+              setSelectedRow(row)
+              setOpenDeleteModal(true)
             }}
           >
             <Space>
@@ -87,26 +108,34 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
     ];
     return items;
   }
+
   const columns: TableColumnsType<any> = [
     {
-      title: "Vehicle Name",
-      dataIndex: "vehicleName",
-      key: "vehicleName",
-    },
-    {
-      title: "Vehicle Number",
-      dataIndex: "vehicleNumber",
-      key: "vehicleNumber",
+      title: "Vehicle Name and Number",
+      key: "vehicleNameNumber",
+      render: (_: any, record: any) => (
+        <div>
+          <div>{record?.vehicleId?.modelName ?? "-"}</div>
+          <div style={{ color: "#666", fontSize: "12px" }}>
+            {record?.vehicleId?.vehicleNumber ?? "-"}
+          </div>
+        </div>
+      ),
     },
     {
       title: "Expense Number",
-      dataIndex: "expenseNumber",
       key: "expenseNumber",
+      render: (_: any, record: any) => {
+        const vehicleNumber = record?.vehicleId?.vehicleNumber ?? "-";
+        const repeatInterval = record?.repeatExpense?.repeatInterval ?? "-";
+        return `${vehicleNumber}-${repeatInterval}`;
+      },
     },
     {
       title: "Expense Type",
       dataIndex: "expenseType",
       key: "expenseType",
+      render: (text: any) => (Array.isArray(text) ? text.join(", ") : text),
     },
     {
       title: "Payment Mode",
@@ -117,7 +146,7 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
-      render: (text: any) => `₹${text}`, // Format amount with currency symbol
+      render: (text) => `₹${Number(text).toLocaleString("hi-IN")}`,
     },
     {
       title: "Action",
@@ -125,34 +154,29 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
       key: "action",
       fixed: "right",
       width: 100,
-      render: (data: any, row: any) => {
-        return (
-          <div className={styles.columnsAction}>
-            <Dropdown menu={{ items: returnItems(row) }}>
-              <MoreOutlined />
-            </Dropdown>
-          </div>
-        );
-      },
+      render: (_: any, row: any) => (
+        <div className={styles.columnsAction}>
+          <Dropdown menu={{ items: returnItems(row) }}>
+            <MoreOutlined />
+          </Dropdown>
+        </div>
+      ),
     },
   ];
-
   const handleCloseModal = () => {
     setOpenDeleteModal(false);
   };
 
-  const handleDeleteAllowance = () => {
-    // dispatch(deleteAllowance({ id: allowanceId }));
-    setOpenDeleteModal(false);
-  };
+  const debouncedSearch = useDebounce(filters.search, 500);
 
   useEffect(() => {
     dispatch(
       getExpenses({
-        search: filters.search,
+        ...filters,
+        search: debouncedSearch,
       })
     );
-  }, [filters.search]);
+  }, [debouncedSearch]);
 
   const onChange = (
     selectedRowKeys: React.Key[],
@@ -167,15 +191,6 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
     <>
       <Table
         bordered
-        onRow={(record) => {
-          return {
-            onClick: () => {},
-          };
-        }}
-        rowSelection={{
-          type: "checkbox",
-          onChange: onChange,
-        }}
         columns={columns}
         dataSource={expenses}
         loading={vehicleTrackerState?.loading}
@@ -199,33 +214,7 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
           />
         )}
       />
-      <Modal show={openDeleteModal} onClose={handleCloseModal}>
-        <div className={styles.deleteContainer}>
-          <DeleteIconRed />
-        </div>
-        <div className={styles.modalContainer}>
-          <div className={styles.textContainer}>
-            <div className={styles.primaryText}>Delete expense</div>
-            <div className={styles.secondaryText}>
-              Are you sure you want to delete this expense?{" "}
-              <div className={styles.selectedSecondaryText}>
-                {"Delete expense"}
-              </div>
-            </div>
-          </div>
-          <div className={styles.bottomBtns}>
-            <button className={styles.cancelBtn} onClick={handleCloseModal}>
-              Cancel
-            </button>
-            <button
-              className={styles.deleteBtn}
-              onClick={handleDeleteAllowance}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <DeleteModal title={"Delete Expense"} desc={" Are you sure you want to delete this expense?"} show={openDeleteModal} onClose={handleCloseModal} onDelete={handleDeleteExpense}  />
     </>
   );
 };

@@ -20,6 +20,7 @@ import { Table, TableProps, Dropdown } from "antd";
 import styles from "./index.module.scss";
 import React, { useState, useEffect } from "react";
 import CustomPagination from "../../Common/Pagination";
+import useDebounce from "../../../hooks/common/useDebounce";
 
 interface ICustomerTableData {
   key: string;
@@ -131,9 +132,11 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
     console.log("Selected Rows: ", selectedRows);
   };
 
+  const debouncedSearch = useDebounce(q, 500);
+
   useEffect(() => {
-    dispatch(getCustomer({ search: q }));
-  }, [q]);
+    dispatch(getCustomer({ search: debouncedSearch }));
+  }, [debouncedSearch]);
 
   return (
     <>

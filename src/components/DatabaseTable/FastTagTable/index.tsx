@@ -1,9 +1,12 @@
 /* eslint-disable */
 import { FASTTAG_TABLE } from "../../../constants/database";
 import { Table } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 import CustomPagination from "../../Common/Pagination";
-import { useAppSelector } from "../../../hooks/store";
+import { useAppDispatch, useAppSelector } from "../../../hooks/store";
+import useDebounce from "../../../hooks/common/useDebounce";
+import { useDispatch } from "react-redux";
+import { getVehicleGroup } from "../../../redux/slices/databaseSlice";
 
 interface IFastTagTableData {
   key: React.Key;
@@ -60,6 +63,7 @@ const data: IFastTagTableData[] = [
 
 const FastTagTable = () => {
   const { q, pagination } = useAppSelector((state) => state.database);
+  const dispatch = useAppDispatch();
 
   const onChange = (
     selectedRowKeys: React.Key[],
@@ -71,6 +75,18 @@ const FastTagTable = () => {
       selectedRows
     );
   };
+
+  //   const debouncedSearch = useDebounce(q, 500);
+
+  // useEffect(() => {
+  //   dispatch(
+  //     getVehicleGroup({
+  //       page: 1,
+  //       limit: "",
+  //       search: debouncedSearch,
+  //     })
+  //   );
+  // }, [debouncedSearch]);
 
   return (
     <Table

@@ -2,9 +2,7 @@
 import { TAXES_TABLE } from "../../../constants/database";
 import { Table, TableProps, Dropdown } from "antd";
 import type { MenuProps } from "antd";
-import Modal from "../../Modal";
 import cn from "classnames";
-import { ReactComponent as DeleteIconRed } from "../../../icons/trash-red.svg";
 import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as Clipboard } from "../../../icons/clipboard-x.svg";
@@ -20,6 +18,8 @@ import {
 import React, { useState, useEffect } from "react";
 import styles from "./index.module.scss";
 import CustomPagination from "../../Common/Pagination";
+import DeleteModal from "../../Modal/DeleteModal";
+import useDebounce from "../../../hooks/common/useDebounce";
 
 interface ITaxesTableData {
   key: string;
@@ -125,13 +125,15 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
     setOpenDeleteModal(false);
   };
 
+  const debouncedSearch = useDebounce(q, 500);
+
   useEffect(() => {
     dispatch(
       getTaxes({
-        search: q,
+        search: debouncedSearch,
       })
     );
-  }, [q]);
+  }, [debouncedSearch]);
 
   const onChange = (
     selectedRowKeys: React.Key[],
@@ -207,28 +209,14 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
         }
       />
 
-      <Modal show={openDeleteModal} onClose={handleCloseModal}>
-        <div className={styles.deleteContainer}>
-          <DeleteIconRed />
-        </div>
-        <div className={styles.modalContainer}>
-          <div className={styles.textContainer}>
-            <div className={styles.primaryText}>Delete tax</div>
-            <div className={styles.secondaryText}>
-              Are you sure you want to delete this tax?{" "}
-              <div className={styles.selectedSecondaryText}>{taxName}</div>
-            </div>
-          </div>
-          <div className={styles.bottomBtns}>
-            <button className={styles.cancelBtn} onClick={handleCloseModal}>
-              Cancel
-            </button>
-            <button className={styles.deleteBtn} onClick={handleDeleteTax}>
-              Delete
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <DeleteModal
+        show={openDeleteModal}
+        onClose={handleCloseModal}
+        title={"Delete tax"}
+        desc={"Are you sure you want to delete this tax?"}
+        onDelete={handleDeleteTax}
+        data={taxName}
+      />
     </>
   );
 };

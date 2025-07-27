@@ -27,19 +27,20 @@ interface AvailablityTableProps {
 
 const AvailablityTable = ({ data, loading }: AvailablityTableProps) => {
   // Extract unique dates from the data
-  const dates = data?.reduce((acc: string[], item) => {
-    item.dates.forEach(date => {
-      if (!acc.includes(date.date)) {
-        acc.push(date.date);
-      }
-    });
-    return acc;
-  }, []).sort((a, b) => {
-    // Sort dates in ascending order
-    const dateA = new Date(a);
-    const dateB = new Date(b);
-    return dateA.getTime() - dateB.getTime();
-  });
+  // console.log(data)
+  // const dates = data?.reduce((acc: string[], item) => {
+  //   item.dates.forEach(date => {
+  //     if (!acc.includes(date.date)) {
+  //       acc.push(date.date);
+  //     }
+  //   });
+  //   return acc;
+  // }, []).sort((a, b) => {
+  //   // Sort dates in ascending order
+  //   const dateA = new Date(a);
+  //   const dateB = new Date(b);
+  //   return dateA.getTime() - dateB.getTime();
+  // });
 
   const columns: TableProps<IAvailability>["columns"] = [
     {
@@ -60,53 +61,53 @@ const AvailablityTable = ({ data, loading }: AvailablityTableProps) => {
       },
     },
     // Dynamically create columns based on the dates
-    ...dates?.map((date) => ({
-      title: date,
-      key: date,
-      width: 200,
-      className: "available-date",
-      render: (record: IAvailability) => {
-        // Find the booking info for the specific date
-        const dateInfo = record.dates.find((d) => d.date === date);
+    // ...dates?.map((date) => ({
+    //   title: date,
+    //   key: date,
+    //   width: 200,
+    //   className: "available-date",
+    //   render: (record: IAvailability) => {
+    //     // Find the booking info for the specific date
+    //     const dateInfo = record.dates.find((d) => d.date === date);
 
-        if (!dateInfo || dateInfo.bookings.length === 0) {
-          return ""; // No bookings on this date
-        }
+    //     if (!dateInfo || dateInfo.bookings.length === 0) {
+    //       return ""; // No bookings on this date
+    //     }
 
-        return dateInfo?.bookings?.map((booking, index) => (
-          <div
-            key={index}
-            className={cn(styles.bookingConatiner, {
-              [styles.connect]:
-                dateInfo.bookings[index]?.bookingId ===
-                dateInfo.bookings[index + 1]?.bookingId,
-            })}
-            aria-describedby={`${index}`}
-          >
-            <div className={styles.booking}>
-              <div className={styles.hash} aria-describedby={`${index}`}>
-                {dateInfo.bookings[index]?.bookingId ===
-                dateInfo.bookings[index + 1]?.bookingId
-                  ? ""
-                  : "#"}
-              </div>
-              <div className={styles.bookingText}>
-                {dateInfo.bookings[index]?.bookingId ===
-                dateInfo.bookings[index + 1]?.bookingId
-                  ? ""
-                  : `${booking.bookingId}`}
-              </div>
-            </div>
-            <div className={styles.text}>
-              {dateInfo.bookings[index]?.bookingId ===
-              dateInfo.bookings[index + 1]?.bookingId
-                ? ""
-                : `${booking.user}`}
-            </div>
-          </div>
-        ));
-      },
-    })),
+    //     return dateInfo?.bookings?.map((booking, index) => (
+    //       <div
+    //         key={index}
+    //         className={cn(styles.bookingConatiner, {
+    //           [styles.connect]:
+    //             dateInfo.bookings[index]?.bookingId ===
+    //             dateInfo.bookings[index + 1]?.bookingId,
+    //         })}
+    //         aria-describedby={`${index}`}
+    //       >
+    //         <div className={styles.booking}>
+    //           <div className={styles.hash} aria-describedby={`${index}`}>
+    //             {dateInfo.bookings[index]?.bookingId ===
+    //             dateInfo.bookings[index + 1]?.bookingId
+    //               ? ""
+    //               : "#"}
+    //           </div>
+    //           <div className={styles.bookingText}>
+    //             {dateInfo.bookings[index]?.bookingId ===
+    //             dateInfo.bookings[index + 1]?.bookingId
+    //               ? ""
+    //               : `${booking.bookingId}`}
+    //           </div>
+    //         </div>
+    //         <div className={styles.text}>
+    //           {dateInfo.bookings[index]?.bookingId ===
+    //           dateInfo.bookings[index + 1]?.bookingId
+    //             ? ""
+    //             : `${booking.user}`}
+    //         </div>
+    //       </div>
+    //     ));
+    //   },
+    // })),
   ];
 
   return (

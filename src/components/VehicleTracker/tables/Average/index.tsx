@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { useAppDispatch, useAppSelector } from "../../../../hooks/store";
-import { Avatar, Dropdown, Space, Table, Tooltip } from "antd";
+import { Avatar, Space, Table, Tooltip } from "antd";
 import { ReactComponent as DeleteIconRed } from "../../../../icons/trash-red.svg";
 import { ReactComponent as Edit02 } from "../../../../icons/edit-02.svg";
 import { ReactComponent as Eye } from "../../../../icons/eye.svg";
@@ -15,7 +15,8 @@ import CustomPagination from "../../../Common/Pagination";
 
 import { getAverage } from "../../../../redux/slices/vehicleTrackerSlice";
 
-import { MoreOutlined } from "@ant-design/icons";
+import { ArrowUpOutlined } from "@ant-design/icons";
+import useDebounce from "../../../../hooks/common/useDebounce";
 
 interface IAverageTable {
   handleOpenSidePanel: () => void;
@@ -27,6 +28,7 @@ const AverageTable = ({ handleOpenSidePanel }: IAverageTable) => {
   );
   const dispatch = useAppDispatch();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  
   function returnItems(row: any) {
     const items: MenuProps["items"] = [
       {
@@ -89,9 +91,17 @@ const AverageTable = ({ handleOpenSidePanel }: IAverageTable) => {
   }
   const columns: TableColumnsType<any> = [
     {
-      title: "Vehicle Name",
-      dataIndex: "vehicleName",
+      title: "Vehicle Name and Number",
       key: "vehicleName",
+      render: (_: any, record: any) => (
+        <div>
+          <ArrowUpOutlined />
+          <div>{record?.vehicleName ?? "-"}</div>
+          <div style={{ color: "#666", fontSize: "12px" }}>
+            {record?.vehicleNumber ?? "-"}
+          </div>
+        </div>
+      ),
     },
     {
       title: "Vehicle Number",
@@ -136,23 +146,7 @@ const AverageTable = ({ handleOpenSidePanel }: IAverageTable) => {
       dataIndex: "vehicleAverage",
       key: "vehicleAverage",
       render: (text) => `${text} km/L`,
-    },
-    {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
-      fixed: "right",
-      width: 100,
-      render: (data: any, row: any) => {
-        return (
-          <div className={styles.columnsAction}>
-            <Dropdown menu={{ items: returnItems(row) }}>
-              <MoreOutlined />
-            </Dropdown>
-          </div>
-        );
-      },
-    },
+    }
   ];
 
   const handleCloseModal = () => {
@@ -164,36 +158,19 @@ const AverageTable = ({ handleOpenSidePanel }: IAverageTable) => {
     setOpenDeleteModal(false);
   };
 
-  useEffect(() => {
-    dispatch(
-      getAverage({
-        search: filters.search,
-      })
-    );
-  }, [filters.search]);
+    const debouncedSearch = useDebounce(filters.search, 500);
 
-  const onChange = (
-    selectedRowKeys: React.Key[],
-    selectedRows: IAverageTable[]
-  ) => {
-    console.log(selectedRowKeys, "selectedRowKeys");
-    // setSelectedRowKeys(selectedRowKeys);
-    console.log("Selected Rows: ", selectedRows);
-  };
+useEffect(() => {
+  dispatch(getAverage({ 
+    ...filters, 
+    search: debouncedSearch 
+  }));
+}, [debouncedSearch]);
 
   return (
     <>
       <Table
         bordered
-        onRow={(record) => {
-          return {
-            onClick: () => {},
-          };
-        }}
-        rowSelection={{
-          type: "checkbox",
-          onChange: onChange,
-        }}
         columns={columns}
         dataSource={averages}
         loading={vehicleTrackerState?.loading}

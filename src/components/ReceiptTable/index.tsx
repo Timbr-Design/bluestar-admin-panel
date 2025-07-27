@@ -8,7 +8,15 @@ import { useAppDispatch, useAppSelector } from "../../hooks/store";
 import { RootState } from "../../types/store";
 import { formatDateFull } from "../../utils/date";
 import CustomPagination from "../Common/Pagination";
-import { getReceipts } from "../../redux/slices/billingSlice";
+import { getReceipts } from "../../redux/slices/receiptSlice";
+import { ReactComponent as EmptyIcon } from "../../icons/EmptyBackground.svg";
+import { ReactComponent as IllustrationIcon } from "../../icons/Illustration.svg";
+import styles from "./index.module.scss";
+import PrimaryBtn from "../PrimaryBtn";
+import { ReactComponent as PlusIcon } from "../../icons/plus.svg";
+import { RouteName } from "../../constants/routes";
+import { useNavigate } from "react-router-dom";
+import EmptyComponent from "../EmptyComponent/EmptyComponent";
 
 interface ReceiptData {
   key: string;
@@ -27,6 +35,7 @@ const ReceiptTable = () => {
   const { filters, receipts, pagination } = useAppSelector(
     (state: RootState) => state.billing
   );
+  const navigate = useNavigate();
 
   const dispatch = useAppDispatch();
   const columns: TableColumnsType<any> = [
@@ -84,20 +93,23 @@ const ReceiptTable = () => {
     });
   };
 
-  console.log("receipts", receipts);
+  const handleAdd = () => {
+    navigate(RouteName.CREATE_RECEIPT);
+  };
+
   useEffect(() => {
-    dispatch(getReceipts({ ...filters }));
-  }, [filters.search, filters.status]);
+    dispatch(getReceipts({ page: 1, limit: 10 }));
+  }, []);
 
   return (
     <Table
       bordered
       columns={columns}
-      rowSelection={{
-        type: "checkbox",
-        // onChange: onChange,
-        selectedRowKeys: selectedRowKeys,
-      }}
+      // rowSelection={{
+      //   type: "checkbox",
+      //   // onChange: onChange,
+      //   selectedRowKeys: selectedRowKeys,
+      // }}
       dataSource={populateDate()}
       pagination={false}
       footer={() => (
@@ -115,6 +127,19 @@ const ReceiptTable = () => {
           }}
         />
       )}
+      locale={{
+        emptyText: (
+          <EmptyComponent 
+          backgroundImageIcon={<EmptyIcon />} 
+          upperImageIcon={ <IllustrationIcon />} 
+          headerText={"No Reciepts found"} 
+          descText={"There are no items on this page Start by creating receipts from your booking data"}
+           handleCTA={handleAdd} 
+           btnText={`Add New Reciept`}
+           btnLeadingIcon={PlusIcon}
+           />
+        ),
+      }}
     />
   );
 };

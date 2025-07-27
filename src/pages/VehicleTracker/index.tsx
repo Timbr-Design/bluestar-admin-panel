@@ -1,17 +1,17 @@
 /* eslint-disable */
 import cn from "classnames";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import styles from "./index.module.scss";
 import SearchComponent from "../../components/SearchComponent";
 import { MoreOutlined, SearchOutlined } from "@ant-design/icons";
 import { ReactComponent as SearchIcon } from "../../icons/SearchIcon.svg";
 import { ReactComponent as PlusIcon } from "../../icons/plus.svg";
-import { Button, Form } from "antd";
+import { Button, DatePicker, Form } from "antd";
 import DriverFilter from "../../components/DriverFilter";
 import { ReactComponent as CrossIcon } from "../../icons/x.svg";
 import { useSelector } from "react-redux";
 import { RootState } from "../../types/store";
-import { useAppDispatch } from "../../hooks/store";
+import { useAppDispatch, useAppSelector } from "../../hooks/store";
 import PrimaryBtn from "../../components/PrimaryBtn";
 import {
   setIsViewDrawerOpen,
@@ -23,6 +23,8 @@ import ExpenseTable from "../../components/VehicleTracker/tables/Expense";
 import FuelsTable from "../../components/VehicleTracker/tables/Fuels";
 import LoansTable from "../../components/VehicleTracker/tables/Loans";
 import AverageTable from "../../components/VehicleTracker/tables/Average";
+import { IExpense } from "../../interface/expense";
+import { setOpenExpenseForm, setSelectedExpense } from "../../redux/slices/expenseSlice";
 
 const tab = [
   {
@@ -79,16 +81,16 @@ const VehicleTabs = ({ setDescVal }: any) => {
 const VehicleTrackerPage = () => {
   const dispatch = useAppDispatch();
   const [desc, setDesc] = useState(tab[0].desc);
-  const [openExpenseForm, setOpenExpenseForm] = useState(false);
   const [openFuelForm, setOpenFuelForm] = useState(false);
+  const [dateRange, setDateRange] = useState<[number, number] | null>(null);
+  const {openExpenseForm} = useSelector((state: RootState)=>state.expenses);
 
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // setSearchTerm(value);
     dispatch(setVehicleTrackerFilter({ search: value }));
   };
 
-  const { filters, isViewDrawerOpen } = useSelector(
+  const { filters } = useSelector(
     (state: RootState) => state.vehicleTracker
   );
 
@@ -100,9 +102,34 @@ const VehicleTrackerPage = () => {
     }
   };
 
+    const handleDateRangeChange = (dates: any) => {
+      console.log(dates)
+      if (dates) {
+        // Convert to epoch timestamps (milliseconds)
+        const startDate = dates[0]?.valueOf();
+        const endDate = dates[1]?.valueOf();
+        
+        setDateRange([startDate, endDate]);
+        
+        // You can use these values to filter your data or make API calls
+        // console.log("Start Date (epoch):", startDate);
+        // console.log("End Date (epoch):", endDate);
+        
+        // If you need to update filters or fetch data based on date range
+        // dispatch(setBookingFilter({ startDate, endDate }));
+        // dispatch(getBookings({ startDate, endDate })); update this line
+      } else {
+        setDateRange(null);
+      }
+    };
+
+    const handleDateChange = (date, dateString)=>{
+console.log(date, dateString);
+    }
+
   const handleSidePanelForm = () => {
     if (filters.currentTab === "expense") {
-      setOpenExpenseForm(true);
+      dispatch(setOpenExpenseForm(true));
     } else if (filters.currentTab === "fuel") {
       setOpenFuelForm(true);
     }
@@ -128,7 +155,7 @@ const VehicleTrackerPage = () => {
           </div>
           <div className={styles.inputContainer}>
             <SearchComponent
-              value={""}
+              value={filters.search}
               onChange={searchHandler}
               LeadingIcon={SearchIcon}
               placeholder={`Search by car`}
@@ -141,18 +168,27 @@ const VehicleTrackerPage = () => {
                 onClick={handleSidePanelForm}
               />
             )}
+            {filters.currentTab === "loans" && <DatePicker onChange={handleDateChange}
+              format="DD/MM/YYYY"/>}
             {filters.currentTab === "average" && <DriverFilter />}
+            {filters.currentTab === "average" && <div className={styles.filterContainer}>
+            <DatePicker.RangePicker 
+              onChange={handleDateRangeChange}
+              format="DD/MM/YYYY"
+              placeholder={["Start Date", "End Date"]}
+            />
+          </div>}
           </div>
         </div>
 
         {filters.currentTab === "expense" && (
-          <ExpenseTable handleOpenSidePanel={() => {}} />
+          <ExpenseTable handleOpenSidePanel={() => setOpenExpenseForm(true)}/>
         )}
         {filters.currentTab === "fuel" && (
-          <FuelsTable handleOpenSidePanel={() => {}} />
+          <FuelsTable handleOpenSidePanel={() => setOpenFuelForm(true)} />
         )}
         {filters.currentTab === "loans" && (
-          <LoansTable handleOpenSidePanel={() => {}} />
+          <LoansTable />
         )}
         {filters.currentTab === "average" && (
           <AverageTable handleOpenSidePanel={() => {}} />
@@ -161,7 +197,10 @@ const VehicleTrackerPage = () => {
       <FuelForm open={openFuelForm} onClose={() => setOpenFuelForm(false)} />
       <ExpenseForm
         open={openExpenseForm}
-        onClose={() => setOpenExpenseForm(false)}
+        onClose={() => {
+          dispatch(setOpenExpenseForm(false))
+          dispatch(setSelectedExpense(null))
+        }}
       />
     </div>
   );

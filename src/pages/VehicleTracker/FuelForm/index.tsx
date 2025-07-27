@@ -10,6 +10,8 @@ import { RootState } from "../../../types/store";
 import { getDrivers, getVehicle } from "../../../redux/slices/databaseSlice";
 import type { UploadFile } from "antd/es/upload/interface";
 import styles from "./index.module.scss";
+import { addNewFuel, setOpenFuelForm, updateFuel } from "../../../redux/slices/FuelSlice";
+import dayjs from "dayjs";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -39,26 +41,19 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
   const {
     driverOption: options,
     vehicleList,
-    selectedVehicle,
-    viewContentDatabase,
-    vehicleGroupData,
   } = useAppSelector((state: RootState) => state.database);
+  const {selectedFuel} = useAppSelector((state: RootState)=>state.fuels)
 
   const handleReceiptDoc = (file: IFile) => {
     setReceiptDoc(file);
   };
 
-  const handleSubmit = async (values: FuelExpenseFormData) => {
-    try {
-      setLoading(true);
-      // await onSubmit(values);
-      form.resetFields();
-      onClose();
-    } catch (error) {
-      console.error("Failed to submit:", error);
-    } finally {
-      setLoading(false);
-    }
+  const handleSubmit = async (values: any) => {
+    if (selectedFuel) {
+          dispatch(updateFuel({ payload: values, id: selectedFuel._id }));
+        } else {
+          dispatch(addNewFuel(values));
+        }
   };
 
   useEffect(() => {
@@ -81,6 +76,25 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
       );
     }
   };
+
+  useEffect(() => {
+      if (selectedFuel && Object.keys(selectedFuel).length) {
+        dispatch(setOpenFuelForm(true))
+        setReceiptDoc(selectedFuel?.receipts || []);
+        form.setFieldsValue({
+          amount: selectedFuel.amount,
+          date: dayjs(selectedFuel.date),
+          driverId: selectedFuel.driverId,
+          fuelType: selectedFuel.fuelType,
+          notes: selectedFuel.notes,
+          quantity: selectedFuel.quantity,
+          vehicle: selectedFuel.vehicleId.vehicleNumber,
+        });
+      }
+      else{
+        form.resetFields();
+      }
+    }, [selectedFuel]);
 
   return (
     <Drawer
@@ -114,7 +128,20 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
       <Form
         form={form}
         layout="vertical"
-        onFinish={handleSubmit}
+        onFinish={(values) => {
+          console.log(values)
+          const valuesToSend = {
+            date: new Date(values.date).getTime(),
+            vehicleId: "67d07a409680a5f900f7a91b",
+            fuelType: values.fuelType,
+            quantity: values.quantity,
+            amount: values.amount,
+            driverId: values.driverId,
+            receipts: receiptDoc,
+            notes: values.notes,
+          };
+          handleSubmit(valuesToSend);
+        }}
         className={styles.form}
       >
         <Form.Item
@@ -140,9 +167,11 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
             showSearch
             allowClear
             options={vehicleList?.data?.map(
-              (option: { value: any; label: any }) => ({
-                value: option.value,
-                label: option.label,
+              (option: {
+                modelName: any; value: string; label: string 
+}) => ({
+                value: option.modelName,
+                label: option.modelName,
               })
             )}
             onSearch={(text) => getPanelValue(text)}

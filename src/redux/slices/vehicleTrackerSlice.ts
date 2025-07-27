@@ -6,6 +6,7 @@ import {
   getFuelsData,
   getLoansData,
 } from "../../testData";
+import apiClient from "../../utils/configureAxios";
 
 const initialState = {
   isViewDrawerOpen: false,
@@ -27,31 +28,37 @@ const initialState = {
 };
 
 export const getExpenses = createAsyncThunk(
-  "vehicleTracker/getExpenses",
-  async (params: any) => {
-    // const response = await apiClient.get("/auth/admin/login", { params });
-    // return response.data;
-
-    return {
-      total: 10,
-      page: 1,
-      limit: 10,
-      data: getExpenseData, // replace with rea; later
-    };
+  "vehicleTracker",async (params: any) => {
+    const response = await apiClient.get("/vehicle-tracker/expense",{params});
+    return response.data.data;
   }
+  // async (params: any) => {
+
+    
+  //   // const response = await apiClient.get("/auth/admin/login", { params });
+  //   // return response.data;
+
+  //   return {
+  //     total: 10,
+  //     page: 1,
+  //     limit: 10,
+  //     data: getExpenseData, // replace with rea; later
+  //   };
+  // }
 );
 export const getFuels = createAsyncThunk(
-  "vehicleTracker/getFuels",
+  "vehicle-tracker/fuel",
   async (params: any) => {
-    // const response = await apiClient.get("/auth/admin/login", { params });
-    // return response.data;
+    const response = await apiClient.get("/vehicle-tracker/fuel/", { params });
+    console.log(response)
+    return response.data.data;
 
-    return {
-      total: 10,
-      page: 1,
-      limit: 10,
-      data: getFuelsData,
-    };
+    // return {
+    //   total: 10,
+    //   page: 1,
+    //   limit: 10,
+    //   data: getFuelsData,
+    // };
   }
 );
 export const getLoans = createAsyncThunk(

@@ -3,10 +3,8 @@ import { VEHICLE_GROUPS } from "../../../constants/database";
 import { Table, Dropdown } from "antd";
 import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
-import Modal from "../../Modal";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
-import { ReactComponent as DeleteIconRed } from "../../../icons/trash-red.svg";
 import type { MenuProps } from "antd";
 import cn from "classnames";
 import {
@@ -19,6 +17,8 @@ import type { TableProps } from "antd";
 import styles from "./index.module.scss";
 import React, { useEffect, useState, useRef } from "react";
 import CustomPagination from "../../Common/Pagination";
+import DeleteModal from "../../Modal/DeleteModal";
+import useDebounce from "../../../hooks/common/useDebounce";
 
 interface IVehicleGroupTableData {
   key: string;
@@ -134,15 +134,17 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
     },
   ];
 
+  const debouncedSearch = useDebounce(q, 500);
+
   useEffect(() => {
     dispatch(
       getVehicleGroup({
         page: 1,
         limit: "",
-        search: q,
+        search: debouncedSearch,
       })
     );
-  }, [q]);
+  }, [debouncedSearch]);
 
   const onChange = (
     selectedRowKeys: React.Key[],
@@ -201,33 +203,14 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
           />
         )}
       />
-      <Modal show={openDeleteModal} onClose={handleCloseModal}>
-        <div className={styles.deleteContainer}>
-          <DeleteIconRed />
-        </div>
-        <div className={styles.modalContainer}>
-          <div className={styles.textContainer}>
-            <div className={styles.primaryText}>Delete vehicle group</div>
-            <div className={styles.secondaryText}>
-              Are you sure you want to delete this vehicle group?{" "}
-              <div className={styles.selectedSecondaryText}>
-                {vehicleGroup?.name}
-              </div>
-            </div>
-          </div>
-          <div className={styles.bottomBtns}>
-            <button className={styles.cancelBtn} onClick={handleCloseModal}>
-              Cancel
-            </button>
-            <button
-              className={styles.deleteBtn}
-              onClick={handleDeleteVehicleGroup}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <DeleteModal
+        show={openDeleteModal}
+        onClose={handleCloseModal}
+        title={"Delete vehicle group"}
+        desc={"Are you sure you want to delete this vehicle group?"}
+        onDelete={handleDeleteVehicleGroup}
+        data={vehicleGroup?.name}
+      />
     </>
   );
 };

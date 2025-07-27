@@ -27,7 +27,7 @@ const initialState = {
 
 // Get all invoices
 export const getInvoices = createAsyncThunk(
-  "invoice/getInvoices",
+  "invoice/",
   async (params: any) => {
     const response = await apiClient.get("/invoice", { params });
     return response.data;
