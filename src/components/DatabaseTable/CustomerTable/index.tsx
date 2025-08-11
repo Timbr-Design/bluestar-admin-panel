@@ -9,11 +9,9 @@ import {
   updateCustomer,
   setViewContentDatabase,
 } from "../../../redux/slices/databaseSlice";
-import { ReactComponent as DeleteIconRed } from "../../../icons/trash-red.svg";
 import cn from "classnames";
 import { ReactComponent as Clipboard } from "../../../icons/clipboard-x.svg";
 import type { MenuProps } from "antd";
-import Modal from "../../Modal";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { Table, TableProps, Dropdown } from "antd";
@@ -21,6 +19,7 @@ import styles from "./index.module.scss";
 import React, { useState, useEffect } from "react";
 import CustomPagination from "../../Common/Pagination";
 import useDebounce from "../../../hooks/common/useDebounce";
+import DeleteModal from "../../Modal/DeleteModal";
 
 interface ICustomerTableData {
   key: string;
@@ -199,33 +198,13 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
           />
         )}
       />
-      <Modal show={openDeleteModal} onClose={handleCloseModal}>
-        <div className={styles.deleteContainer}>
-          <DeleteIconRed />
-        </div>
-        <div className={styles.modalContainer}>
-          <div className={styles.textContainer}>
-            <div className={styles.primaryText}>Delete customer</div>
-            <div className={styles.secondaryText}>
-              Are you sure you want to delete this customer?{" "}
-              <div className={styles.selectedSecondaryText}>
-                {customer?.name}
-              </div>
-            </div>
-          </div>
-          <div className={styles.bottomBtns}>
-            <button className={styles.cancelBtn} onClick={handleCloseModal}>
-              Cancel
-            </button>
-            <button
-              className={styles.deleteBtn}
-              onClick={handleDeleteVehicleGroup}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <DeleteModal
+        show={openDeleteModal}
+        onClose={handleCloseModal}
+        title={"Delete customer"}
+        desc={"Are you sure you want to delete this customer?"}
+        onDelete={handleDeleteVehicleGroup}
+      />
     </>
   );
 };

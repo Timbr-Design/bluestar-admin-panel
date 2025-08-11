@@ -8,29 +8,17 @@ import styles from "./index.module.scss";
 import { useState } from "react";
 import { addInvoice } from "../../../redux/slices/billingSlice";
 import { useAppDispatch } from "../../../hooks/store";
+import Taxable from "../Taxable/Taxable";
 
+const TAXES = [{ value: "Preset tax - 10%", label: "Preset tax - 10%" }];
 
-  const TAXES = [{ value: "Preset tax - 10%", label: "Preset tax - 10%" }];
-   const items: MenuProps["items"] = [
-    {
-      label: "Taxable",
-      key: "0",
-    },
-    {
-      label: "Non-taxable",
-      key: "1",
-    },
-  ];
-
-const InvoiceForm = ({form}) => {
-
- 
-
+const InvoiceForm = ({ form }) => {
   const dispatch = useAppDispatch();
+  const [isCustomRowSelected, setIsCustomRowSelected] = useState(false);
 
-    const handleSave = (values: any) => {
-      console.log(values)
-      dispatch(addInvoice(values));
+  const handleSave = (values: any) => {
+    console.log(values);
+    dispatch(addInvoice(values));
     // if (Object.keys(selectedExpense).length) {
     //   dispatch(
     //     updateExpense({ payload: values, id: selectedExpense._id })
@@ -39,6 +27,22 @@ const InvoiceForm = ({form}) => {
     //   dispatch(addNewExpense(values));
     // }
   };
+
+  const handleCustomRow = () => {
+    setIsCustomRowSelected(true);
+  };
+
+  const items: MenuProps["items"] = [
+    {
+      label: "Taxable",
+      key: "0",
+      onClick: handleCustomRow,
+    },
+    {
+      label: "Non-taxable",
+      key: "1",
+    },
+  ];
 
   return (
     <div className={styles.mainContainer}>
@@ -66,12 +70,12 @@ const InvoiceForm = ({form}) => {
             layout="vertical"
             form={form}
             onFinish={(values) => {
-                    console.log(values)
-            const valuesToSend = {
-              billingAddress: values.billingAddress
-            };
-            handleSave(valuesToSend);
-          }}
+              console.log(values);
+              const valuesToSend = {
+                billingAddress: values.billingAddress,
+              };
+              handleSave(valuesToSend);
+            }}
           >
             <div className={styles.typeContainer}>
               <Form.Item
@@ -175,6 +179,7 @@ const InvoiceForm = ({form}) => {
         <div className={styles.discountContainer}>
           <div className={styles.discountHeading}>Discount</div>
         </div>
+        {isCustomRowSelected && <Taxable />}
       </div>
       <div className={styles.content}>
         <div className={styles.heading}>

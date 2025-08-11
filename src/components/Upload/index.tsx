@@ -23,15 +23,13 @@ const UploadComponent = ({
   const { Dragger } = Upload;
   const [fileList, setFileList] = useState<any[]>([]);
 
-  console.log(files, "files");
-
   useEffect(() => {
     if (files) {
       setFileList([
         {
-          uid: files._id || '-1',
-          name: files.fileUrl.split('/').pop() || 'file',
-          status: 'done',
+          uid: files._id || "-1",
+          name: files.fileUrl.split("/").pop() || "file",
+          status: "done",
           url: files.fileUrl,
           type: files.fileType,
           size: files.fileSize,
@@ -78,7 +76,6 @@ const UploadComponent = ({
       console.error(`${file.name} file upload failed`);
     }
   };
-
 
   const handleChange = (info: any) => {
     let newFileList = [...info.fileList];
