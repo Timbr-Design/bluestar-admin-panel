@@ -44,6 +44,10 @@ const AddNewDutyToBookingForm = ({
     useAppSelector((state: RootState) => state.database);
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    console.log(dutyTypeOption);
+  }, [dutyTypeOption]);
+
   const getDutyTypeValue = (searchText: string) => {
     if (searchText) {
       dispatch(

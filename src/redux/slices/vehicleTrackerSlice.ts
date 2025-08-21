@@ -7,6 +7,7 @@ import {
   getLoansData,
 } from "../../testData";
 import apiClient from "../../utils/configureAxios";
+import pb from "../../utils/configurePocketbase";
 
 const initialState = {
   isViewDrawerOpen: false,
@@ -29,6 +30,8 @@ const initialState = {
 
 export const getExpenses = createAsyncThunk(
   "vehicleTracker",async (params: any) => {
+    const resultList = await pb.collection('expense').getList(1, 50);
+    console.log(resultList,"I EUSD");
     const response = await apiClient.get("/vehicle-tracker/expense",{params});
     return response.data.data;
   }

@@ -21,7 +21,7 @@ import useDebounce from "../../../hooks/common/useDebounce";
 
 interface IDriversTableData {
   key: string;
-  _id: string;
+  id: string;
   name: string;
   driverId: string;
   phoneNumber: string;
@@ -86,10 +86,10 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
           <button
             onClick={() => {
               setOpenDeleteModal(true);
-              setDriverId(record._id);
+              setDriverId(record.id);
 
-              const item = driverList?.data?.find(
-                (driver: { _id: string }) => driver._id === record?._id
+              const item = driverList?.find(
+                (driver: { id: string }) => driver.id === record?.id
               );
 
               setDriver(item);
@@ -101,7 +101,7 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
           <Dropdown menu={menuProps} trigger={["click"]}>
             <button
               className={styles.button}
-              onClick={() => setDriverId(record._id)}
+              onClick={() => setDriverId(record.id)}
             >
               <DotsHorizontal />
             </button>
@@ -135,7 +135,7 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
         onRow={(record) => {
           return {
             onClick: () => {
-              dispatch(getDriverById({ id: record._id }));
+              dispatch(getDriverById({ id: record.id }));
               dispatch(setViewContentDatabase(true));
               handleOpenSidePanel();
             },
@@ -166,27 +166,35 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
             }}
           />
         )}
-        dataSource={driverList?.data?.map((data: any) => {
-          return {
-            ...data,
-            key: data?._id,
-            name: (
-              <div className={styles.driverNameContainer}>
-                <div
-                  className={styles.driverProfile}
-                >{`${getInitials(data?.name)}`}</div>
-                <div className={styles.driverName}>{data?.name}</div>
-              </div>
-            ),
-            driverId: data?.driverId,
-            status: (
-              <div className={cn(styles.status, { [styles.active]: true })}>
-                <div className={cn(styles.dot, { [styles.active]: true })} />
-                <div>{"Active"}</div>
-              </div>
-            ),
-          };
-        })}
+        dataSource={
+          driverList && Array.isArray(driverList)
+            ? driverList?.map((data: any) => {
+                return {
+                  ...data,
+                  key: data?.id,
+                  name: (
+                    <div className={styles.driverNameContainer}>
+                      <div
+                        className={styles.driverProfile}
+                      >{`${getInitials(data?.name)}`}</div>
+                      <div className={styles.driverName}>{data?.name}</div>
+                    </div>
+                  ),
+                  driverId: data?.driverId,
+                  status: (
+                    <div
+                      className={cn(styles.status, { [styles.active]: true })}
+                    >
+                      <div
+                        className={cn(styles.dot, { [styles.active]: true })}
+                      />
+                      <div>{"Active"}</div>
+                    </div>
+                  ),
+                };
+              })
+            : []
+        }
         loading={driverStates?.loading || deleteDriverStates?.loading}
       />
 

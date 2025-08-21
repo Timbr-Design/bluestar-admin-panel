@@ -24,7 +24,7 @@ import useDebounce from "../../../hooks/common/useDebounce";
 
 interface IAllowanceData {
   key: string;
-  _id: string;
+  id: string;
   allowanceType: string;
   status: any;
   rate: number;
@@ -57,7 +57,7 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
       dispatch(
         updateAllowance({
           payload: { isActive: allowance?.isActive ? false : true },
-          id: allowance?._id,
+          id: allowance?.id,
         })
       );
     }
@@ -100,7 +100,7 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
           <button
             onClick={() => {
               setOpenDeleteModal(true);
-              setAllowanceId(record._id);
+              setAllowanceId(record.id);
               setAllowanceName(record?.allowanceType);
             }}
             className={styles.deleteBtn}
@@ -110,7 +110,7 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
           <Dropdown menu={menuProps} trigger={["click"]}>
             <button
               className={styles.button}
-              onClick={() => setAllowanceId(record._id)}
+              onClick={() => setAllowanceId(record.id)}
             >
               <DotsHorizontal />
             </button>
@@ -155,7 +155,7 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
         onRow={(record) => {
           return {
             onClick: () => {
-              dispatch(getAllowanceById({ id: record._id }));
+              dispatch(getAllowanceById({ id: record.id }));
               handleOpenSidePanel();
               dispatch(setViewContentDatabase(true));
             },
@@ -167,31 +167,35 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
           selectedRowKeys: selectedRowKeys,
         }}
         columns={columns}
-        dataSource={allowancesList?.data?.map((data: any) => ({
-          ...data,
-          rate: (
-            <div className={styles.rate}>
-              <div className={styles.text}>{`₹${data?.rate}`}</div>
-              <div className={styles.perDay}>{"per day"}</div>
-            </div>
-          ),
-          key: data?._id,
-          status: (
-            <div
-              className={cn(styles.status, {
-                [styles.enabled]: data?.isActive,
-              })}
-            >
-              <div
-                className={cn(styles.text, {
-                  [styles.enabled]: data?.isActive,
-                })}
-              >
-                {data?.isActive ? "Enabled" : "Disabled"}
-              </div>
-            </div>
-          ),
-        }))}
+        dataSource={
+          allowancesList && Array.isArray(allowancesList)
+            ? allowancesList?.map((data: any) => ({
+                ...data,
+                rate: (
+                  <div className={styles.rate}>
+                    <div className={styles.text}>{`₹${data?.rate}`}</div>
+                    <div className={styles.perDay}>{"per day"}</div>
+                  </div>
+                ),
+                key: data?.id,
+                status: (
+                  <div
+                    className={cn(styles.status, {
+                      [styles.enabled]: data?.isActive,
+                    })}
+                  >
+                    <div
+                      className={cn(styles.text, {
+                        [styles.enabled]: data?.isActive,
+                      })}
+                    >
+                      {data?.isActive ? "Enabled" : "Disabled"}
+                    </div>
+                  </div>
+                ),
+              }))
+            : []
+        }
         loading={allowanceStates?.loading || deleteAllowancesStates?.loading}
         pagination={false}
         scroll={{

@@ -22,7 +22,7 @@ import useDebounce from "../../../hooks/common/useDebounce";
 
 interface IVehicleGroupTableData {
   key: string;
-  _id: string;
+  id: string;
   name: string;
   vehicleCount: number;
 }
@@ -112,7 +112,7 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
           <button
             onClick={() => {
               setOpenDeleteModal(true);
-              setDeleteVehicleGroupId(record._id);
+              setDeleteVehicleGroupId(record.id);
               setVehicleGroup(record);
             }}
             className={styles.deleteBtn}
@@ -122,9 +122,9 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
           <Dropdown menu={menuProps} trigger={["click"]}>
             <button
               className={cn(styles.button, {
-                [styles.selected]: deleteVehicleGroupId === record._id,
+                [styles.selected]: deleteVehicleGroupId === record.id,
               })}
-              onClick={() => setDeleteVehicleGroupId(record._id)}
+              onClick={() => setDeleteVehicleGroupId(record.id)}
             >
               <DotsHorizontal />
             </button>
@@ -162,7 +162,7 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
         onRow={(record) => {
           return {
             onClick: () => {
-              dispatch(getVehicleGroupById({ id: record._id }));
+              dispatch(getVehicleGroupById({ id: record.id }));
               dispatch(setViewContentDatabase(true));
               handleOpenSidePanel();
             },
@@ -174,12 +174,17 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
           selectedRowKeys: selectedRowKeys,
         }}
         columns={columns}
-        dataSource={vehicleGroupData?.data?.map((data: any) => {
-          return {
-            ...data,
-            key: data?._id,
-          };
-        })}
+        dataSource={
+          // []
+          vehicleGroupData && Array.isArray(vehicleGroupData)
+            ? vehicleGroupData?.map((data: any) => {
+                return {
+                  ...data,
+                  key: data?.id,
+                };
+              })
+            : []
+        }
         loading={
           vehicleGroupStates?.loading || deleteVehicleGroupStates?.loading
         }

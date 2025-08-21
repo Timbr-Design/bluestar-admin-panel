@@ -41,7 +41,7 @@ const BankAccountForm = ({ handleCloseSidePanel }: IBankAccountForm) => {
     if (Object.keys(selectedBankAccount).length) {
       dispatch(
         updateBankAccount({
-          id: selectedBankAccount?.data?._id,
+          id: selectedBankAccount?.id,
           payload: values,
         })
       );
@@ -54,12 +54,12 @@ const BankAccountForm = ({ handleCloseSidePanel }: IBankAccountForm) => {
   useEffect(() => {
     if (Object.keys(selectedBankAccount).length) {
       form.setFieldsValue({
-        accountName: selectedBankAccount?.data?.accountName || "",
-        accountNumber: selectedBankAccount?.data?.accountNumber || "",
-        bankName: selectedBankAccount?.data?.bankName || "",
-        ifsc: selectedBankAccount?.data?.ifsc || "",
-        branchName: selectedBankAccount?.data?.branchName || "",
-        notes: selectedBankAccount?.data?.notes || "",
+        account_name: selectedBankAccount?.account_name || "",
+        account_number: selectedBankAccount?.account_number || "",
+        bank_name: selectedBankAccount?.bank_name || "",
+        ifsc: selectedBankAccount?.ifsc || "",
+        branch_name: selectedBankAccount?.branch_name || "",
+        notes: selectedBankAccount?.notes || "",
       });
     }
   }, [selectedBankAccount]);
@@ -113,7 +113,7 @@ const BankAccountForm = ({ handleCloseSidePanel }: IBankAccountForm) => {
 
             const data = {
               ...values,
-              accountNumber: Number(values.accountNumber),
+              account_number: values.account_number,
             };
             onSubmit(data);
           }}
@@ -125,8 +125,8 @@ const BankAccountForm = ({ handleCloseSidePanel }: IBankAccountForm) => {
           <div className={styles.typeContainer}>
             <Form.Item
               label="Account Name"
-              id="accountName"
-              name="accountName"
+              id="account_name"
+              name="account_name"
               rules={[
                 {
                   required: true,
@@ -140,8 +140,8 @@ const BankAccountForm = ({ handleCloseSidePanel }: IBankAccountForm) => {
           <div className={styles.typeContainer}>
             <Form.Item
               label="Account Number"
-              id="accountNumber"
-              name="accountNumber"
+              id="account_number"
+              name="account_number"
               rules={[
                 {
                   required: true,
@@ -177,8 +177,8 @@ const BankAccountForm = ({ handleCloseSidePanel }: IBankAccountForm) => {
                 },
               ]}
               label="Bank Name"
-              id="bankName"
-              name="bankName"
+              id="bank_name"
+              name="bank_name"
             >
               <Input placeholder="Enter Bank Name..." />
             </Form.Item>
@@ -191,8 +191,8 @@ const BankAccountForm = ({ handleCloseSidePanel }: IBankAccountForm) => {
                 },
               ]}
               label="Bank Branch"
-              id="branchName"
-              name="branchName"
+              id="branch_name"
+              name="branch_name"
             >
               <Input placeholder="Enter Bank Branch..." />
             </Form.Item>

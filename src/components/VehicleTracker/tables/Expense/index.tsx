@@ -34,7 +34,7 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
   );
   const dispatch = useAppDispatch();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [selectedRow,setSelectedRow] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
 
   const handleEditExpenses = (row) => {
     dispatch(setSelectedExpense(row));
@@ -94,8 +94,8 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
             }}
             onClick={(e) => {
               e.stopPropagation();
-              setSelectedRow(row)
-              setOpenDeleteModal(true)
+              setSelectedRow(row);
+              setOpenDeleteModal(true);
             }}
           >
             <Space>
@@ -170,6 +170,7 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
   const debouncedSearch = useDebounce(filters.search, 500);
 
   useEffect(() => {
+    console.log("I RUN");
     dispatch(
       getExpenses({
         ...filters,
@@ -214,7 +215,13 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
           />
         )}
       />
-      <DeleteModal title={"Delete Expense"} desc={" Are you sure you want to delete this expense?"} show={openDeleteModal} onClose={handleCloseModal} onDelete={handleDeleteExpense}  />
+      <DeleteModal
+        title={"Delete Expense"}
+        desc={" Are you sure you want to delete this expense?"}
+        show={openDeleteModal}
+        onClose={handleCloseModal}
+        onDelete={handleDeleteExpense}
+      />
     </>
   );
 };

@@ -15,7 +15,7 @@ interface BookingInfo {
   value: string;
 }
 
-interface IAssignVehicle {  
+interface IAssignVehicle {
   form: any;
   handleSetVehicle: (values: any) => void;
   vehicle: any;
@@ -24,22 +24,41 @@ interface IAssignVehicle {
 const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
   const dispatch = useAppDispatch();
   const [selectedVehicle, setSelectedVehicle] = useState({ _id: "" });
-  const { vehicleList, q, pagination, selectedDutyType, selectedVehicleGroup } = useAppSelector(
-    (state) => state.database
-  );
+  const { vehicleList, q, pagination, selectedDutyType, selectedVehicleGroup } =
+    useAppSelector((state) => state.database);
 
   useEffect(() => {
-    setSelectedVehicle(vehicle)
+    setSelectedVehicle(vehicle);
   }, [vehicle]);
 
   const bookingInfo: BookingInfo[] = [
     { label: "Booking ID", value: form.getFieldValue("bookingId") },
-    { label: "Start Date", value: new Date(form.getFieldValue("durationDetails").startDate).toLocaleDateString() },
-    { label: "End Date", value: new Date(form.getFieldValue("durationDetails").endDate).toLocaleDateString() },
-    { label: "Garage Start Time", value: new Date(form.getFieldValue("durationDetails").garageStartTime).toLocaleTimeString() },
-    { label: "Reporting Time", value: new Date(form.getFieldValue("durationDetails").reportingTime).toLocaleTimeString() },
+    {
+      label: "Start Date",
+      value: new Date(
+        form.getFieldValue("durationDetails").startDate
+      ).toLocaleDateString(),
+    },
+    {
+      label: "End Date",
+      value: new Date(
+        form.getFieldValue("durationDetails").endDate
+      ).toLocaleDateString(),
+    },
+    {
+      label: "Garage Start Time",
+      value: new Date(
+        form.getFieldValue("durationDetails").garageStartTime
+      ).toLocaleTimeString(),
+    },
+    {
+      label: "Reporting Time",
+      value: new Date(
+        form.getFieldValue("durationDetails").reportingTime
+      ).toLocaleTimeString(),
+    },
     { label: "Duty Type", value: selectedDutyType?.data?.dutyTypeName },
-    { label: "Vehicle Group", value: selectedVehicleGroup?.data?.name},
+    { label: "Vehicle Group", value: selectedVehicleGroup?.data?.name },
     {
       label: "Reporting Address",
       value: form.getFieldValue("reportingAddress"),
@@ -47,7 +66,8 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
     {
       label: "Drop Address",
       value: form.getFieldValue("dropAddress"),
-    },]
+    },
+  ];
 
   const getInitials = (name: string) => {
     const names = name.split(" "); // Split the name by spaces
@@ -60,10 +80,10 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
   const columns: ColumnsType<any> = [
     {
       title: "Model name",
-      dataIndex: "model",
-      key: "model",
+      dataIndex: "model_name",
+      key: "model_name",
       render: (_, record) => (
-        <span className={styles["model-name"]}>{record?.modelName}</span>
+        <span className={styles["model-name"]}>{record?.model_name}</span>
       ),
     },
     {
@@ -81,8 +101,8 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
     },
     {
       title: "Vehicle number",
-      dataIndex: "vehicleNumber",
-      key: "vehicleNumber",
+      dataIndex: "vehicle_number",
+      key: "vehicle_number",
       align: "right",
       render: (text) => (
         <span className={styles["vehicle-number"]}>{text}</span>

@@ -30,7 +30,7 @@ const AllowancesForm = ({ handleCloseSidePanel }: IAllowancesForm) => {
     viewContentDatabase,
   } = useAppSelector((state) => state.database);
   const [rate, setRate] = useState<number>(
-    selectedAllowance?.data?.rate ? selectedAllowance?.data?.rate : 0
+    selectedAllowance?.rate ? selectedAllowance?.rate : 0
   );
 
   const handleAllowanceType = (value: string) => {
@@ -39,7 +39,7 @@ const AllowancesForm = ({ handleCloseSidePanel }: IAllowancesForm) => {
 
   useEffect(() => {
     if (Object.keys(selectedAllowance).length) {
-      setRate(selectedAllowance?.data?.rate);
+      setRate(selectedAllowance?.rate);
     }
   }, [selectedAllowance]);
 
@@ -66,7 +66,7 @@ const AllowancesForm = ({ handleCloseSidePanel }: IAllowancesForm) => {
 
   const allowanceValue = useMemo(() => {
     return ALLOWANCES_TYPES.find(
-      (type) => type.label === selectedAllowance?.data?.allowanceType
+      (type) => type.label === selectedAllowance?.allowance_type
     );
   }, [selectedAllowance]);
 
@@ -74,10 +74,10 @@ const AllowancesForm = ({ handleCloseSidePanel }: IAllowancesForm) => {
     if (Object.keys(selectedAllowance).length) {
       dispatch(
         updateAllowance({
-          id: selectedAllowance?.data?._id,
+          id: selectedAllowance?.id,
           payload: {
             rate: Number(rate),
-            allowanceType: allowanceLabel?.label,
+            allowance_type: allowanceLabel?.label,
           },
         })
       );
@@ -85,7 +85,7 @@ const AllowancesForm = ({ handleCloseSidePanel }: IAllowancesForm) => {
       dispatch(
         addNewAllowance({
           rate: Number(rate),
-          allowanceType: allowanceLabel?.label,
+          allowance_type: allowanceLabel?.label,
         })
       );
     }

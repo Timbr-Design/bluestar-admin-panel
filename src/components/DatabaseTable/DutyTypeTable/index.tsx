@@ -24,7 +24,7 @@ import DeleteModal from "../../Modal/DeleteModal";
 
 interface IDutyTypeTableData {
   key: string;
-  _id: string;
+  id: string;
   dutyTypeName: string;
   secondaryType: string;
   customDutyType: any;
@@ -53,6 +53,10 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
   const [dutyType, setDutyType] = useState({ dutyTypeName: "" });
   const [openDropdown, setOpenDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    console.log(dutyTypeList);
+  }, [dutyTypeList]);
 
   const handleDeleteDutyType = () => {
     dispatch(deleteDutyType({ id: dutyTypeId }));
@@ -97,7 +101,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
       dataIndex: "name",
       key: "name",
       render: (_, record) => {
-        return <span>{record?.dutyTypeName}</span>;
+        return <span></span>;
       },
     },
     {
@@ -194,7 +198,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
           selectedRowKeys: selectedRowKeys,
         }}
         columns={columns}
-        dataSource={dutyTypeList?.data}
+        dataSource={[]}
         loading={deleteDutyTypeStates?.loading || dutyTypeStates?.loading}
         pagination={false}
         scroll={{
