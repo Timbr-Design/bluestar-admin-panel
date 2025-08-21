@@ -48,7 +48,7 @@ export const getReceiptById = createAsyncThunk(
 export const updateReceiptById = createAsyncThunk(
   "billings/updateReceiptById",
   async (body: any, { dispatch, getState }: any) => {
-    const { id, payload } = body;
+    const { id } = body;
 
     const response = await apiClient.patch(`/receipt${id}`);
     return response

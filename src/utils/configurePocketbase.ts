@@ -17,7 +17,7 @@ const auth = async () => {
     const date = new Date();
     const expiry = date.getTime() + 36000 * 10000000000;
     date.setTime(expiry);
-    const change = date.toUTCString();
+    // const change = date.toUTCString();
     // document.cookie = `token=${pb.authStore.token};expires=${change};path=/`;
   } catch (error) {
     console.error("Admin authentication failed:", error);
