@@ -23,7 +23,7 @@ import useDebounce from "../../../hooks/common/useDebounce";
 
 interface ITaxesTableData {
   key: string;
-  _id: string;
+  id: string;
   name: string;
   percentage: string;
   status: any;
@@ -51,7 +51,7 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
       dispatch(
         updateTax({
           payload: { isActive: currentTax?.isActive ? false : true },
-          id: currentTax?._id,
+          id: currentTax?.id,
         })
       );
     }
@@ -96,7 +96,7 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
           <button
             onClick={() => {
               setOpenDeleteModal(true);
-              setTaxId(record._id);
+              setTaxId(record.id);
               setTaxName(record?.name);
             }}
             className={styles.deleteBtn}
@@ -106,7 +106,7 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
           <Dropdown menu={menuProps} trigger={["click"]}>
             <button
               className={styles.button}
-              onClick={() => setTaxId(record._id)}
+              onClick={() => setTaxId(record.id)}
             >
               <DotsHorizontal />
             </button>
@@ -151,7 +151,7 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
         onRow={(record) => {
           return {
             onClick: () => {
-              dispatch(getTaxesById({ id: record._id }));
+              dispatch(getTaxesById({ id: record.id }));
               handleOpenSidePanel();
               dispatch(setViewContentDatabase(true));
             },
@@ -163,33 +163,37 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
           selectedRowKeys: selectedRowKeys,
         }}
         columns={columns}
-        dataSource={taxes?.data?.map((data: any) => {
-          return {
-            ...data,
-            key: data?._id,
-            status: (
-              <div
-                className={cn(styles.status, {
-                  [styles.active]: data?.isActive,
-                })}
-              >
-                <div
-                  className={cn(styles.dot, {
-                    [styles.active]: data?.isActive,
-                  })}
-                />
-                {data?.isActive ? "Active" : "Inactive"}
-              </div>
-            ),
-          };
-        })}
+        dataSource={
+          taxes && Array.isArray(taxes)
+            ? taxes?.map((data: any) => {
+                return {
+                  ...data,
+                  key: data?.id,
+                  status: (
+                    <div
+                      className={cn(styles.status, {
+                        [styles.active]: data?.isActive,
+                      })}
+                    >
+                      <div
+                        className={cn(styles.dot, {
+                          [styles.active]: data?.isActive,
+                        })}
+                      />
+                      {data?.isActive ? "Active" : "Inactive"}
+                    </div>
+                  ),
+                };
+              })
+            : []
+        }
         loading={taxesStates?.loading || deleteTaxesState?.loading}
         pagination={false}
         scroll={{
           x: 756,
         }}
         footer={
-          taxes?.data?.length !== 0
+          taxes?.length !== 0
             ? () => (
                 <CustomPagination
                   total={pagination?.total ?? 0}

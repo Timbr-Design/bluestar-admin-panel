@@ -40,27 +40,28 @@ const VehicleGroupForm = ({ handleCloseSidePanel }: IVehicleGroupForm) => {
   // const handleVehicleGroupChange = (e: any) => {
   //   if (e.target.name === "name") {
   //     setVehicleGroup({ ...vehicleGroup, name: e.target.value });
-  //   } else if (e.target.name === "seatingCapacity") {
+  //   } else if (e.target.name === "seating_capacity") {
   //     setVehicleGroup({
   //       ...vehicleGroup,
-  //       seatingCapacity: Number(e.target.value),
+  //       seating_capacity: Number(e.target.value),
   //     });
   //   } else if (e.target.name === "description") {
   //     setVehicleGroup({ ...vehicleGroup, description: e.target.value });
-  //   } else if (e.target.name === "luggageCapacity") {
+  //   } else if (e.target.name === "luggage_capacity") {
   //     setVehicleGroup({
   //       ...vehicleGroup,
-  //       luggageCapacity: Number(e.target.value),
+  //       luggage_capacity: Number(e.target.value),
   //     });
   //   }
   // };
 
   const handleSubmitForm = (values: any) => {
+    console.log(values);
     if (Object.keys(selectedVehicleGroup).length) {
       dispatch(
         updateVehicleGroup({
           payload: values,
-          id: selectedVehicleGroup?.data?._id,
+          id: selectedVehicleGroup?.id,
         })
       );
     } else {
@@ -70,12 +71,13 @@ const VehicleGroupForm = ({ handleCloseSidePanel }: IVehicleGroupForm) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
+    console.log(selectedVehicleGroup);
     if (Object.keys(selectedVehicleGroup).length) {
       form.setFieldsValue({
-        name: selectedVehicleGroup?.data?.name || "",
-        seatingCapacity: selectedVehicleGroup?.data?.seatingCapacity || null,
-        description: selectedVehicleGroup?.data?.description || "",
-        luggageCapacity: selectedVehicleGroup?.data?.luggageCapacity || null,
+        name: selectedVehicleGroup?.name || "",
+        seating_capacity: selectedVehicleGroup?.seating_capacity || null,
+        description: selectedVehicleGroup?.description || "",
+        luggage_capacity: selectedVehicleGroup?.luggage_capacity || null,
       });
     }
   }, [selectedVehicleGroup]);
@@ -127,20 +129,19 @@ const VehicleGroupForm = ({ handleCloseSidePanel }: IVehicleGroupForm) => {
           onFinish={(values) => {
             const res = {
               ...values,
-              seatingCapacity: Number(values.seatingCapacity),
-              luggageCapacity: Number(values.luggageCapacity),
+              seating_capacity: Number(values.seating_capacity),
+              luggage_capacity: Number(values.luggage_capacity),
+              is_active: true,
             };
             handleSubmitForm(res);
             form.resetFields();
           }}
           form={form}
           initialValues={{
-            name: selectedVehicleGroup?.data?.name || "",
-            seatingCapacity:
-              selectedVehicleGroup?.data?.seatingCapacity || null,
-            description: selectedVehicleGroup?.data?.description || "",
-            luggageCapacity:
-              selectedVehicleGroup?.data?.luggageCapacity || null,
+            name: selectedVehicleGroup?.name || "",
+            seating_capacity: selectedVehicleGroup?.seating_capacity || null,
+            description: selectedVehicleGroup?.description || "",
+            luggage_capacity: selectedVehicleGroup?.luggage_capacity || null,
           }}
           autoComplete="off"
           requiredMark={CustomizeRequiredMark}
@@ -191,7 +192,7 @@ const VehicleGroupForm = ({ handleCloseSidePanel }: IVehicleGroupForm) => {
               </div> */}
               <Form.Item
                 label="Seating Capacity (excluding driver)"
-                name="seatingCapacity"
+                name="seating_capacity"
                 rules={[
                   {
                     required: true,
@@ -201,10 +202,10 @@ const VehicleGroupForm = ({ handleCloseSidePanel }: IVehicleGroupForm) => {
               >
                 <Input
                   type="number"
-                  min={0} // name="seatingCapacity"
+                  min={0} // name="seating_capacity"
                   // className={styles.input}
                   placeholder="Enter value ..."
-                  // value={vehicleGroup.seatingCapacity}
+                  // value={vehicleGroup.seating_capacity}
                   // onChange={handleVehicleGroupChange}
                 />
               </Form.Item>
@@ -215,7 +216,7 @@ const VehicleGroupForm = ({ handleCloseSidePanel }: IVehicleGroupForm) => {
               </div> */}
               <Form.Item
                 label="Luggage count"
-                name="luggageCapacity"
+                name="luggage_capacity"
                 rules={[
                   {
                     required: true,
@@ -226,10 +227,10 @@ const VehicleGroupForm = ({ handleCloseSidePanel }: IVehicleGroupForm) => {
                 <Input
                   type="number"
                   min={0}
-                  // name="luggageCapacity"
+                  // name="luggage_capacity"
                   // className={styles.input}
                   placeholder="Enter value ..."
-                  // value={vehicleGroup.luggageCapacity}
+                  // value={vehicleGroup.luggage_capacity}
                   // onChange={handleVehicleGroupChange}
                 />
               </Form.Item>

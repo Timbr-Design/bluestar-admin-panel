@@ -40,21 +40,21 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
     updateCustomersStates,
     viewContentDatabase,
   } = useAppSelector((state) => state.database);
-  console.log("I RUNI",selectedCustomer)
+  console.log("I RUNI", selectedCustomer);
   const { Dragger } = Upload;
   const [api, contextHolder] = notification.useNotification();
   const [customerPaylod, setCustomerPayload] = useState({
-    customerCode: "",
+    customer_code: "",
     name: "",
     address: "",
-    pinCode: "",
+    pin_code: "",
     state: "",
     email: "",
     files: [],
     autoCreateInvoice: false,
-    defaultDiscount: 0,
+    default_discount: 0,
     notes: "",
-    taxDetails: {
+    tax_details: {
       type: "",
       billingName: "",
       taxId: "66cb7ee1287de64cae6c6967",
@@ -66,7 +66,7 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
 
   const handleUploadUrl = (file: IFile) => {
     const tempFilesArr = [...filesArr, file];
-    console.log(tempFilesArr, "tempFilesArr")
+    console.log(tempFilesArr, "tempFilesArr");
     setFilesArr(tempFilesArr);
   };
 
@@ -90,15 +90,15 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
   const handleTaxesSelect = (value: string) => {
     setCustomerPayload({
       ...customerPaylod,
-      taxDetails: { ...customerPaylod.taxDetails, type: value },
+      tax_details: { ...customerPaylod.tax_details, type: value },
     });
   };
 
-  const onChangeTaxDetails = (e: any) => {
+  const onChangetax_details = (e: any) => {
     setCustomerPayload({
       ...customerPaylod,
-      taxDetails: {
-        ...customerPaylod.taxDetails,
+      tax_details: {
+        ...customerPaylod.tax_details,
         [e.target.name]: e.target.value,
       },
     });
@@ -106,9 +106,7 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
 
   const handleSubmit = (values: any) => {
     if (Object.keys(selectedCustomer).length) {
-      dispatch(
-        updateCustomer({ payload: values, id: selectedCustomer?.data?._id })
-      );
+      dispatch(updateCustomer({ payload: values, id: selectedCustomer?.id }));
     } else {
       dispatch(addNewCustomer(values));
     }
@@ -117,24 +115,24 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
 
   useEffect(() => {
     if (Object.keys(selectedCustomer).length) {
-      console.log(selectedCustomer,"HELLO")
-      setFilesArr(selectedCustomer?.data?.files || []);
+      console.log(selectedCustomer, "HELLO");
+      setFilesArr(selectedCustomer?.files || []);
       form.setFieldsValue({
-        customerCode: selectedCustomer?.data?.customerCode,
-        name: selectedCustomer?.data?.name,
-        address: selectedCustomer?.data?.address,
-        pinCode: selectedCustomer?.data?.pinCode,
-        state: selectedCustomer?.data?.state,
-        email: selectedCustomer?.data?.email,
-        phoneNumber: selectedCustomer?.data?.phoneNumber,
-        autoCreateInvoice: selectedCustomer?.data?.autoCreateInvoice,
-        defaultDiscount: selectedCustomer?.data?.defaultDiscount,
-        type: selectedCustomer?.data?.taxDetails?.type,
-        billingName: selectedCustomer?.data?.taxDetails?.billingName,
-        taxId: selectedCustomer?.data?.taxDetails?.taxId,
-        gstNumber: selectedCustomer?.data?.taxDetails?.gstNumber,
-        billingAddress: selectedCustomer?.data?.taxDetails?.billingAddress,
-        files: selectedCustomer?.data?.files,
+        customer_code: selectedCustomer?.customer_code,
+        name: selectedCustomer?.name,
+        address: selectedCustomer?.address,
+        pin_code: Number(selectedCustomer?.pin_code),
+        state: selectedCustomer?.state,
+        email: selectedCustomer?.email,
+        phone_number: selectedCustomer?.phone_number,
+        autoCreateInvoice: selectedCustomer?.autoCreateInvoice,
+        default_discount: selectedCustomer?.default_discount,
+        type: selectedCustomer?.tax_details?.type,
+        billingName: selectedCustomer?.tax_details?.billingName,
+        taxId: selectedCustomer?.tax_details?.taxId,
+        gstNumber: selectedCustomer?.tax_details?.gstNumber,
+        billingAddress: selectedCustomer?.tax_details?.billingAddress,
+        files: selectedCustomer?.files,
       });
     }
   }, [selectedCustomer]);
@@ -184,17 +182,18 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
           form={form}
           className={styles.form}
           onFinish={(values) => {
+            console.log(values);
             const valuesToSend = {
-              customerCode: values.customerCode,
+              customer_code: values.customer_code,
               name: values.name,
               address: values.address,
-              pinCode: values.pinCode,
+              pin_code: Number(values.pin_code),
               state: values.state,
               email: values.email,
-              phoneNumber: values.phoneNumber,
+              phone_number: values.phone_number,
               autoCreateInvoice: values.autoCreateInvoice,
-              defaultDiscount: values.defaultDiscount,
-              taxDetails: {
+              default_discount: values.default_discount,
+              tax_details: {
                 type: values.type,
                 billingName: values.billingName,
                 taxId: values.taxId,
@@ -217,8 +216,8 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
                   required: false,
                 },
               ]}
-              name="customerCode"
-              id="customerCode"
+              name="customer_code"
+              id="customer_code"
             >
               <Input placeholder="Enter Customer code..." />
             </Form.Item>
@@ -262,8 +261,8 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
                   required: false,
                 },
               ]}
-              name="pinCode"
-              id="pinCode"
+              name="pin_code"
+              id="pin_code"
             >
               <Input placeholder="Enter pin code..." />
             </Form.Item>
@@ -303,8 +302,8 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
                   message: "Please enter a valid Indian phone number",
                 },
               ]}
-              name="phoneNumber"
-              id="phoneNumber"
+              name="phone_number"
+              id="phone_number"
             >
               <Input placeholder="Enter phone number..." defaultValue={""} />
             </Form.Item>
@@ -327,7 +326,7 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
               />
             </Form.Item>
           </div>
-          <div className={styles.customerTaxDetails}>
+          <div className={styles.customertax_details}>
             <div className={styles.customerHeader}>Customer Tax Details</div>
             <div className={styles.typeContainer}>
               <Form.Item
@@ -418,12 +417,12 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
           <div className={styles.typeContainer}>
             <Form.Item
               label="Default discount %"
-              name="defaultDiscount"
-              id="defaultDiscount"
+              name="default_discount"
+              id="default_discount"
             >
               <Input
                 type="number"
-                name="defaultDiscount"
+                name="default_discount"
                 placeholder="Enter default discount..."
               />
             </Form.Item>

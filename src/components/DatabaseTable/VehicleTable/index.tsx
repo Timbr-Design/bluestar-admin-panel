@@ -23,8 +23,8 @@ import useDebounce from "../../../hooks/common/useDebounce";
 
 interface IVehicleTable {
   key: string;
-  _id: string;
-  modelName: string;
+  id: string;
+  model_name: string;
   group: string;
   assigned_driver: string;
   vehicleNumber: string;
@@ -46,6 +46,10 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
   const [vehicleName, setVehicleName] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
+  useEffect(() => {
+    console.log(vehicleList);
+  }, [vehicleList]);
+
   const handleDeleteVehicle = () => {
     dispatch(deleteVehicle({ id: vehicleId }));
     setOpenDeleteModal(false);
@@ -59,7 +63,7 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
       dispatch(
         updateVehicle({
           payload: { isActive: currentVehicle?.isActive ? false : true },
-          id: currentVehicle?._id,
+          id: currentVehicle?.id,
         })
       );
     }
@@ -115,8 +119,8 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
           <button
             onClick={() => {
               setOpenDeleteModal(true);
-              setVehicleId(record._id);
-              setVehicleName(record?.modelName);
+              setVehicleId(record.id);
+              setVehicleName(record?.model_name);
             }}
             className={styles.deleteBtn}
           >
@@ -125,7 +129,7 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
           <Dropdown menu={menuProps} trigger={["click"]}>
             <button
               className={styles.button}
-              onClick={() => setVehicleId(record._id)}
+              onClick={() => setVehicleId(record.id)}
             >
               <DotsHorizontal />
             </button>
@@ -151,7 +155,7 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
         onRow={(record) => {
           return {
             onClick: () => {
-              dispatch(getVehicleById({ id: record._id }));
+              dispatch(getVehicleById({ id: record.id }));
               handleOpenSidePanel();
               dispatch(setViewContentDatabase(true));
             },
@@ -162,27 +166,31 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
           onChange: onChange,
         }}
         columns={columns}
-        dataSource={vehicleList?.data?.map((data: any) => ({
-          ...data,
-          key: data?._id,
-          modelName: data?.modelName,
-          group: data?.vehicleGroup?.name,
-          assigned_driver: data?.driver?.name,
-          status: (
-            <div
-              className={cn(styles.status, {
-                [styles.active]: data?.isActive,
-              })}
-            >
-              <div
-                className={cn(styles.dot, {
-                  [styles.active]: data?.isActive,
-                })}
-              />
-              {data?.isActive ? "Active" : "Inactive"}
-            </div>
-          ),
-        }))}
+        dataSource={
+          vehicleList && Array.isArray(vehicleList)
+            ? vehicleList.map((data: any) => ({
+                ...data,
+                key: data?.id,
+                model_name: data?.model_name,
+                group: data?.vehicleGroup?.name,
+                assigned_driver: data?.driver?.name,
+                status: (
+                  <div
+                    className={cn(styles.status, {
+                      [styles.active]: data?.isActive,
+                    })}
+                  >
+                    <div
+                      className={cn(styles.dot, {
+                        [styles.active]: data?.isActive,
+                      })}
+                    />
+                    {data?.isActive ? "Active" : "Inactive"}
+                  </div>
+                ),
+              }))
+            : []
+        }
         loading={vehicleStates?.loading || deleteVehicleStates?.loading}
         pagination={false}
         scroll={{

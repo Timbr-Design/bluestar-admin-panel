@@ -59,6 +59,7 @@ export const addReceipt = createAsyncThunk(
   "billings/addReceipt",
   async (body: any, { dispatch }) => {
     const response = await apiClient.post("/receipt", body);
+
     return response;
   }
 );
@@ -69,6 +70,7 @@ export const deleteReceipt = createAsyncThunk(
     const { id } = params;
 
     const response = await apiClient.delete(`/receipt/${id}`);
+
     return response;
   }
 );

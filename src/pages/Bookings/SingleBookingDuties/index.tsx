@@ -1,9 +1,9 @@
-  /* eslint-disable */
+/* eslint-disable */
 // Single Booking page with all the Duties of that Booking in it.
 
 import { EditFilled, SearchOutlined } from "@ant-design/icons";
 import { Input, DatePicker, Button, Drawer, Form } from "antd";
-import { ChangeEvent  } from "react";
+import { ChangeEvent } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import PrimaryBtn from "../../../components/PrimaryBtn";
@@ -29,6 +29,7 @@ dayjs.extend(utc);
 const { RangePicker } = DatePicker;
 
 const BookingsTabs = () => {
+  console.log("I RUN");
   const dispatch = useAppDispatch();
   const { filters } = useSelector((state: RootState) => state.bookingDuties);
 
@@ -59,13 +60,12 @@ const SingleBookingDuties = () => {
     currentSelectedBookingDuties,
     isEditingBookingDuties,
   } = useSelector((state: RootState) => state.bookingDuties);
+  console.log(currentSelectedBookingDuties);
 
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     dispatch(setBookingDutiesFilter({ search: value }));
   };
-
-  console.log("Bookings Duties");
 
   const [form] = Form.useForm();
   return (

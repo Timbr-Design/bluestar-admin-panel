@@ -73,14 +73,11 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
 
   const [form] = Form.useForm();
   const onSubmit = (values: any) => {
-    if (
-      selectedDriver?.data?._id &&
-      Object.keys(selectedDriver?.data).length > 0
-    ) {
+    if (selectedDriver?.id && Object.keys(selectedDriver).length > 0) {
       dispatch(
         updateDriver({
           payload: values,
-          id: selectedDriver?.data._id,
+          id: selectedDriver?.id,
         })
       );
       handleCloseSidePanel();
@@ -90,26 +87,27 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
     }
   };
   useEffect(() => {
-    if (selectedDriver.data && Object.keys(selectedDriver?.data).length > 0) {
-      const valuesToMaped = selectedDriver?.data;
+    if (selectedDriver && Object.keys(selectedDriver).length > 0) {
+      const valuesToMaped = selectedDriver;
+      console.log(valuesToMaped);
       setFilesArr(valuesToMaped?.files || []);
       form.setFieldsValue({
-        address: {
-          type: valuesToMaped.address.type,
-          fullAddress: valuesToMaped.address.fullAddress,
-        },
-        _id: valuesToMaped._id,
-        driverId: valuesToMaped.driverId,
+        // address: {
+        //   type: valuesToMaped.address.type,
+        //   fullAddress: valuesToMaped.address.fullAddress,
+        // },
+        id: valuesToMaped.id,
+        driverId: valuesToMaped.id,
         name: valuesToMaped.name,
-        phoneNumber: valuesToMaped.phoneNumber,
+        phone_number: valuesToMaped.phone_number,
         dob: valuesToMaped.dob,
-        ids: {
-          pan: valuesToMaped.ids.pan,
-          aadhar: valuesToMaped.ids.aadhar,
-          drivingLiscence: valuesToMaped.ids.drivingLiscence,
-        },
-        monthlySalary: valuesToMaped.monthlySalary,
-        dailySalary: valuesToMaped.dailySalary,
+        // ids: {
+        //   pan: valuesToMaped.ids.pan,
+        //   aadhar: valuesToMaped.ids.aadhar,
+        //   drivingLiscence: valuesToMaped.ids.drivingLiscence,
+        // },
+        monthly_salary: valuesToMaped.monthly_salary,
+        daily_salary: valuesToMaped.daily_salary,
         timing: {
           start: convertIsoToDayjsObject(valuesToMaped?.timing?.start),
           end: convertIsoToDayjsObject(valuesToMaped?.timing?.end),
@@ -187,11 +185,11 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
             const valuesToSubmit = {
               ...values,
               files: filesArr,
-              monthlySalary: Number(values?.monthlySalary),
-              dailySalary: Number(values?.dailySalary),
-              phoneNumber: values?.phoneNumber.startsWith("+91")
-                ? values?.phoneNumber
-                : `+91${values?.phoneNumber}`,
+              monthly_salary: Number(values?.monthly_salary),
+              daily_salary: Number(values?.daily_salary),
+              phone_number: values?.phone_number.startsWith("+91")
+                ? values?.phone_number
+                : `+91${values?.phone_number}`,
               // timing: {
               //   start: parseTime(values.timing.start),
               //   end: parseTime(values.timing.end),
@@ -245,8 +243,8 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
                   message: "Please enter a valid Indian phone number",
                 },
               ]}
-              name="phoneNumber"
-              id="phoneNumber"
+              name="phone_number"
+              id="phone_number"
               label="Phone Number"
               getValueProps={(value) => ({
                 value: value ? value.replace(/^\+91/, "") : "",
@@ -371,8 +369,8 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
           </Form.Item>
           <div className={styles.typeContainer}>
             <Form.Item
-              name="monthlySalary"
-              id="monthlySalary"
+              name="monthly_salary"
+              id="monthly_salary"
               label="Salary per month"
               rules={[
                 {
@@ -394,8 +392,8 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
                   required: false,
                 },
               ]}
-              name="dailySalary"
-              id="dailySalary"
+              name="daily_salary"
+              id="daily_salary"
               label="Daily Wages"
             >
               <Input type="number" placeholder="Enter daily wage..." min={0} />

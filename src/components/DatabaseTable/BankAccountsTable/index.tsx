@@ -21,11 +21,11 @@ import useDebounce from "../../../hooks/common/useDebounce";
 
 interface IBankAccountsTable {
   key: string;
-  _id: string;
-  accountName: string;
-  accountNumber: string;
-  bankName: string;
-  branchName: string;
+  id: string;
+  account_name: string;
+  account_number: string;
+  bank_name: string;
+  branch_name: string;
   ifsc: string;
   notes: string;
 }
@@ -89,8 +89,8 @@ const BankAccountsTable = ({
           <button
             onClick={() => {
               setOpenDeleteModal(true);
-              setDeleteBankAccountId(record._id);
-              setBankAccountName(record?.accountName);
+              setDeleteBankAccountId(record.id);
+              setBankAccountName(record?.account_name);
             }}
             className={styles.deleteBtn}
           >
@@ -99,7 +99,7 @@ const BankAccountsTable = ({
           <Dropdown menu={menuProps} trigger={["click"]}>
             <button
               className={styles.button}
-              onClick={() => setDeleteBankAccountId(record._id)}
+              onClick={() => setDeleteBankAccountId(record.id)}
             >
               <DotsHorizontal />
             </button>
@@ -141,17 +141,21 @@ const BankAccountsTable = ({
         onRow={(record) => {
           return {
             onClick: () => {
-              dispatch(getBankAccountById({ id: record._id }));
+              dispatch(getBankAccountById({ id: record.id }));
               handleOpenSidePanel();
               dispatch(setViewContentDatabase(true));
             },
           };
         }}
         columns={columns}
-        dataSource={bankAccounts?.data?.map((data: any) => ({
-          ...data,
-          key: data?._id,
-        }))}
+        dataSource={
+          bankAccounts && Array.isArray(bankAccounts)
+            ? bankAccounts?.map((data: any) => ({
+                ...data,
+                key: data?.id,
+              }))
+            : []
+        }
         loading={bankAccountStates?.loading || deleteBankAccountStates?.loading}
         pagination={false}
         scroll={{

@@ -30,7 +30,7 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
 
   const dispatch = useAppDispatch();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [selectedRow,setSelectedRow] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
 
   const handleEditFuels = (row) => {
     dispatch(setSelectedFuel(row));
@@ -90,7 +90,8 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
             }}
             onClick={(e) => {
               e.stopPropagation();
-              setOpenDeleteModal(true)
+              setOpenDeleteModal(true);
+              setSelectedRow(row);
             }}
           >
             <Space>
@@ -204,7 +205,13 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
           />
         )}
       />
-      <DeleteModal title={"Delete Fuels"} desc={" Are you sure you want to delete this expense?"} show={openDeleteModal} onClose={handleCloseModal} onDelete={handleDeleteFuel}  />
+      <DeleteModal
+        title={"Delete Fuels"}
+        desc={" Are you sure you want to delete this expense?"}
+        show={openDeleteModal}
+        onClose={handleCloseModal}
+        onDelete={handleDeleteFuel}
+      />
     </>
   );
 };

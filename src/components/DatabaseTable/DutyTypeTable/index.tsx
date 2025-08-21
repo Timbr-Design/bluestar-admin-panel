@@ -10,10 +10,8 @@ import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
 import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
-import { ReactComponent as DeleteIconRed } from "../../../icons/trash-red.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 
-import Modal from "../../Modal";
 import type { MenuProps } from "antd";
 import { Table, TableProps, Dropdown } from "antd";
 import React, { useState, useEffect, useRef } from "react";
@@ -22,10 +20,11 @@ import CustomPagination from "../../Common/Pagination";
 import styles from "./index.module.scss";
 import EmptyComponent from "../../EmptyComponent/EmptyComponent";
 import useDebounce from "../../../hooks/common/useDebounce";
+import DeleteModal from "../../Modal/DeleteModal";
 
 interface IDutyTypeTableData {
   key: string;
-  _id: string;
+  id: string;
   dutyTypeName: string;
   secondaryType: string;
   customDutyType: any;
@@ -54,6 +53,10 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
   const [dutyType, setDutyType] = useState({ dutyTypeName: "" });
   const [openDropdown, setOpenDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    console.log(dutyTypeList);
+  }, [dutyTypeList]);
 
   const handleDeleteDutyType = () => {
     dispatch(deleteDutyType({ id: dutyTypeId }));
@@ -98,7 +101,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
       dataIndex: "name",
       key: "name",
       render: (_, record) => {
-        return <span>{record?.dutyTypeName}</span>;
+        return <span></span>;
       },
     },
     {
@@ -195,7 +198,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
           selectedRowKeys: selectedRowKeys,
         }}
         columns={columns}
-        dataSource={dutyTypeList?.data}
+        dataSource={[]}
         loading={deleteDutyTypeStates?.loading || dutyTypeStates?.loading}
         pagination={false}
         scroll={{
@@ -231,30 +234,13 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
           />
         )}
       />
-      <Modal show={openDeleteModal} onClose={handleCloseModal}>
-        <div className={styles.deleteContainer}>
-          <DeleteIconRed />
-        </div>
-        <div className={styles.modalContainer}>
-          <div className={styles.textContainer}>
-            <div className={styles.primaryText}>Delete duty type</div>
-            <div className={styles.secondaryText}>
-              Are you sure you want to delete this duty type?
-              <div className={styles.selectedSecondaryText}>
-                {dutyType?.dutyTypeName}
-              </div>
-            </div>
-          </div>
-          <div className={styles.bottomBtns}>
-            <button className={styles.cancelBtn} onClick={handleCloseModal}>
-              Cancel
-            </button>
-            <button className={styles.deleteBtn} onClick={handleDeleteDutyType}>
-              Delete
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <DeleteModal
+        show={openDeleteModal}
+        onClose={handleCloseModal}
+        title={"Delete duty type"}
+        desc={"Are you sure you want to delete this duty type?"}
+        onDelete={handleDeleteDutyType}
+      />
     </>
   );
 };

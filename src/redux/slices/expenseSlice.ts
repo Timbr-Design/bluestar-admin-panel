@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import apiClient from "../../utils/configureAxios";
+import pb from "../../utils/configurePocketbase";
 import { notification } from "antd";
 import { getExpenses } from "./vehicleTrackerSlice";
 import { IExpense } from "../../interface/expense";

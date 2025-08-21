@@ -139,7 +139,7 @@ const BookingsTable = () => {
     ];
 
     // Filter out the confirm booking option if isConfirmed is true
-    return items.filter(item => !(item.key === "1" && row.isConfirmed));
+    return items.filter((item) => !(item.key === "1" && row.isConfirmed));
   }
 
   const columns: TableColumnsType<any> = [
@@ -240,7 +240,9 @@ const BookingsTable = () => {
       key: "bookingStatus",
       render: (_, record) => {
         const status = record?.status;
-        return <BookingsStates status={status} isConfirmed={record?.isConfirmed} />;
+        return (
+          <BookingsStates status={status} isConfirmed={record?.isConfirmed} />
+        );
       },
     },
     {
@@ -329,12 +331,14 @@ const BookingsTable = () => {
 
   const debouncedSearch = useDebounce(filters.search, 500);
 
-useEffect(() => {
-  dispatch(getBookings({ 
-    ...filters, 
-    search: debouncedSearch 
-  }));
-}, [debouncedSearch, filters.status]);
+  useEffect(() => {
+    dispatch(
+      getBookings({
+        ...filters,
+        search: debouncedSearch,
+      })
+    );
+  }, [debouncedSearch, filters.status]);
 
   let navigate = useNavigate();
 

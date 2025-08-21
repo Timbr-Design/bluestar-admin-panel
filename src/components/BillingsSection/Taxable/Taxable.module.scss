@@ -1,0 +1,313 @@
+.container {
+  width: 100%;
+}
+
+/* Custom row section */
+.customRowCard {
+  background-color: #f9fafb !important;
+  border: 1px solid #e4e7ec !important;
+  border-radius: 12px !important;
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+.customRowCard .ant-card-body {
+  padding: 24px !important;
+}
+
+.sectionTitle {
+  color: #101828 !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  margin: 0 0 24px 0 !important;
+}
+
+.customRowFields {
+  margin-bottom: 24px;
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.fieldLabel {
+  margin-bottom: 8px;
+  color: #344054 !important; 
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.fieldLabel.invisible {
+  visibility: hidden;
+}
+
+.customSelect,
+.taxSelect {
+  width: 100%;
+  height: 44px;
+}
+
+.customSelect .ant-select-selector,
+.taxSelect .ant-select-selector {
+  background-color: #ffffff !important;
+  border: 1px solid #d0d5dd !important;
+  border-radius: 8px !important;
+  height: 44px !important;
+  color: #101828 !important;
+}
+
+.customSelect:hover .ant-select-selector,
+.taxSelect:hover .ant-select-selector {
+  border-color: #7f56d9 !important;
+}
+
+.currencySymbol {
+  color: #667085;
+}
+
+.amountInput {
+  height: 44px;
+  background-color: #ffffff;
+  border: 1px solid #d0d5dd !important;
+  border-radius: 8px !important;
+  color: #667085;
+  align-items: center;
+}
+
+.amountInput::placeholder {
+  color: #98a2b3;
+}
+
+.amountInput:focus,
+.amountInput:focus-within {
+  border-color: #7f56d9 !important;
+  box-shadow: 0 0 0 2px rgba(127, 86, 217, 0.1) !important;
+}
+
+.deleteButton {
+  height: 44px;
+  width: 44px !important;
+  border: 1px solid #d0d5dd !important;
+  color: #667085 !important;
+  background-color: transparent !important;
+  border-radius: 8px !important;
+}
+
+.deleteButton:hover {
+  color: #d92d20 !important;
+  background-color: #fef2f2 !important;
+  border-color: #d0d5dd !important;
+}
+
+.addRowButton {
+  color: #7f56d9 !important;
+  font-weight: 500;
+  padding: 4px 0;
+  height: auto;
+  border-radius: 8px !important;
+}
+
+.addRowButton:hover {
+  color: #6941c6 !important;
+  background-color: #f9f5ff !important;
+}
+
+/* Tax classification section */
+.taxClassificationSection {
+  margin-bottom: 32px;
+}
+
+.taxClassificationSection .fieldLabel {
+  margin-bottom: 12px;
+}
+
+/* Invoice attachments section */
+.attachmentsSection .fieldLabel {
+  margin-bottom: 16px;
+  gap: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.uploadDragger {
+  background-color: #f9fafb !important;
+  border: 2px solid #d0d5dd !important;
+  border-radius: 12px !important;
+  // padding: 48px 24px !important;
+  margin-bottom: 16px;
+}
+
+.uploadDragger:hover {
+  border-color: #7f56d9 !important;
+}
+
+.uploadContent {
+  text-align: center;
+}
+
+.uploadIconContainer {
+  width: 48px;
+  height: 48px;
+  background-color: #ffffff;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.uploadIcon {
+  font-size: 24px;
+  color: #667085;
+}
+
+.uploadText {
+  color: #101828;
+  margin: 0 0 4px 0;
+}
+
+.uploadLink {
+  color: #7f56d9;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.uploadLink:hover {
+  color: #6941c6;
+}
+
+.uploadDescription {
+  color: #667085;
+}
+
+.uploadFormats {
+  color: #667085;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* File list */
+.fileList {
+  width: 100%;
+}
+
+.fileItem {
+  background-color: #ffffff !important;
+  border: 1px solid #e4e7ec !important;
+  border-radius: 8px !important;
+}
+
+.fileItem .ant-card-body {
+  padding: 16px !important;
+}
+
+.fileIcon {
+  width: 40px;
+  height: 40px;
+  background-color: #d92d20;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 20px;
+}
+
+.fileHeader {
+  margin-bottom: 8px;
+}
+
+.fileName {
+  color: #101828 !important;
+  font-weight: 500;
+}
+
+.fileDeleteButton {
+  color: #667085 !important;
+  border-radius: 8px !important;
+}
+
+.fileDeleteButton:hover {
+  color: #d92d20 !important;
+  background-color: #fef2f2 !important;
+}
+
+.fileSize {
+  color: #667085 !important;
+  font-size: 14px !important;
+  display: block !important;
+  margin-bottom: 8px !important;
+}
+
+.progressRow {
+  margin: 0;
+}
+
+.fileProgress {
+  margin: 0 !important;
+}
+
+.fileProgress .ant-progress-bg {
+  border-radius: 4px !important;
+}
+
+.progressText {
+  color: #101828 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+/* Global Ant Design overrides */
+.ant-typography {
+  margin-bottom: 0 !important;
+}
+
+.ant-select-dropdown {
+  border-radius: 8px !important;
+}
+
+.ant-select-item-option {
+  border-radius: 6px !important;
+}
+
+.ant-input:focus,
+.ant-input-focused {
+  border-color: #7f56d9 !important;
+  box-shadow: 0 0 0 2px rgba(127, 86, 217, 0.1) !important;
+}
+
+.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+  border-color: #7f56d9 !important;
+}
+
+.ant-select-focused .ant-select-selector {
+  border-color: #7f56d9 !important;
+  box-shadow: 0 0 0 2px rgba(127, 86, 217, 0.1) !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .customRowCard .ant-card-body {
+    padding: 16px !important;
+  }
+
+  .uploadDragger {
+    padding: 32px 16px !important;
+  }
+}
+
+
+.fieldBox{
+// width: 100%;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+gap: 8px;
+flex: 1 0 0;
+min-width: 220px;
+}

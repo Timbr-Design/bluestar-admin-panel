@@ -9,11 +9,9 @@ import {
   updateCustomer,
   setViewContentDatabase,
 } from "../../../redux/slices/databaseSlice";
-import { ReactComponent as DeleteIconRed } from "../../../icons/trash-red.svg";
 import cn from "classnames";
 import { ReactComponent as Clipboard } from "../../../icons/clipboard-x.svg";
 import type { MenuProps } from "antd";
-import Modal from "../../Modal";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { Table, TableProps, Dropdown } from "antd";
@@ -21,10 +19,11 @@ import styles from "./index.module.scss";
 import React, { useState, useEffect } from "react";
 import CustomPagination from "../../Common/Pagination";
 import useDebounce from "../../../hooks/common/useDebounce";
+import DeleteModal from "../../Modal/DeleteModal";
 
 interface ICustomerTableData {
   key: string;
-  _id: string;
+  id: string;
   name: string;
   phoneNumber: string;
   gstNumber: string;
@@ -45,6 +44,10 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
   const { customers, customersStates, q, deleteCustomersStates, pagination } =
     useAppSelector((state) => state.database);
 
+  useEffect(() => {
+    console.log(customers);
+  }, [customers]);
+
   const handleDeleteVehicleGroup = () => {
     dispatch(deleteCustomer({ id: customerId }));
     setOpenDeleteModal(false);
@@ -58,7 +61,7 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
       dispatch(
         updateCustomer({
           payload: { isActive: currentCustomer?.isActive ? false : true },
-          id: currentCustomer?._id,
+          id: currentCustomer?.id,
         })
       );
     }
@@ -103,7 +106,7 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
           <button
             onClick={() => {
               setOpenDeleteModal(true);
-              setCustomerId(record._id);
+              setCustomerId(record.id);
               setCustomer(record);
             }}
             className={styles.deleteBtn}
@@ -113,7 +116,7 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
           <Dropdown menu={menuProps} trigger={["click"]}>
             <button
               className={styles.button}
-              onClick={() => setCustomerId(record._id)}
+              onClick={() => setCustomerId(record.id)}
             >
               <DotsHorizontal />
             </button>
@@ -145,7 +148,7 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
         onRow={(record) => {
           return {
             onClick: () => {
-              dispatch(getCustomerById({ id: record._id }));
+              dispatch(getCustomerById({ id: record.id }));
               dispatch(setViewContentDatabase(true));
               handleOpenSidePanel();
             },
@@ -157,27 +160,31 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
           selectedRowKeys: selectedRowKeys,
         }}
         columns={columns}
-        dataSource={customers?.data?.map((data: any) => {
-          return {
-            ...data,
-            key: data?._id,
-            gstNumber: data?.taxDetails?.gstNumber,
-            status: (
-              <div
-                className={cn(styles.status, {
-                  [styles.active]: data?.isActive,
-                })}
-              >
-                <div
-                  className={cn(styles.dot, {
-                    [styles.active]: data?.isActive,
-                  })}
-                />
-                {data?.isActive ? "Active" : "Inactive"}
-              </div>
-            ),
-          };
-        })}
+        dataSource={
+          customers && Array.isArray(customers)
+            ? customers?.map((data: any) => {
+                return {
+                  ...data,
+                  key: data?.id,
+                  gstNumber: data?.taxDetails?.gstNumber,
+                  status: (
+                    <div
+                      className={cn(styles.status, {
+                        [styles.active]: data?.isActive,
+                      })}
+                    >
+                      <div
+                        className={cn(styles.dot, {
+                          [styles.active]: data?.isActive,
+                        })}
+                      />
+                      {data?.isActive ? "Active" : "Inactive"}
+                    </div>
+                  ),
+                };
+              })
+            : []
+        }
         loading={customersStates?.loading || deleteCustomersStates?.loading}
         pagination={false}
         scroll={{
@@ -199,33 +206,13 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
           />
         )}
       />
-      <Modal show={openDeleteModal} onClose={handleCloseModal}>
-        <div className={styles.deleteContainer}>
-          <DeleteIconRed />
-        </div>
-        <div className={styles.modalContainer}>
-          <div className={styles.textContainer}>
-            <div className={styles.primaryText}>Delete customer</div>
-            <div className={styles.secondaryText}>
-              Are you sure you want to delete this customer?{" "}
-              <div className={styles.selectedSecondaryText}>
-                {customer?.name}
-              </div>
-            </div>
-          </div>
-          <div className={styles.bottomBtns}>
-            <button className={styles.cancelBtn} onClick={handleCloseModal}>
-              Cancel
-            </button>
-            <button
-              className={styles.deleteBtn}
-              onClick={handleDeleteVehicleGroup}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <DeleteModal
+        show={openDeleteModal}
+        onClose={handleCloseModal}
+        title={"Delete customer"}
+        desc={"Are you sure you want to delete this customer?"}
+        onDelete={handleDeleteVehicleGroup}
+      />
     </>
   );
 };

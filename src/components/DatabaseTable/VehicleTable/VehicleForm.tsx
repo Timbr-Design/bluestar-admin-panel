@@ -91,6 +91,10 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
     }
   };
 
+  useEffect(() => {
+    console.log(selectedVehicle);
+  }, [selectedVehicle]);
+
   const getPanelValue = (searchText: string) => {
     if (searchText) {
       dispatch(
@@ -124,12 +128,12 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
       setLoanDocument(values?.loan?.loanDocument || null);
 
       form.setFieldsValue(values);
-      form.setFieldValue("vehicleGroupId", {
-        value: selectedVehicle?.vehicleGroup?._id,
+      form.setFieldValue("vehicle_group_id", {
+        value: selectedVehicle?.vehicleGroup?.id,
         label: selectedVehicle?.vehicleGroup?.name,
       });
-      form.setFieldValue("driverId", {
-        value: selectedVehicle?.driver?._id,
+      form.setFieldValue("driver_id", {
+        value: selectedVehicle?.driver?.id,
         label: selectedVehicle?.driver?.name,
       });
       setIsActive(values?.loan?.isActive);
@@ -177,29 +181,29 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
             if (Object.keys(selectedVehicle).length) {
               const tempValues = {
                 ...Values,
-                driverId: Values.driverId.value,
-                vehicleGroupId: Values.vehicleGroupId.value,
+                driver_id: Values.driver_id.value,
+                vehicle_group_id: Values.vehicle_group_id.value,
               };
 
               dispatch(
-                updateVehicle({ id: selectedVehicle?._id, payload: tempValues })
+                updateVehicle({ id: selectedVehicle?.id, payload: tempValues })
               );
             } else {
               dispatch(addNewVehicle(Values));
             }
           }}
           initialValues={{
-            modelName: "",
-            vehicleNumber: "",
-            fuelType: "",
-            vehicleGroupId: "",
-            driverId: "",
-            fastTagId: "",
+            model_name: "",
+            vehicle_number: "",
+            fuel_type: "",
+            vehicle_group_id: "",
+            driver_id: "",
+            fast_tag_id: "",
             registration: null,
             insurance: null,
             rto: null,
             parts: null,
-            carExpiryDate: Date.now(),
+            car_expiry_date: Date.now(),
             files: null,
             notes: null,
             loan: null,
@@ -215,8 +219,8 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 },
               ]}
               label="Model Name"
-              name="modelName"
-              id="modelName"
+              name="model_name"
+              id="model_name"
             >
               <Input placeholder="Enter model name..." />
             </Form.Item>
@@ -229,8 +233,8 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 },
               ]}
               label="Vehicle Number"
-              name="vehicleNumber"
-              id="vehicleNumber"
+              name="vehicle_number"
+              id="vehicle_number"
             >
               <Input placeholder="Enter model name..." />
             </Form.Item>
@@ -243,8 +247,8 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 },
               ]}
               label="Fuel type"
-              name="fuelType"
-              id="fuelType"
+              name="fuel_type"
+              id="fuel_type"
             >
               <Select
                 style={{ width: "100%" }}
@@ -266,17 +270,21 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 },
               ]}
               label="Category - Vehicle Group"
-              name="vehicleGroupId"
-              id="vehicleGroupId"
+              name="vehicle_group_id"
+              id="vehicle_group_id"
             >
               <Select
                 allowClear
-                options={vehicleGroupData?.data?.map(
-                  (option: { _id: string; name: string }) => ({
-                    value: option._id,
-                    label: option.name,
-                  })
-                )}
+                options={
+                  vehicleGroupData && Array.isArray(vehicleGroupData)
+                    ? vehicleGroupData?.map(
+                        (option: { id: string; name: string }) => ({
+                          value: option.id,
+                          label: option.name,
+                        })
+                      )
+                    : []
+                }
                 onSearch={(text) => getVehicleGroupValue(text)}
                 placeholder="Search vehicle group"
                 fieldNames={{ label: "label", value: "value" }}
@@ -293,8 +301,8 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 },
               ]}
               label="Assigned Driver"
-              name="driverId"
-              id="driverId"
+              name="driver_id"
+              id="driver_id"
             >
               <Select
                 showSearch
@@ -323,8 +331,8 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                 },
               ]}
               label="FASTag Number"
-              name="fastTagId"
-              id="fastTagId"
+              name="fast_tag_id"
+              id="fast_tag_id"
             >
               <Input placeholder="Enter model name..." />
             </Form.Item>
@@ -477,7 +485,7 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
             </Input.Group>
           </Form.Item>
           <div className={styles.typeContainer}>
-            <Form.Item label="Car expiry Date" name="carExpiryDate">
+            <Form.Item label="Car expiry Date" name="car_expiry_date">
               <CustomDatePicker format="DD-MM-YYYY" />
             </Form.Item>
           </div>

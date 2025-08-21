@@ -42,9 +42,7 @@ const TaxesForm = ({ handleCloseSidePanel }: ITaxesForm) => {
 
   const handleSave = (valuesToSend: any) => {
     if (Object.keys(selectedTax).length) {
-      dispatch(
-        updateTax({ payload: valuesToSend, id: selectedTax?.data?._id })
-      );
+      dispatch(updateTax({ payload: valuesToSend, id: selectedTax?.id }));
     } else {
       dispatch(addNewTax(valuesToSend));
     }
@@ -61,9 +59,9 @@ const TaxesForm = ({ handleCloseSidePanel }: ITaxesForm) => {
   useEffect(() => {
     if (Object.keys(selectedTax).length) {
       form.setFieldsValue({
-        name: selectedTax?.data?.name,
-        percentage: selectedTax?.data?.percentage,
-        notes: selectedTax?.data?.notes,
+        name: selectedTax?.name,
+        percentage: selectedTax?.percentage,
+        notes: selectedTax?.notes,
       });
     }
   }, [selectedTax]);

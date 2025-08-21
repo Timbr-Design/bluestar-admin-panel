@@ -6,7 +6,7 @@ import styles from "./index.module.scss";
 interface IDropdownBtn {
   LeadingIcon?: any;
   btnText: string;
-  onClick: VoidFunction;
+  onClick: any;
   loading?: boolean;
 }
 

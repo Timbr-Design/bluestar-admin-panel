@@ -5,22 +5,23 @@ import { ReactComponent as CheckIcon } from "../../../src/icons/check-circle.svg
 import { SmileOutlined } from "@ant-design/icons"; // Import any Ant Design icon
 import apiClient from "../../utils/configureAxios";
 import { notification } from "antd";
+import pb from "../../utils/configurePocketbase";
 
 // Bank Account APIs
 
 export const addBankAccount = createAsyncThunk(
   "database/addBankAccount",
   async (body: any, { dispatch }) => {
-    const response = await apiClient.post("/database/bank-accounts", body);
+    const record = await pb.collection("bank_accounts").create(body);
 
-    if (response.status === 201) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       notification.success({
         message: "Success",
         description: "New bank account added successfully",
       });
       dispatch(getBankAccount({ page: 1, limit: 10 }));
-      return response.data;
+      return record;
     }
   }
 );
@@ -28,19 +29,22 @@ export const addBankAccount = createAsyncThunk(
 export const getBankAccount = createAsyncThunk(
   "database/getBankAccount",
   async (params: any, { dispatch }) => {
-    const response = await apiClient.get(`/database/bank-accounts/`, {
-      params,
+    // const response = await apiClient.get(`/database/bank-accounts/`, {
+    //   params,
+    // });
+    const resultList = await pb.collection("bank_accounts").getList(1, 50, {
+      filter: `name ~ "${params.search}" || bank_name ~ "${params.search}" || account_number~ "${params.search}"`,
     });
 
-    if (response.status == 200) {
+    if (resultList) {
       dispatch(
         setPagination({
-          total: response.data.total,
-          page: response.data.page,
-          limit: response.data.limit,
+          total: resultList.totalPages,
+          page: resultList.page,
+          limit: resultList.perPage,
         })
       );
-      return response.data;
+      return resultList.items;
     }
   }
 );
@@ -51,9 +55,10 @@ export const getBankAccountById = createAsyncThunk(
   async (params: any) => {
     const { id } = params;
 
-    const response = await apiClient.get(`/database/bank-accounts/${id}`);
+    // const response = await apiClient.get(`/database/bank-accounts/${id}`);
+    const record = await pb.collection("bank-accounts").getOne(id);
 
-    return response.data;
+    return record;
   }
 );
 
@@ -62,8 +67,9 @@ export const deleteBankAccount = createAsyncThunk(
   async (params: any, { dispatch, getState }: any) => {
     const { id } = params;
 
-    const response = await apiClient.delete(`/database/bank-accounts/${id}`);
+    // const response = await apiClient.delete(`/database/bank-accounts/${id}`);
     console.log(getState(), "getState()");
+    const response = await pb.collection("bank_accounts").delete(id);
     const { database } = getState();
     const { pagination, q } = database;
 
@@ -74,7 +80,7 @@ export const deleteBankAccount = createAsyncThunk(
         limit: pagination.limit,
       })
     );
-    return response.data;
+    return response;
   }
 );
 
@@ -84,24 +90,26 @@ export const updateBankAccount = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { id, payload } = body;
 
-    const response = await apiClient.put(
-      `/database/bank-accounts/${id}`,
-      payload
-    );
+    // const response = await apiClient.put(
+    //   `/database/bank-accounts/${id}`,
+    //   payload
+    // );
+    const record = await pb.collection("bank-accounts").update(id, payload);
+
     const { database } = getState();
     const { pagination, q } = database;
 
-    if (response.status === 200) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       notification.success({
         message: "Success",
         description: "Bank account updated successfully",
       });
       dispatch(getBankAccount({ page: pagination.page, search: q, limit: 10 }));
-      return response.data;
+      return record;
     }
 
-    return response.data;
+    // return response.data;
   }
 );
 
@@ -110,16 +118,18 @@ export const updateBankAccount = createAsyncThunk(
 export const addDutyType = createAsyncThunk(
   "database/addDutyType",
   async (body: any, { dispatch }) => {
-    const response = await apiClient.post("/database/duty-type", body);
+    // const response = await apiClient.post("/database/duty-type", body);
 
-    if (response.status === 201) {
+    const record = await pb.collection("duty_types").create(body);
+
+    if (record) {
       dispatch(setOpenSidePanel(false));
       notification.success({
         message: "Success",
         description: "New Duty type added successfully",
       });
       dispatch(getAllDutyTypes({ page: "1", limit: "10", search: "" }));
-      return response.data;
+      return record;
     }
   }
 );
@@ -127,23 +137,34 @@ export const addDutyType = createAsyncThunk(
 export const getAllDutyTypes = createAsyncThunk(
   "database/getAllDutyTypes",
   async (params: any, { dispatch, getState }) => {
-    // const { page, limit, search } = params;
+    const { page, limit, search } = params;
 
     // const response = await apiClient.get(
     //   `/database/duty-type?page=${page}&limit=${limit}&search=${search}`
     // );
-    const response = await apiClient.get(`/database/duty-type`, { params });
+    // const response = await apiClient.get(`/database/duty-type`, { params });
 
-    if (response.status === 200) {
-      let option: Array<object> = response?.data?.data?.map((each: any) => ({
-        value: each._id,
+    const records = await pb.collection("duty_types").getFullList();
+    console.log(records);
+
+    // if (response.status === 200) {
+    // let option: Array<object> = response?.data?.data?.map((each: any) => ({
+    //   value: each._id,
+    //   label: each.name,
+    // }));
+    if (records && records.length > 0) {
+      let option: Array<object> = records.map((each: any) => ({
+        value: each.id,
         label: each.name,
       }));
 
-      dispatch(setDutyTypeOption(option));
+      console.log(option);
 
-      return response.data;
+      dispatch(setDutyTypeOption(option));
+      // return records;
     }
+    // return response.data;
+    // }
   }
 );
 
@@ -151,8 +172,9 @@ export const getDutyTypeById = createAsyncThunk(
   "database/getDutyTypeById",
   async (params: any) => {
     const { id } = params;
-    const response = await apiClient.get(`/database/duty-type/${id}`);
-    return response.data;
+    // const response = await apiClient.get(`/database/duty-type/${id}`);
+    const record = await pb.collection("duty_types").getOne(id);
+    return record;
   }
 );
 
@@ -162,11 +184,13 @@ export const updateDutyType = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
 
-    const response = await apiClient.put(`/database/duty-type/${id}`, payload);
+    // const response = await apiClient.put(`/database/duty-type/${id}`, payload);
+    const record = await pb.collection("duty_types").update(id, payload);
+
     const { database } = getState();
     const { pagination, q } = database;
 
-    if (response?.status === 200) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       notification.success({
         message: "Success",
@@ -186,11 +210,13 @@ export const deleteDutyType = createAsyncThunk(
   async (params: any, { dispatch, getState }: any) => {
     const { id } = params;
 
-    const response = await apiClient.delete(`/database/duty-type/${id}`);
+    // const response = await apiClient.delete(`/database/duty-type/${id}`);
+    const response = await pb.collection("duty_types").delete(id);
+
     const { database } = getState();
     const { pagination, q } = database;
 
-    if (response?.status === 200) {
+    if (response) {
       dispatch(
         getAllDutyTypes({ page: pagination.page, limit: 10, search: q })
       );
@@ -203,45 +229,38 @@ export const deleteDutyType = createAsyncThunk(
 export const addNewTax = createAsyncThunk(
   "database/addNewTax",
   async (body: any, { dispatch, getState }: any) => {
-    const response = await apiClient.post("/database/tax", body);
+    // const response = await apiClient.post("/database/tax", body);
+    const record = await pb.collection("taxes").create(body);
 
-    const { database } = getState();
-    const { taxesStates } = database;
-    const { pagination } = taxesStates;
-
-    if (response.status === 201) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       notification.success({
         message: "Success",
         description: "New tax added successfully",
       });
-      dispatch(
-        getTaxes({
-          page: 1,
-          search: pagination.search,
-          limit: 10,
-        })
-      );
-      return response.data;
+      dispatch(getTaxes({ page: "1", search: "", limit: 10 }));
+      return record;
     }
   }
 );
 
 export const getTaxes = createAsyncThunk(
   "database/getTaxes",
-
   async (params: any, { dispatch }) => {
-    const response = await apiClient.get(`/database/tax/`, { params });
-
-    if (response.status === 200) {
+    // const response = await apiClient.get(`/database/tax/`, { params });
+    const resultList = await pb.collection("taxes").getList(1, 50, {
+      filter: `duty_type ~ "${params.search}"`,
+    });
+    
+    if (resultList) {
       dispatch(
         setPagination({
-          total: response.data.total,
-          page: response.data.page,
-          limit: response.data.limit,
+          total: resultList.totalPages,
+          page: resultList.page,
+          limit: resultList.perPage,
         })
       );
-      return response.data;
+      return resultList.items;
     }
   }
 );
@@ -265,7 +284,8 @@ export const deleteTax = createAsyncThunk(
 
   async (params: any, { dispatch, getState }: any) => {
     const { id } = params;
-    const response = await apiClient.delete(`/database/tax/${id}`);
+    // const response = await apiClient.delete(`/database/tax/${id}`);
+    const response = await pb.collection("taxes").delete(id);
 
     const { database } = getState();
     const { pagination, q } = database;
@@ -278,7 +298,7 @@ export const deleteTax = createAsyncThunk(
       })
     );
 
-    return response.data;
+    return response;
   }
 );
 
@@ -287,12 +307,13 @@ export const updateTax = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { id, payload } = body;
 
-    const response = await apiClient.put(`/database/tax/${id}`, payload);
+    // const response = await apiClient.put(`/database/tax/${id}`, payload);
+    const record = await pb.collection("taxes").update(id, payload);
 
     const { database } = getState();
     const { pagination, q } = database;
 
-    if (response.status === 200) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       notification.success({
         message: "Success",
@@ -305,7 +326,7 @@ export const updateTax = createAsyncThunk(
           limit: 10,
         })
       );
-      return response.data;
+      return record;
     }
   }
 );
@@ -315,9 +336,10 @@ export const getTaxesById = createAsyncThunk(
   async (params: any) => {
     const { id } = params;
 
-    const response = await apiClient.get(`/database/tax/${id}`);
+    // const response = await apiClient.get(`/database/tax/${id}`);
+    const record = await pb.collection("taxes").getOne(id);
 
-    return response.data;
+    return record;
   }
 );
 
@@ -327,6 +349,8 @@ export const addNewCustomer = createAsyncThunk(
   "database/addNewCustomer",
   async (body: any, { dispatch }) => {
     const response = await apiClient.post("/database/customer", body);
+    const record = await pb.collection("customers").create(body);
+    console.log(record);
     if (response.status === 201) {
       notification.success({
         message: "Success",
@@ -342,23 +366,26 @@ export const addNewCustomer = createAsyncThunk(
 export const getCustomer = createAsyncThunk(
   "database/getCustomer",
   async (params: any, { dispatch }) => {
-    const response = await apiClient.get(`/database/customer`, { params });
+    // const response = await apiClient.get(`/database/customer`, { params });
+    const resultList = await pb.collection("customers").getList(1, 50, {
+      filter: `name ~ "${params.search}" || phone_number ~ "${params.search}"`,
+    });
 
-    if (response.status === 200) {
+    if (resultList) {
       dispatch(
         setPagination({
-          total: response.data.total,
-          page: response.data.page,
-          limit: response.data.limit,
+          total: resultList.totalPages,
+          page: resultList.page,
+          limit: resultList.perPage,
         })
       );
-      let option: Array<object> = response?.data?.data?.map((each: any) => ({
-        value: each._id,
+      let option: Array<object> = resultList.items?.map((each: any) => ({
+        value: each.id,
         label: each.name,
       }));
 
       dispatch(setCustomerOption(option));
-      return response.data;
+      return resultList.items;
     }
   }
 );
@@ -368,17 +395,19 @@ export const updateCustomer = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
 
-    const response = await apiClient.put(`/database/customer/${id}`, payload);
+    // const response = await apiClient.put(`/database/customer/${id}`, payload);
+
+    const record = await pb.collection("customers").update(id, payload);
     const { database } = getState();
     const { pagination, q } = database;
-    if (response.status === 200) {
+    if (record) {
       notification.success({
         message: "Success",
         description: "Customer updated successfully",
       });
       dispatch(setOpenSidePanel(false));
       dispatch(getCustomer({ page: pagination.page, search: q, limit: 10 }));
-      return response.data;
+      return record;
     }
   }
 );
@@ -390,12 +419,13 @@ export const deleteCustomer = createAsyncThunk(
     const { database } = getState();
     const { pagination, q } = database;
 
-    const response = await apiClient.delete(`/database/customer/${id}`);
+    // const response = await apiClient.delete(`/database/customer/${id}`);
+    const result = await pb.collection("customers").delete(id);
 
-    if (response.status === 200) {
+    if (result) {
       dispatch(getCustomer({ page: pagination.page, search: q, limit: 10 }));
 
-      return response.data;
+      return result;
     }
   }
 );
@@ -405,9 +435,10 @@ export const getCustomerById = createAsyncThunk(
   async (params: any) => {
     const { id } = params;
 
-    const response = await apiClient.get(`/database/customer/${id}`);
+    // const response = await apiClient.get(`/database/customer/${id}`);
+    const record = await pb.collection("customers").getOne(id);
 
-    return response.data;
+    return record;
   }
 );
 
@@ -415,9 +446,10 @@ export const getCustomerById = createAsyncThunk(
 export const addNewAllowance = createAsyncThunk(
   "database/addNewAllowance",
   async (body: any, { dispatch }) => {
-    const response = await apiClient.post("/database/allowance", body);
+    // const response = await apiClient.post("/database/allowance", body);
+    const record = await pb.collection("allowances").create(body);
 
-    if (response?.status === 201) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       notification.success({
         message: "Success",
@@ -425,7 +457,7 @@ export const addNewAllowance = createAsyncThunk(
       });
       dispatch(getAllowances({ page: "1", search: "", limit: 10 }));
 
-      return response.data;
+      return record;
     }
   }
 );
@@ -433,16 +465,19 @@ export const addNewAllowance = createAsyncThunk(
 export const getAllowances = createAsyncThunk(
   "database/getAllowances",
   async (params: any, { dispatch }) => {
-    const response = await apiClient.get(`/database/allowance`, { params });
-    if (response.status === 200) {
+    // const response = await apiClient.get(`/database/allowance`, { params });
+    const resultList = await pb.collection("allowances").getList(1, 50, {
+      filter: `allowance_type ~ "${params.search}"`,
+    });
+    if (resultList) {
       dispatch(
         setPagination({
-          total: response.data.total,
-          page: response.data.page,
-          limit: response.data.limit,
+          total: resultList.totalPages,
+          page: resultList.page,
+          limit: resultList.perPage,
         })
       );
-      return response.data;
+      return resultList.items;
     }
   }
 );
@@ -453,9 +488,10 @@ export const getAllowanceById = createAsyncThunk(
   async (params: any) => {
     const { id } = params;
 
-    const response = await apiClient.get(`/database/allowance/${id}`);
+    // const response = await apiClient.get(`/database/allowance/${id}`);
+    const record = await pb.collection("allowances").getOne(id);
 
-    return response.data;
+    return record;
   }
 );
 
@@ -465,11 +501,13 @@ export const updateAllowance = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
 
-    const response = await apiClient.put(`/database/allowance/${id}`, payload);
+    // const response = await apiClient.put(`/database/allowance/${id}`, payload);
+    const record = await pb.collection("allowances").update(id, payload);
+
     const { database } = getState();
     const { pagination, q } = database;
 
-    if (response?.status === 200) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       notification.success({
         message: "Success",
@@ -477,7 +515,7 @@ export const updateAllowance = createAsyncThunk(
       });
       dispatch(getAllowances({ page: pagination.page, search: q, limit: 10 }));
 
-      return response.data;
+      return record;
     }
   }
 );
@@ -488,12 +526,14 @@ export const deleteAllowance = createAsyncThunk(
   async (params: any, { dispatch, getState }: any) => {
     const { id } = params;
 
-    const response = await apiClient.delete(`/database/allowance/${id}`);
+    // const response = await apiClient.delete(`/database/allowance/${id}`);
+    const response = await pb.collection("allowances").delete(id);
+
     const { database } = getState();
     const { pagination, q } = database;
-    dispatch(getAllowances({ page: pagination.page, search: q, limit: 10 }));
+    dispatch(getAllowances({ page: 1, search: "", limit: 10 }));
 
-    return response.data;
+    return response;
   }
 );
 
@@ -501,12 +541,13 @@ export const deleteAllowance = createAsyncThunk(
 export const addNewVehicle = createAsyncThunk(
   "database/addNewVehicle",
   async (body: any, { dispatch }) => {
-    const response = await apiClient.post("/database/vehicle", body);
+    // const response = await apiClient.post("/database/vehicle", body);
+    const record = await pb.collection("vehicles").create(body);
 
-    if (response?.status === 201) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       dispatch(getVehicle({ page: "1", search: "", limit: 10 }));
-      return response.data;
+      return record;
     }
   }
 );
@@ -515,17 +556,19 @@ export const getVehicle = createAsyncThunk(
   "database/getVehicle",
 
   async (params: any, { dispatch, getState }: any) => {
-    const response = await apiClient.get(`/database/vehicle`, { params });
-
-    if (response.status === 200) {
+    // const response = await apiClient.get(`/database/vehicle`, { params });
+    const resultList = await pb.collection("vehicles").getList(1, 50, {
+      filter: `model_name ~ "${params.search}" || vehicle_number ~ "${params.search}"`,
+    });
+    if (resultList) {
       dispatch(
         setPagination({
-          total: response.data.total,
-          page: response.data.page,
-          limit: response.data.limit,
+          total: resultList.totalPages,
+          page: resultList.page,
+          limit: resultList.perPage,
         })
       );
-      return response.data;
+      return resultList.items;
     }
   }
 );
@@ -536,9 +579,10 @@ export const getVehicleById = createAsyncThunk(
   async (params: any) => {
     const { id } = params;
 
-    const response = await apiClient.get(`/database/vehicle/${id}`);
+    // const response = await apiClient.get(`/database/vehicle/${id}`);
+    const record = await pb.collection("vehicles").getOne(id);
 
-    return response.data;
+    return record;
   }
 );
 
@@ -547,13 +591,15 @@ export const updateVehicle = createAsyncThunk(
 
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
-    const response = await apiClient.put(`/database/vehicle/${id}`, payload);
+    // const response = await apiClient.put(`/database/vehicle/${id}`, payload);
+    const record = await pb.collection("vehicles").update(id, payload);
+
     const { database } = getState();
     const { pagination, q } = database;
-    if (response.status === 200) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       dispatch(getVehicle({ page: pagination.page, search: q, limit: 10 }));
-      return response.data;
+      return record;
     }
   }
 );
@@ -563,12 +609,14 @@ export const deleteVehicle = createAsyncThunk(
 
   async (body: any, { dispatch, getState }: any) => {
     const { id } = body;
-    const response = await apiClient.delete(`/database/vehicle/${id}`);
+    // const response = await apiClient.delete(`/database/vehicle/${id}`);
+    const response = await pb.collection("vehicles").delete(id);
+
     const { database } = getState();
     const { pagination, q } = database;
 
     dispatch(getVehicle({ page: pagination.page, search: q, limit: 10 }));
-    return response.data;
+    return response;
   }
 );
 
@@ -576,12 +624,13 @@ export const deleteVehicle = createAsyncThunk(
 export const addNewDriver = createAsyncThunk(
   "database/addNewDriver",
   async (body: any, { dispatch, getState }: any) => {
-    const response = await apiClient.post("/database/driver", body);
+    // const response = await apiClient.post("/database/driver", body);
+    const record = await pb.collection("drivers").create(body);
 
     const { database } = getState();
     const { pagination } = database;
 
-    if (response.status === 201) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       dispatch(
         getDrivers({
@@ -591,7 +640,7 @@ export const addNewDriver = createAsyncThunk(
         })
       );
 
-      return response.data;
+      return record;
     }
   }
 );
@@ -599,22 +648,25 @@ export const addNewDriver = createAsyncThunk(
 export const getDrivers = createAsyncThunk(
   "database/getDrivers",
   async (params: any, { dispatch, getState }: any) => {
-    const response = await apiClient.get(`/database/driver`, { params });
+    // const response = await apiClient.get(`/database/driver`, { params });
+    const resultList = await pb.collection("drivers").getList(1, 50, {
+      filter: `name ~ "${params.search}" || phone_number ~ "${params.search}"`,
+    });
 
-    if (response.status === 200) {
-      let option: Array<object> = response?.data?.data?.map((each: any) => ({
+    if (resultList) {
+      let option: Array<object> = resultList.items?.map((each: any) => ({
         value: each._id,
         label: each.name,
       }));
       dispatch(
         setPagination({
-          total: response.data.total,
-          page: response.data.page,
-          limit: response.data.limit,
+          total: resultList.totalPages,
+          page: resultList.page,
+          limit: resultList.perPage,
         })
       );
       dispatch(setDriverOption(option));
-      return response.data;
+      return resultList.items;
     }
   }
 );
@@ -625,9 +677,10 @@ export const getDriverById = createAsyncThunk(
   async (params: any) => {
     const { id } = params;
 
-    const response = await apiClient.get(`/database/driver/${id}`);
+    // const response = await apiClient.get(`/database/driver/${id}`);
+    const record = await pb.collection("drivers").getOne(id);
 
-    return response.data;
+    return record;
   }
 );
 
@@ -637,11 +690,12 @@ export const updateDriver = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
 
-    const response = await apiClient.put(`/database/driver/${id}`, payload);
+    // const response = await apiClient.put(`/database/driver/${id}`, payload);
+    const record = await pb.collection("drivers").update(id, payload);
 
     const { database } = getState();
     const { pagination } = database;
-    if (response.status === 200) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       dispatch(
         getDrivers({
@@ -651,7 +705,7 @@ export const updateDriver = createAsyncThunk(
         })
       );
 
-      return response.data;
+      return record;
     }
   }
 );
@@ -662,7 +716,8 @@ export const deleteDriver = createAsyncThunk(
   async (params: any, { dispatch, getState }: any) => {
     const { id } = params;
 
-    const response = await apiClient.delete(`/database/driver/${id}`);
+    // const response = await apiClient.delete(`/database/driver/${id}`);
+    const response = await pb.collection("drivers").delete(id);
 
     const { database } = getState();
     const { pagination, q } = database;
@@ -674,7 +729,7 @@ export const deleteDriver = createAsyncThunk(
         limit: pagination?.limit,
       })
     );
-    return response.data;
+    return response;
   }
 );
 
@@ -682,9 +737,10 @@ export const deleteDriver = createAsyncThunk(
 export const addVehicleGroup = createAsyncThunk(
   "database/addVehicleGroup",
   async (body: any, { dispatch }) => {
-    const response = await apiClient.post("/database/vehicle-group", body);
+    // const response = await apiClient.post("/database/vehicle-group", body);
+    const record = await pb.collection("vehicle_groups").create(body);
 
-    if (response.status === 201) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       notification.success({
         message: "Success",
@@ -692,7 +748,7 @@ export const addVehicleGroup = createAsyncThunk(
         duration: 0,
       });
       dispatch(getVehicleGroup({ page: "1", search: "", limit: 10 }));
-      return response.data;
+      return record;
     }
   }
 );
@@ -701,27 +757,27 @@ export const getVehicleGroup = createAsyncThunk(
   "database/getVehicleGroup",
 
   async (params: any, { dispatch, getState }) => {
-    const response = await apiClient.get(`/database/vehicle-group`, { params });
-
-    if (response.status === 200) {
-      let option: Array<object> = response?.data?.data?.map((each: any) => ({
-        value: each._id,
+    // const response = await apiClient.get(`/database/vehicle-group`, { params });
+    const resultList = await pb.collection("vehicle_groups").getList(1, 50, {
+      filter: `name ~ "${params.search}"`,
+    });
+    if (resultList) {
+      let option: Array<object> = resultList.items?.map((each: any) => ({
+        value: each.id,
         label: each.name,
       }));
 
       dispatch(
         setPagination({
-          total: response.data.total,
-          page: response.data.page,
-          limit: response.data.limit,
+          total: resultList.totalPages,
+          page: resultList.page,
+          limit: resultList.perPage,
         })
       );
 
       dispatch(setVehicleGroupOption(option));
-      return response.data;
+      return resultList.items;
     }
-
-    return response.data;
   }
 );
 
@@ -730,10 +786,12 @@ export const getVehicleGroupById = createAsyncThunk(
 
   async (params: any) => {
     const { id } = params;
+    console.log(id);
+    // const response = await apiClient.get(`/database/vehicle-group/${id}`);
+    const record = await pb.collection("vehicle_groups").getOne(id);
+    console.log(record);
 
-    const response = await apiClient.get(`/database/vehicle-group/${id}`);
-
-    return response.data;
+    return record;
   }
 );
 
@@ -750,12 +808,13 @@ export const deleteVehicleGroup = createAsyncThunk(
     const { pagination, q } = database;
 
     console.log(id, "id");
+    await pb.collection("vehicle_groups").delete(id);
 
-    const response = await apiClient.delete(`/database/vehicle-group/${id}`);
+    // const response = await apiClient.delete(`/database/vehicle-group/${id}`);
 
     dispatch(getVehicleGroup({ page: pagination.page, search: q, limit: 10 }));
 
-    return response.data;
+    // return response.data;
   }
 );
 
@@ -779,16 +838,17 @@ export const updateVehicleGroup = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
 
-    console.log(body, "body");
+    // const response = await apiClient.put(
+    //   `/database/vehicle-group/${id}`,
+    //   payload
+    // );
+    const record = await pb.collection("vehicle_groups").update(id, payload);
+    console.log(record);
 
-    const response = await apiClient.put(
-      `/database/vehicle-group/${id}`,
-      payload
-    );
     const { database } = getState();
     const { pagination, q } = database;
 
-    if (response.status === 200) {
+    if (record) {
       dispatch(setOpenSidePanel(false));
       notification.success({
         message: "Success",
@@ -797,10 +857,8 @@ export const updateVehicleGroup = createAsyncThunk(
       dispatch(
         getVehicleGroup({ page: pagination.page, search: q, limit: 10 })
       );
-      return response.data;
+      return record;
     }
-
-    return response.data;
   }
 );
 
@@ -1543,7 +1601,7 @@ export const databaseSlice = createSlice({
       .addCase(getVehicleById.fulfilled, (state, action) => {
         state.vehicleStates.status = "succeeded";
         state.vehicleStates.loading = false;
-        state.selectedVehicle = action.payload.data;
+        state.selectedVehicle = action.payload;
         state.vehicleStates.error = "";
       })
       .addCase(getVehicleById.rejected, (state) => {
@@ -1833,7 +1891,7 @@ export const {
   clearSelectedDriver,
   clearSelectedAllowance,
   clearSelectedDutyType,
-  setSelectedCustomer
+  setSelectedCustomer,
 } = actions;
 
 export default databaseSlice.reducer;

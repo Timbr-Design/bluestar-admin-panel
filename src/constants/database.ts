@@ -94,7 +94,7 @@ export const CUSTOMERS = [
   },
   {
     title: "Phone",
-    dataIndex: "phoneNumber",
+    dataIndex: "phone_number",
     className: "custom-column",
   },
   {
@@ -117,12 +117,12 @@ export const DRIVERS = [
   },
   {
     title: "Driver ID",
-    dataIndex: "driverId",
+    dataIndex: "id",
     className: "custom-column",
   },
   {
     title: "Phone",
-    dataIndex: "phoneNumber",
+    dataIndex: "phone_number",
     className: "custom-column",
   },
   {
@@ -135,7 +135,7 @@ export const DRIVERS = [
 export const VEHICLES = [
   {
     title: "Model name",
-    dataIndex: "modelName",
+    dataIndex: "model_name",
     className: "custom-header", // CSS class for header
   },
   {
@@ -150,7 +150,7 @@ export const VEHICLES = [
   },
   {
     title: "Vehicle number",
-    dataIndex: "vehicleNumber",
+    dataIndex: "vehicle_number",
     className: "custom-column",
   },
   {
@@ -163,22 +163,22 @@ export const VEHICLES = [
 export const BANK_ACCOUNTS = [
   {
     title: "Name",
-    dataIndex: "accountName",
+    dataIndex: "account_name",
     className: "custom-header", // CSS class for header
   },
   {
     title: "Account number",
-    dataIndex: "accountNumber",
+    dataIndex: "account_number",
     className: "custom-column",
   },
   {
     title: "Bank name",
-    dataIndex: "bankName",
+    dataIndex: "bank_name",
     className: "custom-column",
   },
   {
     title: "Bank branch",
-    dataIndex: "branchName",
+    dataIndex: "branch_name",
     className: "custom-column",
   },
   {
@@ -219,7 +219,7 @@ export const TAXES_TABLE = [
 ];
 
 export const ALLOWANCES_TABLE = [
-  { title: "Name", dataIndex: "allowanceType", className: "custom-header" },
+  { title: "Name", dataIndex: "allowance_type", className: "custom-header" },
   { title: "Rate", dataIndex: "rate" },
   { title: "Status", dataIndex: "status", className: "status-column" },
 ];
