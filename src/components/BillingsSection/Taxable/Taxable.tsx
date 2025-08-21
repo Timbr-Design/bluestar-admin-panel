@@ -1,31 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Select,
-  Input,
-  Button,
-  Upload,
-  Progress,
-  Typography,
-  Space,
-  Row,
-  Col,
-  Card,
-} from "antd";
-import {
-  DeleteOutlined,
-  PlusOutlined,
-  InboxOutlined,
-  FilePdfOutlined,
-} from "@ant-design/icons";
+import { Select, Input, Button, Typography, Card } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import styles from "./Taxable.module.scss";
 import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import UploadComponent from "../../Upload";
 import { IFile } from "../../../constants/database";
 
 const { Title, Text } = Typography;
-const { Dragger } = Upload;
 
 export default function Taxable() {
   const [fileList, setFileList] = useState<IFile[]>([]);
@@ -33,21 +16,21 @@ export default function Taxable() {
     { id: "1", type: "taxable", amount: "" },
   ]);
 
-  const removeFile = (uid: string) => {
-    setFileList((files) => files.filter((file) => file._id !== uid));
-  };
+  // const removeFile = (uid: string) => {
+  //   setFileList((files) => files.filter((file) => file._id !== uid));
+  // };
 
   const handleUploadUrl = (file: IFile) => {
     const tempFilesArr = [...fileList, file];
     setFileList(tempFilesArr);
   };
 
-  const uploadProps = {
-    name: "file",
-    multiple: true,
-    showUploadList: false,
-    beforeUpload: () => false,
-  };
+  // const uploadProps = {
+  //   name: "file",
+  //   multiple: true,
+  //   showUploadList: false,
+  //   beforeUpload: () => false,
+  // };
 
   const addCustomRow = () => {
     const newRow = {
