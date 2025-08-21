@@ -33,7 +33,7 @@ export const getBankAccount = createAsyncThunk(
     //   params,
     // });
     const resultList = await pb.collection("bank_accounts").getList(1, 50, {
-      filter: `name ~ "${params.search}" || bank_name ~ "${params.search}" || account_number~ "${params.search}"`,
+      filter: `account_name ~ "${params.search}" || bank_name ~ "${params.search}" || account_number~ "${params.search}"`,
     });
 
     if (resultList) {

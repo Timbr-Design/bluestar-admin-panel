@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 
-const pb = new PocketBase("http://timbrbluestar.duckdns.org")
+const pb = new PocketBase(process.env.REACT_APP_API_URL)
 // ("https://154e6420305e.ngrok-free.app");
 
 const auth = async () => {
