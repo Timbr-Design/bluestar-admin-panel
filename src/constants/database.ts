@@ -99,12 +99,12 @@ export const CUSTOMERS = [
   },
   {
     title: "GSTIN number",
-    dataIndex: "gstNumber",
+    dataIndex: ["tax_details", "gstNumber"],
     className: "custom-column",
   },
   {
     title: "Status",
-    dataIndex: "status",
+    dataIndex: "is_active",
     className: "custom-column",
   },
 ];
