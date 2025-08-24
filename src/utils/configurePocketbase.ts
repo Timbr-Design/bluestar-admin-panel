@@ -8,6 +8,7 @@ const auth = async () => {
     // const authData = await pb.admins.authWithPassword(
     //   "yash@gmail.com",
     //   "yashjindal"
+    
     // );
     const authData = await pb.collection('users').authWithPassword("yash@gmail.com",
       "yashjindal");
