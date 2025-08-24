@@ -50,7 +50,7 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
     } else if (e.key === "2") {
       dispatch(
         updateTax({
-          payload: { isActive: currentTax?.isActive ? false : true },
+          payload: { is_active: currentTax?.is_active ? false : true },
           id: currentTax?.id,
         })
       );
@@ -68,7 +68,7 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
       icon: <EditIcon />,
     },
     {
-      label: <>{currentTax?.isActive ? "Mark inactive" : "Mark Active"}</>,
+      label: <>{currentTax?.is_active ? "Mark inactive" : "Mark Active"}</>,
       key: "2",
       icon: <Clipboard />,
     },
@@ -172,15 +172,15 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
                   status: (
                     <div
                       className={cn(styles.status, {
-                        [styles.active]: data?.isActive,
+                        [styles.active]: data?.is_active,
                       })}
                     >
                       <div
                         className={cn(styles.dot, {
-                          [styles.active]: data?.isActive,
+                          [styles.active]: data?.is_active,
                         })}
                       />
-                      {data?.isActive ? "Active" : "Inactive"}
+                      {data?.is_active ? "Active" : "Inactive"}
                     </div>
                   ),
                 };

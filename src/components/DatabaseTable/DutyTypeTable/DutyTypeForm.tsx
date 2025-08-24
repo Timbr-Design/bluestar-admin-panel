@@ -93,10 +93,10 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
 
   useEffect(() => {
     if (Object.keys(selectedDutyType).length) {
-      const tempArr = selectedDutyType?.data?.pricing?.map((data: any) => {
+      const tempArr = selectedDutyType?.pricing?.map((data: any) => {
         return {
           name: data?.vehicleGroup?.name,
-          vehicleGroupId: data?._id,
+          vehicleGroupId: data?.id,
           baseRate: data?.baseRate,
           extraKmRate: data?.extraKmRate,
           extraHrRate: data?.extraKmRate,
@@ -104,60 +104,55 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
       });
 
       setVehicleGroupDataArray(tempArr);
-      setDutyType(capitalize(selectedDutyType?.data?.category));
-      setValue(selectedDutyType?.data?.secondaryType);
+      setDutyType(capitalize(selectedDutyType?.category));
+      setValue(selectedDutyType?.secondary_type);
 
-      if (capitalize(selectedDutyType?.data?.category) === "Custom") {
+      if (capitalize(selectedDutyType?.category) === "Custom") {
         setData([
           {
             key: "o-6",
             hours: "0 - 6 hours",
-            baseRate:
-              selectedDutyType?.data?.customDutyType?.rateBasePerHour["o-6"],
+            baseRate: selectedDutyType?.customDutyType?.rateBasePerHour["o-6"],
           },
           {
             key: "6-12",
             hours: "6 - 12 hours",
-            baseRate:
-              selectedDutyType?.data?.customDutyType?.rateBasePerHour["6-12"],
+            baseRate: selectedDutyType?.customDutyType?.rateBasePerHour["6-12"],
           },
           {
             key: "12+",
             hours: "12+ hours",
-            baseRate:
-              selectedDutyType?.data?.customDutyType?.rateBasePerHour["12+"],
+            baseRate: selectedDutyType?.customDutyType?.rateBasePerHour["12+"],
           },
         ]);
 
         // Set form values for Custom duty type
         form.setFieldsValue({
-          dutyType: capitalize(selectedDutyType?.data?.category),
-          name: selectedDutyType?.data?.dutyTypeName,
-          vehicleGroup: selectedDutyType?.data?.customDutyType?.vehicleGroupId,
-          thresholdKM: selectedDutyType?.data?.customDutyType?.thresholdKm,
-          ratePerKm: selectedDutyType?.data?.customDutyType?.ratePerKm,
+          dutyType: capitalize(selectedDutyType?.category),
+          name: selectedDutyType?.name,
+          vehicleGroup: selectedDutyType?.customDutyType?.vehicleGroupId,
+          thresholdKM: selectedDutyType?.customDutyType?.thresholdKm,
+          ratePerKm: selectedDutyType?.customDutyType?.ratePerKm,
         });
       } else {
         // Set form values for non-Custom duty type
-        const pricingValues = selectedDutyType?.data?.pricing?.map(
-          (data: any) => ({
-            baseRate: data?.baseRate,
-            extraKmRate: data?.extraKmRate,
-            extraHrRate: data?.extraHrRate,
-          })
-        );
+        const pricingValues = selectedDutyType?.pricing?.map((data: any) => ({
+          baseRate: data?.baseRate,
+          extraKmRate: data?.extraKmRate,
+          extraHrRate: data?.extraHrRate,
+        }));
 
         form.setFieldsValue({
-          dutyType: capitalize(selectedDutyType?.data?.category),
-          name: selectedDutyType?.data?.dutyTypeName,
+          dutyType: capitalize(selectedDutyType?.category),
+          name: selectedDutyType?.name,
           pricing: pricingValues,
         });
       }
     } else {
-      const tempArr = vehicleGroupData?.data?.map((data: any) => {
+      const tempArr = vehicleGroupData?.map((data: any) => {
         return {
           name: data?.name,
-          vehicleGroupId: data?._id,
+          vehicleGroupId: data?.id,
           baseRate: 0,
           extraKmRate: 0,
           extraHrRate: 0,
@@ -220,21 +215,21 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
           dispatch(
             updateDutyType({
               payload: {
-                dutyTypeName: values.name,
+                name: values.name,
                 category: "custom",
-                secondaryType: value,
+                secondary_type: value,
                 customDutyType,
               },
-              id: selectedDutyType?.data?._id,
+              id: selectedDutyType?.id,
             })
           );
         } else {
           dispatch(
             updateDutyType({
               payload: {
-                dutyTypeName: values.name,
+                name: values.name,
                 category: values.dutyType,
-                secondaryType: value,
+                secondary_type: value,
                 pricing: vehicleGroupDataArray?.map((data: any) =>
                   omit(
                     {
@@ -247,7 +242,7 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                   )
                 ),
               },
-              id: selectedDutyType?.data?._id,
+              id: selectedDutyType?.id,
             })
           );
         }
@@ -266,18 +261,18 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
 
           dispatch(
             addDutyType({
-              dutyTypeName: values.name,
+              name: values.name,
               category: "custom",
-              secondaryType: value,
+              secondary_type: value,
               customDutyType,
             })
           );
         } else {
           dispatch(
             addDutyType({
-              dutyTypeName: values.name,
+              name: values.name,
               category: values.dutyType,
-              secondaryType: value,
+              secondary_type: value,
               pricing: vehicleGroupDataArray?.map((data: any) =>
                 omit(
                   {
@@ -441,9 +436,9 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
           >
             <Select
               allowClear
-              options={vehicleGroupData?.data?.map(
-                (option: { _id: string; name: string }) => ({
-                  value: option._id,
+              options={vehicleGroupData?.map(
+                (option: { id: string; name: string }) => ({
+                  value: option.id,
                   label: option.name,
                 })
               )}

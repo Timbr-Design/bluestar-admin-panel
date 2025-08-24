@@ -77,7 +77,7 @@ export const VEHICLE_GROUPS = [
   },
   {
     title: "Total vehicles",
-    dataIndex: "vehicleCount",
+    dataIndex: "count",
     className: "custom-column",
   },
   // {
@@ -104,7 +104,7 @@ export const CUSTOMERS = [
   },
   {
     title: "Status",
-    dataIndex: "is_active",
+    dataIndex: "status",
     className: "custom-column",
   },
 ];

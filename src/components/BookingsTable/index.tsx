@@ -228,10 +228,8 @@ const BookingsTable = () => {
       dataIndex: "dutyType",
       key: "dutyType",
       render: (_, record) => {
-        const dutyTypeName = record?.dutyType
-          ? record?.dutyType?.dutyTypeName
-          : "";
-        return <span style={{}}>{dutyTypeName}</span>;
+        const name = record?.dutyType ? record?.dutyType?.name : "";
+        return <span style={{}}>{name}</span>;
       },
     },
     {

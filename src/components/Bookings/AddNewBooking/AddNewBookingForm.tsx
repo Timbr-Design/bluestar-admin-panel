@@ -132,7 +132,7 @@ const AddNewBookingForm = ({
         passenger: initialData?.passenger,
         dutyType: [
           {
-            label: initialData?.dutyType?.dutyTypeName,
+            label: initialData?.dutyType?.name,
             value: initialData?.dutyType?._id,
           },
         ],
@@ -387,9 +387,9 @@ const AddNewBookingForm = ({
           allowClear
           showSearch
           options={dutyTypeList?.data?.map(
-            (option: { _id: string; dutyTypeName: string }) => ({
+            (option: { _id: string; name: string }) => ({
               value: option._id,
-              label: option.dutyTypeName,
+              label: option.name,
             })
           )}
           onSearch={(text) => getDutyTypeValue(text)}

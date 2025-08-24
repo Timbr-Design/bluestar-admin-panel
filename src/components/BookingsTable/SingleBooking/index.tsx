@@ -209,8 +209,8 @@ const SingleBookingsTable = () => {
       dataIndex: "dutyTypeId",
       key: "dutyTypeId",
       render: (_, record) => {
-        const dutyTypeName = record?.dutyType?.name;
-        return <span>{dutyTypeName}</span>;
+        const name = record?.dutyType?.name;
+        return <span>{name}</span>;
       },
     },
     {
@@ -304,7 +304,7 @@ const SingleBookingsTable = () => {
     filters.endDate,
   ]);
 
-  console.log("Single Booking")
+  console.log("Single Booking");
 
   return (
     <>

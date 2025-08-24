@@ -46,10 +46,6 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
   const [vehicleName, setVehicleName] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  useEffect(() => {
-    console.log(vehicleList);
-  }, [vehicleList]);
-
   const handleDeleteVehicle = () => {
     dispatch(deleteVehicle({ id: vehicleId }));
     setOpenDeleteModal(false);
@@ -62,7 +58,7 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
     } else if (e.key === "2") {
       dispatch(
         updateVehicle({
-          payload: { isActive: currentVehicle?.isActive ? false : true },
+          payload: { is_active: currentVehicle?.is_active ? false : true },
           id: currentVehicle?.id,
         })
       );
@@ -177,15 +173,15 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
                 status: (
                   <div
                     className={cn(styles.status, {
-                      [styles.active]: data?.isActive,
+                      [styles.active]: data?.is_active,
                     })}
                   >
                     <div
                       className={cn(styles.dot, {
-                        [styles.active]: data?.isActive,
+                        [styles.active]: data?.is_active,
                       })}
                     />
-                    {data?.isActive ? "Active" : "Inactive"}
+                    {data?.is_active ? "Active" : "Inactive"}
                   </div>
                 ),
               }))

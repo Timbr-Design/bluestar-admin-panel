@@ -60,7 +60,7 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
     } else if (e.key === "2") {
       dispatch(
         updateCustomer({
-          payload: { isActive: currentCustomer?.isActive ? false : true },
+          payload: { is_active: currentCustomer?.is_active ? false : true },
           id: currentCustomer?.id,
         })
       );
@@ -78,7 +78,9 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
       icon: <EditIcon />,
     },
     {
-      label: <>{currentCustomer?.isActive ? "Mark inactive" : "Mark Active"}</>,
+      label: (
+        <>{currentCustomer?.is_active ? "Mark inactive" : "Mark Active"}</>
+      ),
       key: "2",
       icon: <Clipboard />,
     },
@@ -163,7 +165,6 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
         dataSource={
           customers && Array.isArray(customers)
             ? customers?.map((data: any) => {
-                console.log(data, "DATA");
                 return {
                   ...data,
                   key: data?.id,
@@ -171,15 +172,15 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
                   status: (
                     <div
                       className={cn(styles.status, {
-                        [styles.active]: data?.isActive,
+                        [styles.active]: data?.is_active,
                       })}
                     >
                       <div
                         className={cn(styles.dot, {
-                          [styles.active]: data?.isActive,
+                          [styles.active]: data?.is_active,
                         })}
                       />
-                      {data?.isActive ? "Active" : "Inactive"}
+                      {data?.is_active ? "Active" : "Inactive"}
                     </div>
                   ),
                 };
