@@ -57,7 +57,7 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
         form.getFieldValue("durationDetails").reportingTime
       ).toLocaleTimeString(),
     },
-    { label: "Duty Type", value: selectedDutyType?.data?.dutyTypeName },
+    { label: "Duty Type", value: selectedDutyType?.data?.name },
     { label: "Vehicle Group", value: selectedVehicleGroup?.data?.name },
     {
       label: "Reporting Address",

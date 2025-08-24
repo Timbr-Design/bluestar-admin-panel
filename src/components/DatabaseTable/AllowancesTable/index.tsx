@@ -56,7 +56,7 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
     } else if (e.key === "2") {
       dispatch(
         updateAllowance({
-          payload: { isActive: allowance?.isActive ? false : true },
+          payload: { is_active: allowance?.is_active ? false : true },
           id: allowance?.id,
         })
       );
@@ -72,7 +72,7 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
       icon: <EditIcon />,
     },
     {
-      label: <>{allowance?.isActive ? "Disable" : "Enable"}</>,
+      label: <>{allowance?.is_active ? "Disable" : "Enable"}</>,
       key: "2",
       icon: <Clipboard />,
     },
@@ -181,15 +181,15 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
                 status: (
                   <div
                     className={cn(styles.status, {
-                      [styles.enabled]: data?.isActive,
+                      [styles.enabled]: data?.is_active,
                     })}
                   >
                     <div
                       className={cn(styles.text, {
-                        [styles.enabled]: data?.isActive,
+                        [styles.enabled]: data?.is_active,
                       })}
                     >
-                      {data?.isActive ? "Enabled" : "Disabled"}
+                      {data?.is_active ? "Enabled" : "Disabled"}
                     </div>
                   </div>
                 ),

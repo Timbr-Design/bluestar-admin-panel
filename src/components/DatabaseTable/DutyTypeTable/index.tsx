@@ -26,7 +26,7 @@ interface IDutyTypeTableData {
   key: string;
   id: string;
   dutyTypeName: string;
-  secondaryType: string;
+  secondary_type: string;
   customDutyType: any;
   ratePerKm: number;
   category: string;
@@ -50,7 +50,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [dutyTypeId, setDutyTypeId] = useState<string>("");
-  const [dutyType, setDutyType] = useState({ dutyTypeName: "" });
+  const [dutyType, setDutyType] = useState({ name: "" });
   const [openDropdown, setOpenDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -101,7 +101,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
       dataIndex: "name",
       key: "name",
       render: (_, record) => {
-        return <span></span>;
+        return <span>{record?.name}</span>;
       },
     },
     {
@@ -145,7 +145,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
           <button
             onClick={() => {
               setOpenDeleteModal(true);
-              setDutyTypeId(record._id);
+              setDutyTypeId(record.id);
               setDutyType(record);
             }}
             className={styles.deleteBtn}
@@ -155,10 +155,10 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
           <Dropdown menu={menuProps} trigger={["click"]}>
             <button
               className={cn(styles.button, {
-                [styles.selected]: dutyTypeId === record._id && openDropdown,
+                [styles.selected]: dutyTypeId === record.id && openDropdown,
               })}
               onClick={() => {
-                setDutyTypeId(record._id);
+                setDutyTypeId(record.id);
               }}
             >
               <DotsHorizontal />
@@ -185,7 +185,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
         onRow={(record) => {
           return {
             onClick: () => {
-              dispatch(getDutyTypeById({ id: record._id }));
+              dispatch(getDutyTypeById({ id: record.id }));
               dispatch(setViewContentDatabase(true));
               handleOpenSidePanel();
             },
@@ -198,7 +198,9 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
           selectedRowKeys: selectedRowKeys,
         }}
         columns={columns}
-        dataSource={[]}
+        dataSource={
+          dutyTypeList && Array.isArray(dutyTypeList) ? dutyTypeList : []
+        }
         loading={deleteDutyTypeStates?.loading || dutyTypeStates?.loading}
         pagination={false}
         scroll={{

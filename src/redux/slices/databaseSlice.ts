@@ -56,7 +56,7 @@ export const getBankAccountById = createAsyncThunk(
     const { id } = params;
 
     // const response = await apiClient.get(`/database/bank-accounts/${id}`);
-    const record = await pb.collection("bank-accounts").getOne(id);
+    const record = await pb.collection("bank_accounts").getOne(id);
 
     return record;
   }
@@ -136,35 +136,21 @@ export const addDutyType = createAsyncThunk(
 
 export const getAllDutyTypes = createAsyncThunk(
   "database/getAllDutyTypes",
-  async (params: any, { dispatch, getState }) => {
-    const { page, limit, search } = params;
+  async (params: any, { dispatch }) => {
 
-    // const response = await apiClient.get(
-    //   `/database/duty-type?page=${page}&limit=${limit}&search=${search}`
-    // );
-    // const response = await apiClient.get(`/database/duty-type`, { params });
+    const resultList = await pb.collection("duty_types").getList(1, 50, {
+      filter: `category ~ "${params.search}"`,
+    });
 
-    const records = await pb.collection("duty_types").getFullList();
-    console.log(records);
-
-    // if (response.status === 200) {
-    // let option: Array<object> = response?.data?.data?.map((each: any) => ({
-    //   value: each._id,
-    //   label: each.name,
-    // }));
-    if (records && records.length > 0) {
-      let option: Array<object> = records.map((each: any) => ({
+    if (resultList) {
+      let option: Array<object> = resultList.items.map((each: any) => ({
         value: each.id,
         label: each.name,
       }));
 
-      console.log(option);
-
       dispatch(setDutyTypeOption(option));
-      // return records;
+      return resultList.items;
     }
-    // return response.data;
-    // }
   }
 );
 
@@ -172,6 +158,7 @@ export const getDutyTypeById = createAsyncThunk(
   "database/getDutyTypeById",
   async (params: any) => {
     const { id } = params;
+    console.log(id);
     // const response = await apiClient.get(`/database/duty-type/${id}`);
     const record = await pb.collection("duty_types").getOne(id);
     return record;
@@ -249,7 +236,7 @@ export const getTaxes = createAsyncThunk(
   async (params: any, { dispatch }) => {
     // const response = await apiClient.get(`/database/tax/`, { params });
     const resultList = await pb.collection("taxes").getList(1, 50, {
-      filter: `duty_type ~ "${params.search}"`,
+      filter: `name ~ "${params.search}" || percentage ~ "${params.search}"`,
     });
     
     if (resultList) {
@@ -758,9 +745,12 @@ export const getVehicleGroup = createAsyncThunk(
 
   async (params: any, { dispatch, getState }) => {
     // const response = await apiClient.get(`/database/vehicle-group`, { params });
-    const resultList = await pb.collection("vehicle_groups").getList(1, 50, {
+    const resultList = await pb.collection("vehicle_groups_dashboard_view").getList(1, 50, {
       filter: `name ~ "${params.search}"`,
     });
+    // const resultList2 = await pb.collection("vehicle_groups_dashboard_view").getList(1, 50, {
+    //   filter: `name ~ "${params.search}"`,
+    // });
     if (resultList) {
       let option: Array<object> = resultList.items?.map((each: any) => ({
         value: each.id,
