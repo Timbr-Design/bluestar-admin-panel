@@ -101,10 +101,10 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
         name: valuesToMaped.name,
         phone_number: valuesToMaped.phone_number,
         dob: valuesToMaped.dob,
-        // ids: {
-        //   pan: valuesToMaped.ids.pan,
-        //   aadhar: valuesToMaped.ids.aadhar,
-        //   drivingLiscence: valuesToMaped.ids.drivingLiscence,
+        // identification_id_list: {
+        //   pan: valuesToMaped.identification_id_list.pan,
+        //   aadhar: valuesToMaped.identification_id_list.aadhar,
+        //   drivingLiscence: valuesToMaped.identification_id_list.drivingLiscence,
         // },
         monthly_salary: valuesToMaped.monthly_salary,
         daily_salary: valuesToMaped.daily_salary,
@@ -112,7 +112,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
           start: convertIsoToDayjsObject(valuesToMaped?.timing?.start),
           end: convertIsoToDayjsObject(valuesToMaped?.timing?.end),
         },
-        offDay: valuesToMaped.offDay,
+        off_day: valuesToMaped.off_day,
         notes: valuesToMaped.notes,
         files: valuesToMaped?.files || [],
       });
@@ -272,10 +272,10 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
               <CustomDatePicker />
             </Form.Item>
           </div>
-          {/* ids */}
+          {/* identification_id_list */}
           <Form.Item
-            name="ids"
-            id="ids"
+            name="identification_id_list"
+            id="identification_id_list"
             label="Unique IDs"
             className={styles.secondaryContainer}
           >
@@ -287,7 +287,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
                       required: true,
                     },
                   ]}
-                  name={["ids", "pan"]}
+                  name={["identification_id_list", "pan"]}
                   label="PAN Number"
                 >
                   <Input placeholder="Enter PAN..." />
@@ -300,7 +300,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
                       required: true,
                     },
                   ]}
-                  name={["ids", "aadhar"]}
+                  name={["identification_id_list", "aadhar"]}
                   label="Aadhaar Number"
                 >
                   <Input placeholder="Enter aadhar " />
@@ -313,7 +313,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
                       required: true,
                     },
                   ]}
-                  name={["ids", "drivingLiscence"]}
+                  name={["identification_id_list", "drivingLiscence"]}
                   label="Driver License"
                 >
                   <Input placeholder="Enter driving  license" />
@@ -525,8 +525,8 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
                   required: false,
                 },
               ]}
-              name="offDay"
-              id="offDay"
+              name="off_day"
+              id="off_day"
               label="Off Day"
             >
               <Select

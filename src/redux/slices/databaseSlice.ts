@@ -348,17 +348,17 @@ export const getTaxesById = createAsyncThunk(
 export const addNewCustomer = createAsyncThunk(
   "database/addNewCustomer",
   async (body: any, { dispatch }) => {
-    const response = await apiClient.post("/database/customer", body);
+    // const response = await apiClient.post("/database/customer", body);
     const record = await pb.collection("customers").create(body);
     console.log(record);
-    if (response.status === 201) {
+    if (record) {
       notification.success({
         message: "Success",
         description: "New customer added successfully",
       });
       dispatch(setOpenSidePanel(false));
       dispatch(getCustomer({ page: "1", search: "", limit: 10 }));
-      return response.data;
+      return record;
     }
   }
 );

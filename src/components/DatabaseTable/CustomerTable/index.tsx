@@ -163,10 +163,11 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
         dataSource={
           customers && Array.isArray(customers)
             ? customers?.map((data: any) => {
+                console.log(data, "DATA");
                 return {
                   ...data,
                   key: data?.id,
-                  gstNumber: data?.taxDetails?.gstNumber,
+                  gstNumber: <div>Hello</div>,
                   status: (
                     <div
                       className={cn(styles.status, {
