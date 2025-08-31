@@ -100,7 +100,7 @@ const AddNewDutyToBookingForm = ({
         dropAddress: initialData?.dropAddress,
         fromLocation: initialData?.fromLocation,
         toLocation: initialData?.toLocation,
-        operatorNotes: initialData?.operatorNotes,
+        operator_notes: initialData?.operator_notes,
         driverNotes: initialData?.driverNotes,
         address: initialData?.address,
       });
@@ -391,13 +391,13 @@ const AddNewDutyToBookingForm = ({
         </div>
       </Card>
 
-      {/* operatorNotes driverNotes */}
+      {/* operator_notes driverNotes */}
       <div
         style={{
           marginTop: "1rem",
         }}
       >
-        <Form.Item name="operatorNotes" label="Operator Notes">
+        <Form.Item name="operator_notes" label="Operator Notes">
           <TextArea placeholder="Add a note...."></TextArea>
         </Form.Item>
         <Form.Item name="driverNotes" label="Driver Notes">

@@ -33,7 +33,7 @@ export interface IBookingRequest {
       perExtraHour: number;
       billTo: string;
     };
-    operatorNotes?: string;
+    operator_notes?: string;
     notes?: string;
     status?: string;
   }
@@ -123,7 +123,7 @@ export interface IBookingResponse {
   airportBooking: boolean;
   durationDetails: IDurationDetails;
   pricingDetails: IPricingDetails;
-  operatorNotes: string;
+  operator_notes: string;
   notes: string;
   isActive: boolean;
   status: string;

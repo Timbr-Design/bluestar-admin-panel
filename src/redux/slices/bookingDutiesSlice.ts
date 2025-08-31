@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import apiClient from "../../utils/configureAxios";
 import { notification } from "antd";
 import { addNewBooking } from "./bookingSlice";
+import pb from "../../utils/configurePocketbase";
 
 const initialState = {
   isAddEditDrawerOpen: false,
@@ -59,8 +60,11 @@ export const getBookingsDuties = createAsyncThunk(
   async (params: any) => {
     const { bookingId } = params;
 
-    const response = await apiClient.get(`/booking/duty/booking/${bookingId}`);
-    return response.data;
+    // const resultList = await pb.collection('booking_duty').getList(1, 50);
+    const record = await pb.collection('booking_duty').getOne(bookingId);
+
+    // const response = await apiClient.get(`/booking/duty/booking/${bookingId}`);
+    return record;
   }
 );
 export const getSingleBookingDuties = createAsyncThunk(
@@ -144,12 +148,12 @@ export const bookingDutiesSlice = createSlice({
         state.bookingDutiesStates.status = "succeeded";
         state.bookingDutiesStates.loading = false;
         state.bookingDutiesStates.error = "";
-        state.data = action.payload?.data as any;
-        state.pagination = {
-          total: action.payload.total,
-          page: action.payload.page,
-          limit: action.payload.limit,
-        };
+        state.data = action.payload as any;
+        // state.pagination = {
+        //   total: action.payload.total,
+        //   page: action.payload.page,
+        //   limit: action.payload.limit,
+        // };
       })
       .addCase(getBookingsDuties.rejected, (state) => {
         state.bookingDutiesStates.status = "failed";

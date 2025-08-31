@@ -2,6 +2,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import apiClient from "../../utils/configureAxios";
 import { notification } from 'antd';
+import pb from "../../utils/configurePocketbase";
 
 interface ICompanyDetails {
   businessType: string;
@@ -52,7 +53,7 @@ interface ICompanyState {
   };
 }
 
-const initialState: ICompanyState = {
+const initialState: any = {
   companies: [],
   currentCompany: null,
   loading: false,
@@ -69,9 +70,10 @@ export const getCompanies = createAsyncThunk(
   "company/getCompanies",
   async (params: { page?: number; limit?: number; status?: string, search?: string }, { rejectWithValue }) => {
     try {
-      const response = await apiClient.get<IGetCompaniesResponse>("/setting/company", { params });
-      if (response.status === 200) {
-        return response.data;
+      // const response = await apiClient.get<IGetCompaniesResponse>("/setting/company", { params });
+      const resultList = await pb.collection('companies').getList(1, 50);
+      if (resultList) {
+        return resultList.items;
       }
       return rejectWithValue("Failed to fetch companies");
     } catch (error: any) {
@@ -86,8 +88,9 @@ export const getCompanyById = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await apiClient.get<IGetCompanyResponse>(`/setting/company/${id}`);
-      if (response.status === 200) {
-        return response.data;
+      const record = await pb.collection('companies').getOne(id);
+      if (record) {
+        return record;
       }
       return rejectWithValue("Failed to fetch company");
     } catch (error: any) {
@@ -164,7 +167,7 @@ const companySlice = createSlice({
       })
       .addCase(getCompanies.fulfilled, (state, action) => {
         state.loading = false;
-        state.companies = action.payload.data;
+        state.companies = action.payload;
         state.error = null;
       })
       .addCase(getCompanies.rejected, (state, action) => {

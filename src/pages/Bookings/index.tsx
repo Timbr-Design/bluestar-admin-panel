@@ -18,7 +18,7 @@ import {
   clearCurrentSelectedBooking,
   addNewBooking,
   updateBooking,
-  getBookings
+  getBookings,
 } from "../../redux/slices/bookingSlice";
 import {
   clearSelectedVehicleGroup,
@@ -76,9 +76,11 @@ const Bookings = () => {
   const [dateRange, setDateRange] = useState<[number, number] | null>(null);
 
   useEffect(() => {
-    setBookingValues(currentSelectedBooking);
-    setDriver(currentSelectedBooking?.driver);
-    setVehicle(currentSelectedBooking?.vehicle);
+    if (currentSelectedBooking) {
+      setBookingValues(currentSelectedBooking);
+      setDriver(currentSelectedBooking?.expand?.driver_id);
+      setVehicle(currentSelectedBooking?.expand?.vehicle_id);
+    }
   }, [currentSelectedBooking]);
 
   const handleSetBookingValues = (values: any) => {
@@ -152,73 +154,83 @@ const Bookings = () => {
     } else if (formStep === 2) {
       setFormSetp(3);
     } else if (formStep === 3) {
-
+      console.log(form.getFieldValue("dutyType"));
       const bookingData = {
-        bookingId: form.getFieldValue("bookingId"),
-        customerId: form.getFieldValue("customer"),
-        bookedBy: {
-          name: form.getFieldValue("bookedBy").name,
-          phoneNo: form.getFieldValue("bookedBy").phoneNo,
-          email: form.getFieldValue("bookedBy").email,
-        },
-        passenger: form
+        booking_id: form.getFieldValue("bookingId"),
+        customer_id: form.getFieldValue("customer"),
+        booked_by_name: form.getFieldValue("booked_by_name"),
+        booked_by_number: form.getFieldValue("booked_by_number"),
+        booked_by_email: form.getFieldValue("booked_by_email"),
+        base_rate: form.getFieldValue("base_rate"),
+        per_extra_km_rate: form.getFieldValue("per_extra_km_rate"),
+        per_extra_hour_rate: form.getFieldValue("per_extra_hour_rate"),
+        passengers: form
           .getFieldValue("passenger")
           .map((ele: { name: string; phoneNo: string; email: string }) => ({
             name: ele.name,
             phoneNo: ele.phoneNo,
             email: ele.email,
           })),
-        dutyTypeId: form.getFieldValue("dutyType"),
-        vehicleId: vehicle !== undefined ? vehicle._id : null,
-        driverId: driver !== undefined ? driver._id : null,
-        vehicleGroupId: [form.getFieldValue("vehicleGroup")],
+        duty_type_id: form.getFieldValue("dutyType"),
+        vehicle_id: vehicle !== undefined ? vehicle.id : null,
+        driver_id: driver !== undefined ? driver.id : null,
+        vehicle_group_id: [form.getFieldValue("vehicleGroup")],
         from: form.getFieldValue("from"),
         to: form.getFieldValue("to"),
-        reportingAddress: form.getFieldValue("reportingAddress"),
-        dropAddress: form.getFieldValue("dropAddress"),
-        localBooking: form.getFieldValue("bookingType") === "Local",
-        outstationBooking: form.getFieldValue("bookingType") === "Outstation",
+        reporting_address: form.getFieldValue("reporting_address"),
+        drop_address: form.getFieldValue("drop_address"),
+        local_booking: form.getFieldValue("bookingType") === "Local",
+        outstation_booking: form.getFieldValue("bookingType") === "Outstation",
         airportBooking: form.getFieldValue("airportBooking"),
-        durationDetails: {
-          startDate: form.getFieldValue("durationDetails").startDate.valueOf(),
-          endDate: form.getFieldValue("durationDetails").endDate.valueOf(),
-          reportingTime: form
-            .getFieldValue("durationDetails")
-            .reportingTime.valueOf(),
-          dropTime: form.getFieldValue("durationDetails").dropTime.valueOf(),
-          garageStartTime: form
-            .getFieldValue("durationDetails")
-            .garageStartTime.valueOf(),
-        },
-        pricingDetails: form.getFieldValue("pricingDetails"),
-        operatorNotes: form.getFieldValue("operatorNotes") ?? null,
-        notes: form.getFieldValue("notes") ?? null,
+        // durationDetails: {
+        start_date: dayjs(
+          form.getFieldValue("durationDetails").start_date.valueOf()
+        ),
+        end_date: dayjs(
+          form.getFieldValue("durationDetails").end_date.valueOf()
+        ),
+        reporting_time: dayjs(
+          form.getFieldValue("durationDetails").reporting_time.valueOf()
+        ),
+        est_drop_time: form
+          .getFieldValue("durationDetails")
+          .est_drop_time.valueOf(),
+        start_from_garage_before_mins: form
+          .getFieldValue("durationDetails")
+          .start_from_garage_before_mins.valueOf(),
+        // },
+        // pricingDetails: form.getFieldValue("pricingDetails"),
+        operator_notes: form.getFieldValue("operator_notes") ?? null,
+        driver_notes: form.getFieldValue("notes") ?? null,
         status: form.getFieldValue("isUnconfirmed")
           ? BOOKINGS_STATUS.unconfirmed
           : BOOKINGS_STATUS.booked,
-        isConfirmed: false,
+        is_confirmed: false,
+        billed_customer_id: form.getFieldValue("billTo"),
       };
 
       const bookingDataUpdate = {
         ...bookingData,
-        customerId: form.getFieldValue("customer")[0]?.value,
-        dutyTypeId: form.getFieldValue("dutyType")[0]?.value,
-        vehicleGroupId: [form.getFieldValue("vehicleGroup")[0]?.value],
-        isConfirmed: currentSelectedBooking?.isConfirmed,
+        customer_id: form.getFieldValue("customer")[0]?.value,
+        duty_type_id: form.getFieldValue("dutyType")[0]?.value,
+        vehicle_group_id: [form.getFieldValue("vehicleGroup")[0]?.value],
+        is_confirmed: currentSelectedBooking?.is_confirmed,
       };
 
-      if (isEditingBooking && currentSelectedBooking?._id) {
+      console.log(bookingData);
+
+      if (isEditingBooking && currentSelectedBooking?.id) {
         dispatch(
           updateBooking({
             body: bookingDataUpdate,
-            id: currentSelectedBooking?._id,
+            id: currentSelectedBooking?.id,
           })
         );
 
-        setFormSetp(1)
+        setFormSetp(1);
       } else {
         dispatch(addNewBooking(bookingData));
-        setFormSetp(1)
+        setFormSetp(1);
       }
     }
   };
@@ -234,22 +246,44 @@ const Bookings = () => {
     }
   };
 
+  // useEffect(() => {
+  //   if (Object.keys(currentSelectedBooking).length) {
+  //     form.setFieldsValue(currentSelectedBooking);
+  //     // form.setFieldValue("customer_id", {
+  //     //   value: currentSelectedBooking?.driver?.id,
+  //     //   label: selectedVehicle?.driver?.name,
+  //     // });
+  //     const tempArr = currentSelectedBooking?.pricing?.map((data: any) => {
+  //       return {
+  //         name: data?.vehicleGroup?.name,
+  //         vehicleGroupId: data?.id,
+  //         baseRate: data?.baseRate,
+  //         extraKmRate: data?.extraKmRate,
+  //         extraHrRate: data?.extraKmRate,
+  //       };
+  //     });
+  //   } else {
+  //     form.resetFields();
+  //   }
+  // }, [currentSelectedBooking, form]);
+
   const handleDateRangeChange = (dates: any) => {
     if (dates) {
       // Convert to epoch timestamps (milliseconds)
       const startDate = dates[0]?.valueOf();
       const endDate = dates[1]?.valueOf();
-      
+
       setDateRange([startDate, endDate]);
-      
+
       // You can use these values to filter your data or make API calls
-      console.log("Start Date (epoch):", startDate);
-      console.log("End Date (epoch):", endDate);
-      
+      // console.log("Start Date (epoch):", startDate);
+      // console.log("End Date (epoch):", endDate);
+
       // If you need to update filters or fetch data based on date range
       // dispatch(setBookingFilter({ startDate, endDate }));
       dispatch(getBookings({ startDate, endDate }));
     } else {
+      dispatch(getBookings({ page: "1", search: "", limit: 10 }));
       setDateRange(null);
     }
   };
@@ -292,7 +326,7 @@ const Bookings = () => {
             placeholder="Search by name, number, duty type, city or booking id"
           />
           <div className={styles.filterContainer}>
-            <DatePicker.RangePicker 
+            <DatePicker.RangePicker
               onChange={handleDateRangeChange}
               format="DD/MM/YYYY"
               placeholder={["Start Date", "End Date"]}
@@ -311,7 +345,7 @@ const Bookings = () => {
           <div className={styles.formHeader}>
             <div className={styles.header}>
               {isEditingBooking
-                ? currentSelectedBooking?._id
+                ? currentSelectedBooking?.id
                   ? "Edit Booking"
                   : "New Booking"
                 : "Booking Details"}

@@ -82,10 +82,12 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
       );
       handleCloseSidePanel();
     } else {
+      console.log(values);
       dispatch(addNewDriver(values));
       handleCloseSidePanel();
     }
   };
+
   useEffect(() => {
     if (selectedDriver && Object.keys(selectedDriver).length > 0) {
       const valuesToMaped = selectedDriver;

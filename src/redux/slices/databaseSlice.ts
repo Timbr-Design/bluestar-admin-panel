@@ -137,7 +137,6 @@ export const addDutyType = createAsyncThunk(
 export const getAllDutyTypes = createAsyncThunk(
   "database/getAllDutyTypes",
   async (params: any, { dispatch }) => {
-
     const resultList = await pb.collection("duty_types").getList(1, 50, {
       filter: `category ~ "${params.search}"`,
     });
@@ -238,7 +237,7 @@ export const getTaxes = createAsyncThunk(
     const resultList = await pb.collection("taxes").getList(1, 50, {
       filter: `name ~ "${params.search}" || percentage ~ "${params.search}"`,
     });
-    
+
     if (resultList) {
       dispatch(
         setPagination({
@@ -544,8 +543,10 @@ export const getVehicle = createAsyncThunk(
 
   async (params: any, { dispatch, getState }: any) => {
     // const response = await apiClient.get(`/database/vehicle`, { params });
+    console.log(params,"P")
     const resultList = await pb.collection("vehicles").getList(1, 50, {
       filter: `model_name ~ "${params.search}" || vehicle_number ~ "${params.search}"`,
+      expand: "driver_id"
     });
     if (resultList) {
       dispatch(
@@ -663,9 +664,9 @@ export const getDriverById = createAsyncThunk(
 
   async (params: any) => {
     const { id } = params;
-
-    // const response = await apiClient.get(`/database/driver/${id}`);
-    const record = await pb.collection("drivers").getOne(id);
+    const record = await pb.collection("drivers").getOne(id, {
+      expand: "address_id",
+    });
 
     return record;
   }
@@ -745,9 +746,11 @@ export const getVehicleGroup = createAsyncThunk(
 
   async (params: any, { dispatch, getState }) => {
     // const response = await apiClient.get(`/database/vehicle-group`, { params });
-    const resultList = await pb.collection("vehicle_groups_dashboard_view").getList(1, 50, {
-      filter: `name ~ "${params.search}"`,
-    });
+    const resultList = await pb
+      .collection("vehicle_groups_dashboard_view")
+      .getList(1, 50, {
+        filter: `name ~ "${params.search}"`,
+      });
     // const resultList2 = await pb.collection("vehicle_groups_dashboard_view").getList(1, 50, {
     //   filter: `name ~ "${params.search}"`,
     // });

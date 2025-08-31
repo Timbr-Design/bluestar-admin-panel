@@ -108,10 +108,10 @@ const BookingsTable = () => {
           </div>
         ),
         onClick: (e) => {
-          console.log(row, "row");
           e.domEvent.stopPropagation();
           dispatch(setIsEditingBooking(true));
           dispatch(setIsAddEditDrawerOpen());
+          dispatch(getBookingById({ id: row.id }));
         },
       },
       {
@@ -139,22 +139,24 @@ const BookingsTable = () => {
     ];
 
     // Filter out the confirm booking option if isConfirmed is true
-    return items.filter((item) => !(item.key === "1" && row.isConfirmed));
+    return items.filter((item) => !(item.key === "1" && row.is_confirmed));
   }
 
   const columns: TableColumnsType<any> = [
     {
       title: "Start date",
-      dataIndex: "startDate",
+      dataIndex: "start_date",
       className: "custom-booking-header",
-      key: "startDate",
+      key: "start_date",
       render: (_, record) => {
-        const startDate = formatEpochToDate(record?.durationDetails?.startDate);
-        const endDate = formatEpochToDate(record?.durationDetails?.endDate);
+        const start_date = formatEpochToDate(
+          new Date(record?.start_date).getTime()
+        );
+        const endDate = formatEpochToDate(new Date(record?.end_date).getTime());
 
         return (
           <div>
-            <span className={styles.start}>{`${startDate} `}</span>
+            <span className={styles.start}>{`${start_date} `}</span>
             <span className={styles.end}>{`to ${endDate}`}</span>
           </div>
         );
@@ -162,18 +164,19 @@ const BookingsTable = () => {
     },
     {
       title: "Customer",
-      dataIndex: "customer",
+      dataIndex: ["expand", "customer_id", "name"],
       key: "customer",
-      render: (_, record) => {
-        return <span>{record?.customer?.name}</span>;
-      },
     },
     {
       title: "Passenger",
       dataIndex: "passengers",
       key: "passengers",
       render: (_, record) => {
-        const passenger = record?.passenger;
+        const passenger = record?.passengers;
+
+        if (!passenger || passenger.length <= 0) {
+          return "No passengers data";
+        }
 
         if (Array.isArray(passenger)) {
           if (passenger.length <= 0) {
@@ -218,7 +221,7 @@ const BookingsTable = () => {
       dataIndex: "vehicleGroupId",
       key: "vehicleGroupId",
       render: (_, record) => {
-        const vehicleGroupName = record?.vehicleGroup?.name;
+        const vehicleGroupName = record?.expand?.vehicle_group_id?.name;
 
         return <span>{vehicleGroupName}</span>;
       },
@@ -228,18 +231,23 @@ const BookingsTable = () => {
       dataIndex: "dutyType",
       key: "dutyType",
       render: (_, record) => {
-        const name = record?.dutyType ? record?.dutyType?.name : "";
+        const name = record?.expand?.duty_type_id
+          ? record?.expand?.duty_type_id?.name
+          : "";
         return <span style={{}}>{name}</span>;
       },
     },
     {
       title: "Status",
-      dataIndex: "bookingStatus",
+      dataIndex: "is_confirmed",
       key: "bookingStatus",
       render: (_, record) => {
-        const status = record?.status;
+        const status = record?.is_confirmed;
         return (
-          <BookingsStates status={status} isConfirmed={record?.isConfirmed} />
+          <BookingsStates
+            status={status ? "completed" : "unconfirmed"}
+            isConfirmed={record?.is_confirmed}
+          />
         );
       },
     },
@@ -275,7 +283,7 @@ const BookingsTable = () => {
                 className={styles.button}
                 onClick={() => {
                   setSelectedBooking(row);
-                  dispatch(getBookingById({ id: row?._id }));
+                  dispatch(getBookingById({ id: row?.id }));
                 }}
               >
                 <DotsHorizontal />
@@ -291,13 +299,13 @@ const BookingsTable = () => {
     return bookings?.map((each: any) => {
       return {
         ...each,
-        address: {
-          dropAddress: each?.dropAddress,
-          reportingAddress: each?.reportingAddress,
-        },
-        // startDate: dayjs(each.duration.startTime).format("DD,MMM YYYY hh:mm A"),
-        vehicleGroupId: each.vehicleGroupId,
-        id: each._id,
+        // address: {
+        //   dropAddress: each?.dropAddress,
+        //   reportingAddress: each?.reportingAddress,
+        // },
+        // start_date: dayjs(each.duration.startTime).format("DD,MMM YYYY hh:mm A"),
+        vehicle_groupid: each.vehicle_groupid,
+        id: each.id,
         action: "",
       };
     });
@@ -306,11 +314,11 @@ const BookingsTable = () => {
   // rowSelection object indicates the need for row selection
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: any[]) => {
-      console.log(
-        `selectedRowKeys: ${selectedRowKeys}`,
-        "selectedRows: ",
-        selectedRows
-      );
+      // console.log(
+      //   `selectedRowKeys: ${selectedRowKeys}`,
+      //   "selectedRows: ",
+      //   selectedRows
+      // );
     },
     getCheckboxProps: (record: any) => ({
       // disabled: record.name === "Disabled User", // Column configuration not to be checked
@@ -342,31 +350,28 @@ const BookingsTable = () => {
 
   const handleConfirmBooking = () => {
     handleCloseBookingModal();
-    const tempObj = _.omit(currentSelectedBooking, ["_id"]);
+    const tempObj = _.omit(currentSelectedBooking, ["id"]);
 
     const bookingDataUpdate = {
       ...tempObj,
-      isConfirmed: true,
-      customerId: currentSelectedBooking?.customer?._id,
-      bookedBy: _.omit(currentSelectedBooking?.bookedBy, ["_id"]),
-      passenger: currentSelectedBooking?.passenger.map(
+      is_confirmed: true,
+      customer_id: currentSelectedBooking?.customer_id,
+      booked_by_name: _.omit(currentSelectedBooking?.booked_by_name, ["id"]),
+      passengers: currentSelectedBooking?.passengers.map(
         (ele: { name: string; phoneNo: string; email: string }) => ({
           name: ele.name,
           phoneNo: ele.phoneNo,
           email: ele.email,
         })
       ),
-      dutyTypeId: currentSelectedBooking?.dutyType?._id,
-      vehicleGroupId: [currentSelectedBooking?.vehicleGroup?._id],
+      duty_type_id: currentSelectedBooking?.duty_type_id,
+      vehicle_group_id: [currentSelectedBooking?.vehicle_group_id],
       vehicleId:
         currentSelectedBooking?.vehicle !== undefined
-          ? currentSelectedBooking?.vehicle?._id
+          ? currentSelectedBooking?.vehicle?.id
           : null,
-      driverId:
-        currentSelectedBooking?.driver !== undefined
-          ? currentSelectedBooking?.driver?._id
-          : null,
-      durationDetails: _.omit(currentSelectedBooking?.durationDetails, ["_id"]),
+      driver_id: currentSelectedBooking?.driver_id,
+      durationDetails: _.omit(currentSelectedBooking?.durationDetails, ["id"]),
       pricingDetails: _.omit(currentSelectedBooking?.pricingDetails, [
         "company",
       ]),
@@ -374,7 +379,7 @@ const BookingsTable = () => {
 
     dispatch(
       updateBooking({
-        id: currentSelectedBooking?._id,
+        id: currentSelectedBooking?.id,
         body: _.omit(bookingDataUpdate, [
           "isActive",
           "customer",
@@ -398,7 +403,7 @@ const BookingsTable = () => {
           onRow={(record, rowIndex) => {
             return {
               onClick: (event) => {
-                navigate(`${RouteName.BOOKINGS}/${record._id}`);
+                navigate(`${RouteName.BOOKINGS}/${record.id}`);
               },
             };
           }}
@@ -434,7 +439,7 @@ const BookingsTable = () => {
           <div className={styles.textContainer}>
             <div className={styles.primaryText}>Delete booking</div>
             <div className={styles.secondaryText}>
-              {`Are you sure you want to delete this booking? Booking ID: ${selectedBooking?.bookingId}`}
+              {`Are you sure you want to delete this booking? Booking ID: ${selectedBooking?.booking_id}`}
             </div>
           </div>
           <div className={styles.bottomBtns}>
@@ -444,7 +449,7 @@ const BookingsTable = () => {
             <button
               className={styles.deleteBtn}
               onClick={() => {
-                dispatch(deleteBooking({ id: selectedBooking._id }));
+                dispatch(deleteBooking({ id: selectedBooking.id }));
                 handleCloseModal();
               }}
             >
@@ -465,7 +470,7 @@ const BookingsTable = () => {
           <div className={styles.textContainer}>
             <div className={styles.primaryText}>Confirm booking</div>
             <div className={styles.secondaryText}>
-              {`Are you sure you want to confirm this booking? Booking ID: ${selectedBooking?.bookingId}`}
+              {`Are you sure you want to confirm this booking? Booking ID: ${selectedBooking?.booking_id}`}
             </div>
           </div>
           <div className={styles.bottomBtns}>

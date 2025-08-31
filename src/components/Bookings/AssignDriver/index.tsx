@@ -10,7 +10,7 @@ import styles from "./index.module.scss";
 interface ContactData {
   key: string;
   name: string;
-  phoneNumber: string;
+  phone_number: string;
 }
 
 interface IAssignDriver {
@@ -19,7 +19,7 @@ interface IAssignDriver {
 }
 
 const AssignDriver = ({ handleSetDriver, driver }: IAssignDriver) => {
-  const [selectedDriver, setSelectedDriver] = useState({ _id: "" });
+  const [selectedDriver, setSelectedDriver] = useState({ id: "" });
   const dispatch = useAppDispatch();
   const { driverList, driverStates, deleteDriverStates, q, pagination } =
     useAppSelector((state) => state.database);
@@ -45,8 +45,8 @@ const AssignDriver = ({ handleSetDriver, driver }: IAssignDriver) => {
     },
     {
       title: "Phone Numbers",
-      dataIndex: "phoneNumber",
-      key: "phoneNumber",
+      dataIndex: "phone_number",
+      key: "phone_number",
       className: "phone-column",
     },
   ];
@@ -62,7 +62,7 @@ const AssignDriver = ({ handleSetDriver, driver }: IAssignDriver) => {
   };
 
   const rowClassName = (record: any) => {
-    return record._id === selectedDriver?._id
+    return record.id === selectedDriver?.id
       ? "vehicle-row-selected"
       : "vehicle-row";
   };
@@ -71,11 +71,11 @@ const AssignDriver = ({ handleSetDriver, driver }: IAssignDriver) => {
     <div className={styles["contact-list-container"]}>
       <Table
         columns={columns}
-        dataSource={driverList?.data?.map((data: any) => {
+        dataSource={driverList?.map((data: any) => {
           return {
-            _id: data?._id,
+            id: data?.id,
             name: data?.name,
-            phoneNumber: data?.phoneNumber,
+            phone_number: data?.phone_number,
           };
         })}
         pagination={false}

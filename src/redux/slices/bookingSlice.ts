@@ -2,14 +2,15 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import apiClient from "../../utils/configureAxios";
 import { notification } from "antd";
+import pb from "../../utils/configurePocketbase";
 
 const initialState = {
   isAddEditDrawerOpen: false,
   currentSelectedBooking: {} as any, // as Ibooking later
   bookings: [],
   filters: {
-    status: undefined,
-    search: undefined,
+    status: "",
+    search: "",
   },
   isEditingBooking: false,
   bookingStates: { status: "idle", loading: false, error: "", loadingById: false },
@@ -23,14 +24,19 @@ const initialState = {
 export const getBookings = createAsyncThunk(
   "booking/getBookings",
   async (params: any) => {
-    const response = await apiClient.get("/booking", { params });
-    return response.data;
+     const record = await pb.collection("bookings").getList(1,50, {
+      expand: "vehicle_group_id,customer_id,duty_type_id,driver_id,vehicle_id,billed_customer_id",
+      filter: `booked_by_name ~ "${params.search}" || booking_id ~ "${params.search}" || booked_by_number ~ "${params.search}"`,
+
+    });
+    return record.items; 
   }
 );
 export const getSingleBookings = createAsyncThunk(
   "booking/getSingleBookings",
   async (params: any) => {
     const response = await apiClient.get("/booking", { params });
+
     return response.data;
   }
 );
@@ -38,8 +44,9 @@ export const deleteBooking = createAsyncThunk(
   "booking/deleteBooking",
   async (params: any, { dispatch, getState }: any) => {
     const { booking } = getState();
-    const response = await apiClient.delete(`/booking/${params.id}`);
-    if (response.status === 200) {
+    // const response = await apiClient.delete(`/booking/${params.id}`);
+    const record = await pb.collection('bookings').delete(params.id);
+    if (record) {
       dispatch(clearCurrentSelectedBooking());
       notification.success({
         message: "Success",
@@ -47,7 +54,7 @@ export const deleteBooking = createAsyncThunk(
       });
       const payload = {
         bookings: booking?.bookings?.filter(
-          (each: any) => each._id !== params.id
+          (each: any) => each.id !== params.id
         ),
       };
 
@@ -58,8 +65,10 @@ export const deleteBooking = createAsyncThunk(
 export const addNewBooking = createAsyncThunk(
   "booking/addNewBooking",
   async (body: any, { dispatch }: any) => {
-    const response = await apiClient.post("/booking", body);
-    if (response.status === 201) {
+    // const response = await apiClient.post("/booking", body);
+    const record = await pb.collection('bookings').create(body);
+
+    if (record) {
       dispatch(clearCurrentSelectedBooking());
       notification.success({
         message: "Success",
@@ -67,23 +76,26 @@ export const addNewBooking = createAsyncThunk(
       });
       dispatch(setIsAddEditDrawerClose());
       dispatch(getBookings({ page: 1, search: "", limit: 10 }));
-      return response.data;
+      return record;
     }
   }
 );
 export const updateBooking = createAsyncThunk(
   "booking/updateBooking",
   async ({ body, id }: any, { dispatch }: any) => {
-    const response = await apiClient.put(`/booking/${id}`, body);
-    if (response.status === 200) {
+    // const response = await apiClient.put(`/booking/${id}`, body);
+    const record = await pb.collection('bookings').update(id, body);
+
+    if (record) {
       dispatch(clearCurrentSelectedBooking());
       notification.success({
         message: "Success",
         description: "Booking updated successfully",
       });
       dispatch(setIsAddEditDrawerClose());
-      dispatch(getBookings({}));
-      return response.data;
+      dispatch(getBookings({ page: "1", search: "", limit: 10 }));
+      
+      return record;
     }
   }
 );
@@ -91,10 +103,11 @@ export const getBookingById = createAsyncThunk(
   "booking/getBookingById",
   async (params: any) => {
     const { id } = params;
-    const response = await apiClient.get(`/booking/${id}`);
-    if (response.status === 200) {
-      console.log(response.data, "response.data");
-      return response.data;
+    const record = await pb.collection("bookings").getOne(id,{
+      expand: 'customer_id,duty_type_id,vehicle_group_id,driver_id,vehicle_id,billed_customer_id'
+    });
+    if (record) {
+      return record;
     }
   }
 );
@@ -141,12 +154,12 @@ export const bookingSlice = createSlice({
         state.bookingStates.status = "succeeded";
         state.bookingStates.loading = false;
         state.bookingStates.error = "";
-        state.bookings = action.payload?.data as any;
-        state.pagination = {
-          total: action.payload.total,
-          page: action.payload.page,
-          limit: action.payload.limit,
-        };
+        state.bookings = action.payload;
+        // state.pagination = {
+        //   total: action.payload.total,
+        //   page: action.payload.page,
+        //   limit: action.payload.limit,
+        // };
       })
       .addCase(getBookings.rejected, (state) => {
         state.bookingStates.status = "failed";
@@ -201,7 +214,7 @@ export const bookingSlice = createSlice({
         state.bookingStates.status = "succeeded";
         state.bookingStates.loadingById = false;
         state.bookingStates.error = "";
-        state.currentSelectedBooking = action.payload.data;
+        state.currentSelectedBooking = action.payload;
       })
       .addCase(getBookingById.rejected, (state) => {
         state.bookingStates.status = "failed";

@@ -29,7 +29,6 @@ dayjs.extend(utc);
 const { RangePicker } = DatePicker;
 
 const BookingsTabs = () => {
-  console.log("I RUN");
   const dispatch = useAppDispatch();
   const { filters } = useSelector((state: RootState) => state.bookingDuties);
 
@@ -166,7 +165,9 @@ const SingleBookingDuties = () => {
         }
         footer={
           <div className={styles.drawerFooter}>
-            <Button>Cancel</Button>
+            <Button onClick={() => dispatch(setIsAddEditDrawerClose())}>
+              Cancel
+            </Button>
             <Button
               onClick={() => {
                 form.submit();

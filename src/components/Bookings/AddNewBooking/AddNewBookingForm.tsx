@@ -25,6 +25,7 @@ import { RootState } from "../../../types/store";
 import {
   getAllDutyTypes,
   getCustomer,
+  getCustomerById,
   getDutyTypeById,
   getVehicleGroup,
   getVehicleGroupById,
@@ -119,61 +120,67 @@ const AddNewBookingForm = ({
   }, []);
 
   useEffect(() => {
-    if (initialData?._id) {
+    console.log(initialData, "INITIALDATA");
+    if (initialData?.id) {
       form.setFieldsValue({
-        bookingId: initialData?.bookingId,
+        bookingId: initialData?.booking_id,
         customer: [
           {
-            label: initialData?.customer?.name,
-            value: initialData?.customer?._id,
+            label: initialData?.expand?.customer_id?.name,
+            value: initialData?.expand?.customer_id?.id,
           },
         ],
-        bookedBy: initialData?.bookedBy,
-        passenger: initialData?.passenger,
+        booked_by_name: initialData?.booked_by_name,
+        booked_by_email: initialData?.booked_by_email,
+        booked_by_number: initialData?.booked_by_number,
+        passenger: initialData?.passengers,
         dutyType: [
           {
-            label: initialData?.dutyType?.name,
-            value: initialData?.dutyType?._id,
+            label: initialData?.expand?.duty_type_id?.name,
+            value: initialData?.expand?.duty_type_id?.id,
           },
         ],
         vehicleGroup: [
           {
-            label: initialData?.vehicleGroup?.name,
-            value: initialData?.vehicleGroup?._id,
+            label: initialData?.expand?.vehicle_group_id?.name,
+            value: initialData?.expand?.vehicle_group_id?.id,
           },
         ],
         to: initialData?.to,
         from: initialData?.from,
-        reportingAddress: initialData?.reportingAddress,
-        dropAddress: initialData?.dropAddress,
-        bookingType: initialData?.localBooking ? "Local" : "Outstation",
+        reporting_address: initialData?.reporting_address,
+        drop_address: initialData?.drop_address,
+        bookingType: initialData?.local_booking ? "Local" : "Outstation",
         airportBooking: initialData?.airportBooking,
         durationDetails: {
-          startDate: initialData?.durationDetails?.startDate
-            ? dayjs(initialData?.durationDetails?.startDate)
+          start_date: initialData?.start_date
+            ? dayjs(initialData?.start_date)
             : null,
-          endDate: initialData?.durationDetails?.endDate
-            ? dayjs(initialData?.durationDetails?.endDate)
+          end_date: initialData?.end_date ? dayjs(initialData?.end_date) : null,
+          reporting_time: initialData?.reporting_time
+            ? dayjs(initialData?.reporting_time)
             : null,
-          reportingTime: initialData?.durationDetails?.reportingTime
-            ? dayjs(initialData?.durationDetails?.reportingTime)
+          est_drop_time: initialData?.est_drop_time
+            ? dayjs(initialData?.est_drop_time)
             : null,
-          dropTime: initialData?.durationDetails?.dropTime
-            ? dayjs(initialData?.durationDetails?.dropTime)
-            : null,
-          garageStartTime: initialData?.durationDetails?.garageStartTime
-            ? dayjs(initialData?.durationDetails?.garageStartTime)
-            : null,
+          start_from_garage_before_mins:
+            initialData?.start_from_garage_before_mins
+              ? dayjs(initialData?.start_from_garage_before_mins)
+              : null,
         },
-        pricingDetails: {
-          baseRate: initialData?.pricingDetails?.baseRate,
-          perExtraKm: initialData?.pricingDetails?.perExtraKm,
-          perExtraHour: initialData?.pricingDetails?.perExtraHour,
-          billTo: initialData?.pricingDetails?.billTo,
-        },
-        operatorNotes: initialData?.operatorNotes,
-        notes: initialData?.notes,
-        isUnconfirmed: initialData?.status === BOOKINGS_STATUS.unconfirmed,
+        base_rate: initialData?.base_rate,
+        per_extra_km_rate: initialData?.per_extra_km_rate,
+        per_extra_hour_rate: initialData?.per_extra_hour_rate,
+        // billTo: initialData?.billTo,
+        billTo: [
+          {
+            label: initialData?.expand?.billed_customer_id.name,
+            value: initialData?.expand?.billed_customer_id.id,
+          },
+        ],
+        operator_notes: initialData?.operator_notes,
+        notes: initialData?.driver_notes,
+        isUnconfirmed: !initialData?.is_confirmed,
       });
     } else {
       form.setFieldsValue({
@@ -184,14 +191,15 @@ const AddNewBookingForm = ({
 
   const handleToggle = (checked: boolean) => {
     if (!useThisPassenger) {
-      const bookedBy = form.getFieldValue("bookedBy") || [];
+      const booked_by_name = form.getFieldValue("booked_by_name") || [];
+      const booked_by_number = form.getFieldValue("booked_by_number") || [];
 
       // Set the new passenger array with the new data
       form.setFieldsValue({
         passenger: [
           {
-            name: bookedBy.name,
-            phoneNo: bookedBy.phoneNo,
+            name: booked_by_name,
+            phoneNo: booked_by_number,
           },
         ],
       });
@@ -204,8 +212,9 @@ const AddNewBookingForm = ({
   };
 
   useEffect(() => {
-    dispatch(getDutyTypeById({ id: initialData?.dutyType?._id }));
-    dispatch(getVehicleGroupById({ id: initialData?.vehicleGroup?._id }));
+    dispatch(getDutyTypeById({ id: initialData?.duty_type_id }));
+    dispatch(getVehicleGroupById({ id: initialData?.vehicle_group_id }));
+    dispatch(getCustomerById({ id: initialData?.customer_id }));
   }, [initialData]);
 
   const handleDutyTypeChange = (value: string) => {
@@ -219,9 +228,11 @@ const AddNewBookingForm = ({
   useEffect(() => {
     if (currentDutyType?.category === "custom") {
       form.setFieldsValue({
-        baseRate: currentDutyType?.customDutyType?.ratePerKm,
-        perExtraKm: currentDutyType?.customDutyType?.["12+"].perExtraKm,
-        perExtraHour: currentDutyType?.customDutyType?.perExtraHour,
+        base_rate: currentDutyType?.customDutyType?.ratePerKm,
+        per_extra_km_rate:
+          currentDutyType?.customDutyType?.["12+"].per_extra_km_rate,
+        per_extra_hour_rate:
+          currentDutyType?.customDutyType?.per_extra_hour_rate,
       });
     }
   }, [form.getFieldValue("vehicleGroup")]);
@@ -237,11 +248,11 @@ const AddNewBookingForm = ({
       }}
       onFinish={(values) => {
         console.log(values, "values");
-        handleSetBookingValues({
-          ...values,
-          localBooking: values?.bookingType === "Local",
-          outstationBooking: values?.bookingType === "Outstation",
-        });
+        // handleSetBookingValues({
+        //   ...values,
+        //   localBooking: values?.bookingType === "Local",
+        //   outstationBooking: values?.bookingType === "Outstation",
+        // });
       }}
       requiredMark={CustomizeRequiredMark}
       className={styles.form}
@@ -276,45 +287,45 @@ const AddNewBookingForm = ({
         />
       </Form.Item>
 
-      <Card className={styles.BookedByCardContainer}>
-        <Form.Item
-          name="bookedBy"
-          id="bookedBy"
-          label="Booked By"
+      <Card className={styles.booked_by_nameCardContainer}>
+        <div
+          // name="booked_by_name"
+          // id="booked_by_name"
+          // label="Booked By"
           className={styles.secondaryContainer}
         >
-          <Input.Group>
-            <Form.Item
-              name={["bookedBy", "name"]}
-              label="Booked by name"
-              style={{ marginTop: "12px" }}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name={["bookedBy", "phoneNo"]}
-              label="Phone Number"
-              rules={[
-                { required: false },
-                {
-                  pattern: /^(\+91)?[6-9][0-9]{9}$/,
-                  message: "Please enter a valid Indian phone number",
-                },
-              ]}
-              style={{ marginTop: "12px" }}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name={["bookedBy", "email"]}
-              label="Email"
-              rules={[{ required: false, type: "email" }]}
-              style={{ marginTop: "12px" }}
-            >
-              <Input type="email" />
-            </Form.Item>
-          </Input.Group>
-        </Form.Item>
+          {/* <Input.Group> */}
+          <Form.Item
+            name="booked_by_name"
+            label="Booked by name"
+            style={{ marginTop: "12px" }}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="booked_by_number"
+            label="Phone Number"
+            rules={[
+              { required: false },
+              {
+                pattern: /^(\+91)?[6-9][0-9]{9}$/,
+                message: "Please enter a valid Indian phone number",
+              },
+            ]}
+            style={{ marginTop: "12px" }}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="booked_by_email"
+            label="Email"
+            rules={[{ required: false, type: "email" }]}
+            style={{ marginTop: "12px" }}
+          >
+            <Input type="email" />
+          </Form.Item>
+          {/* </Input.Group> */}
+        </div>
         <div className={styles[`passenger-switch`]}>
           <Switch
             checked={useThisPassenger}
@@ -386,12 +397,14 @@ const AddNewBookingForm = ({
         <Select
           allowClear
           showSearch
-          options={dutyTypeList?.data?.map(
-            (option: { _id: string; name: string }) => ({
-              value: option._id,
+          options={
+            dutyTypeList &&
+            Array.isArray(dutyTypeList) &&
+            dutyTypeList?.map((option: { id: string; name: string }) => ({
+              value: option.id,
               label: option.name,
-            })
-          )}
+            }))
+          }
           onSearch={(text) => getDutyTypeValue(text)}
           onChange={handleDutyTypeChange}
           placeholder="Select Duty type"
@@ -408,12 +421,14 @@ const AddNewBookingForm = ({
         <Select
           allowClear
           showSearch
-          options={vehicleGroupData?.data?.map(
-            (option: { _id: string; name: string }) => ({
-              value: option._id,
+          options={
+            vehicleGroupData &&
+            Array.isArray(vehicleGroupData) &&
+            vehicleGroupData.map((option: { id: string; name: string }) => ({
+              value: option.id,
               label: option.name,
-            })
-          )}
+            }))
+          }
           onSearch={(text) => getVehicleGroupValue(text)}
           onChange={handleVehicleGroupChange}
           placeholder="Search vehicle group"
@@ -482,13 +497,13 @@ const AddNewBookingForm = ({
             message: "Please enter a valid Google Maps URL!",
           },
         ]}
-        name="reportingAddress"
+        name="reporting_address"
         label="Reporting Address"
       >
         <TextArea placeholder="Location (Google map link)"></TextArea>
       </Form.Item>
       <Form.Item
-        name="dropAddress"
+        name="drop_address"
         rules={[
           {
             pattern:
@@ -543,7 +558,7 @@ const AddNewBookingForm = ({
                   required: true,
                 },
               ]}
-              name={["durationDetails", "startDate"]}
+              name={["durationDetails", "start_date"]}
               label="Start Date"
             >
               <CustomDatePicker
@@ -564,7 +579,7 @@ const AddNewBookingForm = ({
                   required: true,
                 },
               ]}
-              name={["durationDetails", "endDate"]}
+              name={["durationDetails", "end_date"]}
               label="End Date"
             >
               <CustomDatePicker
@@ -576,7 +591,7 @@ const AddNewBookingForm = ({
                   // Get the start time from form values
                   const startTime = form.getFieldValue([
                     "durationDetails",
-                    "startDate",
+                    "start_date",
                   ]);
 
                   return (
@@ -597,7 +612,7 @@ const AddNewBookingForm = ({
                   required: true,
                 },
               ]}
-              name={["durationDetails", "reportingTime"]}
+              name={["durationDetails", "reporting_time"]}
               label="Reporting Time"
             >
               <CustomDatePicker
@@ -613,7 +628,7 @@ const AddNewBookingForm = ({
             </Form.Item>
             <Form.Item
               style={{ width: "100%" }}
-              name={["durationDetails", "dropTime"]}
+              name={["durationDetails", "est_drop_time"]}
               label="Est Drop Time"
             >
               <CustomDatePicker
@@ -625,7 +640,7 @@ const AddNewBookingForm = ({
                   // Get the start time from form values
                   const startTime = form.getFieldValue([
                     "durationDetails",
-                    "reportingTime",
+                    "reporting_time",
                   ]);
 
                   return (
@@ -645,7 +660,7 @@ const AddNewBookingForm = ({
                 required: true,
               },
             ]}
-            name={["durationDetails", "garageStartTime"]}
+            name={["durationDetails", "start_from_garage_before_mins"]}
             label="Start from garage before (in mins)"
             style={{ paddingTop: "16px" }}
           >
@@ -671,7 +686,7 @@ const AddNewBookingForm = ({
             <Row gutter={16}>
               <Col span={24}>
                 <Form.Item
-                  name={["pricingDetails", "baseRate"]}
+                  name={"base_rate"}
                   style={{ paddingTop: "16px" }}
                   label="Base Rate"
                   rules={[
@@ -711,7 +726,7 @@ const AddNewBookingForm = ({
               </Col>
               <Col span={12}>
                 <Form.Item
-                  name={["pricingDetails", "perExtraKm"]}
+                  name={"per_extra_km_rate"}
                   style={{ paddingTop: "16px" }}
                   label="Per Extra KM Rate"
                   rules={[
@@ -756,7 +771,7 @@ const AddNewBookingForm = ({
                       required: true,
                     },
                   ]}
-                  name={["pricingDetails", "perExtraHour"]}
+                  name={"per_extra_hour_rate"}
                   style={{ paddingTop: "16px" }}
                   label="Per Extra Hour Rate"
                 >
@@ -792,7 +807,7 @@ const AddNewBookingForm = ({
               <Col span={24}>
                 <Form.Item
                   label="Bill to"
-                  name={["pricingDetails", "billTo"]}
+                  name={"billTo"}
                   style={{ paddingTop: "16px" }}
                 >
                   <Select
@@ -800,8 +815,8 @@ const AddNewBookingForm = ({
                     allowClear
                     showSearch
                     options={companies?.map((option: any) => ({
-                      value: option._id,
-                      label: option.companyName,
+                      value: option.id,
+                      label: option.company_name,
                     }))}
                     onSearch={(text) => getCompanyValue(text)}
                     fieldNames={{ label: "label", value: "value" }}
@@ -819,7 +834,7 @@ const AddNewBookingForm = ({
           marginTop: "1rem",
         }}
       >
-        <Form.Item name="operatorNotes" label="Operator Notes">
+        <Form.Item name="operator_notes" label="Operator Notes">
           <TextArea placeholder="Add a note...."></TextArea>
         </Form.Item>
         <Form.Item

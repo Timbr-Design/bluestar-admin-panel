@@ -54,10 +54,6 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
   const [openDropdown, setOpenDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    console.log(dutyTypeList);
-  }, [dutyTypeList]);
-
   const handleDeleteDutyType = () => {
     dispatch(deleteDutyType({ id: dutyTypeId }));
     setOpenDeleteModal(false);
@@ -121,7 +117,11 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
       dataIndex: "max_kilometers",
       key: "max_kilometers",
       render: (_, record) => {
-        return <span>{"record?.pricing[0]?.extraKmRate"}</span>;
+        return (
+          <span>
+            {record && record?.pricing ? record?.pricing[0]?.extraKmRate : "-"}
+          </span>
+        );
       },
     },
     {
@@ -129,7 +129,11 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
       dataIndex: "max_hours",
       key: "max_hours",
       render: (_, record) => {
-        return <span>{"record?.pricing[0]?.extraHrRate"}</span>;
+        return (
+          <span>
+            {record && record?.pricing ? record?.pricing[0]?.extraHrRate : "-"}
+          </span>
+        );
       },
     },
     {
@@ -173,9 +177,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
     selectedRowKeys: React.Key[],
     selectedRows: IDutyTypeTableData[]
   ) => {
-    console.log(selectedRowKeys, "selectedRowKeys");
     setSelectedRowKeys(selectedRowKeys);
-    console.log("Selected Rows: ", selectedRows);
   };
 
   return (

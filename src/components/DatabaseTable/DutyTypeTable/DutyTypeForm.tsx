@@ -79,6 +79,8 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
     },
   ]);
 
+  console.log(selectedDutyType);
+
   const handleBaseRateChange = (value: number | null, key: string) => {
     setData((prevData) =>
       prevData.map((item) =>
@@ -92,13 +94,14 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
   }, []);
 
   useEffect(() => {
+    console.log(vehicleGroupData);
     if (Object.keys(selectedDutyType).length) {
       const tempArr = selectedDutyType?.pricing?.map((data: any) => {
         return {
           name: data?.vehicleGroup?.name,
           vehicleGroupId: data?.id,
           baseRate: data?.baseRate,
-          extraKmRate: data?.extraKmRate,
+          extraKmRate: data?.per_extra_km_rate,
           extraHrRate: data?.extraKmRate,
         };
       });
@@ -112,17 +115,20 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
           {
             key: "o-6",
             hours: "0 - 6 hours",
-            baseRate: selectedDutyType?.customDutyType?.rateBasePerHour["o-6"],
+            baseRate:
+              selectedDutyType?.custom_duty_type?.rateBasePerHour["o-6"],
           },
           {
             key: "6-12",
             hours: "6 - 12 hours",
-            baseRate: selectedDutyType?.customDutyType?.rateBasePerHour["6-12"],
+            baseRate:
+              selectedDutyType?.custom_duty_type?.rateBasePerHour["6-12"],
           },
           {
             key: "12+",
             hours: "12+ hours",
-            baseRate: selectedDutyType?.customDutyType?.rateBasePerHour["12+"],
+            baseRate:
+              selectedDutyType?.custom_duty_type?.rateBasePerHour["12+"],
           },
         ]);
 
@@ -130,9 +136,9 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
         form.setFieldsValue({
           dutyType: capitalize(selectedDutyType?.category),
           name: selectedDutyType?.name,
-          vehicleGroup: selectedDutyType?.customDutyType?.vehicleGroupId,
-          thresholdKM: selectedDutyType?.customDutyType?.thresholdKm,
-          ratePerKm: selectedDutyType?.customDutyType?.ratePerKm,
+          vehicleGroup: selectedDutyType?.custom_duty_type?.vehicle_group_id,
+          thresholdKM: selectedDutyType?.custom_duty_type?.thresholdKm,
+          ratePerKm: selectedDutyType?.custom_duty_type?.per_extra_km_rate,
         });
       } else {
         // Set form values for non-Custom duty type
@@ -149,15 +155,18 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
         });
       }
     } else {
-      const tempArr = vehicleGroupData?.map((data: any) => {
-        return {
-          name: data?.name,
-          vehicleGroupId: data?.id,
-          baseRate: 0,
-          extraKmRate: 0,
-          extraHrRate: 0,
-        };
-      });
+      const tempArr =
+        vehicleGroupData &&
+        Array.isArray(vehicleGroupData) &&
+        vehicleGroupData?.map((data: any) => {
+          return {
+            name: data?.name,
+            vehicleGroupId: data?.id,
+            baseRate: data?.baseRate ?? 0,
+            extraKmRate: data?.extraKmRate ?? 0,
+            extraHrRate: data?.extraHrRate ?? 0,
+          };
+        });
 
       setVehicleGroupDataArray(tempArr);
 
@@ -216,9 +225,9 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
             updateDutyType({
               payload: {
                 name: values.name,
-                category: "custom",
+                category: "Custom",
                 secondary_type: value,
-                customDutyType,
+                custom_duty_type: customDutyType,
               },
               id: selectedDutyType?.id,
             })
@@ -249,9 +258,9 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
       } else {
         if (capitalize(dutyType) === "Custom") {
           const customDutyType = {
-            vehicleGroupId: values.vehicleGroup,
+            vehicle_group_id: values.vehicleGroup,
             thresholdKm: values.thresholdKM,
-            ratePerKm: values.ratePerKm,
+            per_extra_km_rate: values.ratePerKm,
             rateBasePerHour: {
               "o-6": data[0]?.baseRate,
               "6-12": data[1]?.baseRate,
@@ -262,28 +271,19 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
           dispatch(
             addDutyType({
               name: values.name,
-              category: "custom",
+              category: "Custom",
               secondary_type: value,
-              customDutyType,
+              custom_duty_type: customDutyType,
             })
           );
         } else {
+          console.log(vehicleGroupDataArray, values);
           dispatch(
             addDutyType({
               name: values.name,
               category: values.dutyType,
               secondary_type: value,
-              pricing: vehicleGroupDataArray?.map((data: any) =>
-                omit(
-                  {
-                    ...data,
-                    baseRate: Number(data.baseRate),
-                    extraKmRate: Number(data.extraKmRate),
-                    extraHrRate: Number(data.extraHrRate),
-                  },
-                  "name"
-                )
-              ),
+              pricing: values.pricing,
             })
           );
         }
@@ -436,12 +436,16 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
           >
             <Select
               allowClear
-              options={vehicleGroupData?.map(
-                (option: { id: string; name: string }) => ({
-                  value: option.id,
-                  label: option.name,
-                })
-              )}
+              options={
+                vehicleGroupData &&
+                Array.isArray(vehicleGroupData) &&
+                vehicleGroupData?.map(
+                  (option: { id: string; name: string }) => ({
+                    value: option.id,
+                    label: option.name,
+                  })
+                )
+              }
               onSearch={(text) => getVehicleGroupValue(text)}
               placeholder="Search vehicle group"
               fieldNames={{ label: "label", value: "value" }}

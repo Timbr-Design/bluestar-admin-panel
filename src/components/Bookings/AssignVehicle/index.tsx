@@ -23,10 +23,10 @@ interface IAssignVehicle {
 
 const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
   const dispatch = useAppDispatch();
-  const [selectedVehicle, setSelectedVehicle] = useState({ _id: "" });
+  const [selectedVehicle, setSelectedVehicle] = useState({ id: "" });
   const { vehicleList, q, pagination, selectedDutyType, selectedVehicleGroup } =
     useAppSelector((state) => state.database);
-
+  console.log(vehicleList);
   useEffect(() => {
     setSelectedVehicle(vehicle);
   }, [vehicle]);
@@ -36,36 +36,36 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
     {
       label: "Start Date",
       value: new Date(
-        form.getFieldValue("durationDetails").startDate
+        form.getFieldValue("durationDetails").start_date
       ).toLocaleDateString(),
     },
     {
       label: "End Date",
       value: new Date(
-        form.getFieldValue("durationDetails").endDate
+        form.getFieldValue("durationDetails").end_date
       ).toLocaleDateString(),
     },
     {
       label: "Garage Start Time",
       value: new Date(
-        form.getFieldValue("durationDetails").garageStartTime
+        form.getFieldValue("durationDetails").start_from_garage_before_mins
       ).toLocaleTimeString(),
     },
     {
       label: "Reporting Time",
       value: new Date(
-        form.getFieldValue("durationDetails").reportingTime
+        form.getFieldValue("durationDetails").reporting_time
       ).toLocaleTimeString(),
     },
-    { label: "Duty Type", value: selectedDutyType?.data?.name },
-    { label: "Vehicle Group", value: selectedVehicleGroup?.data?.name },
+    { label: "Duty Type", value: selectedDutyType?.name },
+    { label: "Vehicle Group", value: selectedVehicleGroup?.name },
     {
       label: "Reporting Address",
-      value: form.getFieldValue("reportingAddress"),
+      value: form.getFieldValue("reporting_address"),
     },
     {
       label: "Drop Address",
-      value: form.getFieldValue("dropAddress"),
+      value: form.getFieldValue("drop_address"),
     },
   ];
 
@@ -94,8 +94,10 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
         <div className={styles.driverNameContainer}>
           <div
             className={styles.driverProfile}
-          >{`${getInitials(record?.driver?.name)}`}</div>
-          <div className={styles.driverName}>{record?.driver?.name}</div>
+          >{`${getInitials(record?.expand?.driver_id?.name)}`}</div>
+          <div className={styles.driverName}>
+            {record?.expand?.driver_id?.name}
+          </div>
         </div>
       ),
     },
@@ -120,7 +122,7 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
   };
 
   const rowClassName = (record: any) => {
-    return record._id === selectedVehicle?._id
+    return record.id === selectedVehicle?.id
       ? "vehicle-row-selected"
       : "vehicle-row";
   };
@@ -150,7 +152,9 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
         <Table
           className="vehicles-table"
           columns={columns}
-          dataSource={vehicleList?.data}
+          dataSource={
+            vehicleList && Array.isArray(vehicleList) ? vehicleList : []
+          }
           pagination={false}
           rowClassName={rowClassName}
           onRow={onRowClick}
