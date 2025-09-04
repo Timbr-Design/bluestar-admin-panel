@@ -4,6 +4,8 @@ import {
   getDriverById,
   deleteDriver,
   setViewContentDatabase,
+  setSelectedRowType,
+  setSelectedRowIds,
 } from "../../../redux/slices/databaseSlice";
 import type { TableProps, MenuProps } from "antd";
 import { Table, Dropdown } from "antd";
@@ -115,9 +117,9 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
     selectedRowKeys: React.Key[],
     selectedRows: IDriversTableData[]
   ) => {
-    console.log(selectedRowKeys, "selectedRowKeys");
+    dispatch(setSelectedRowType("drivers"));
+    dispatch(setSelectedRowIds(selectedRowKeys));
     setSelectedRowKeys(selectedRowKeys);
-    console.log("Selected Rows: ", selectedRows);
   };
 
   const getInitials = (name: string) => {

@@ -4,6 +4,8 @@ import {
   getDutyTypeById,
   deleteDutyType,
   setViewContentDatabase,
+  setSelectedRowType,
+  setSelectedRowIds,
 } from "../../../redux/slices/databaseSlice";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
@@ -177,6 +179,8 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
     selectedRowKeys: React.Key[],
     selectedRows: IDutyTypeTableData[]
   ) => {
+    dispatch(setSelectedRowType("duty_types"));
+    dispatch(setSelectedRowIds(selectedRowKeys));
     setSelectedRowKeys(selectedRowKeys);
   };
 
@@ -184,6 +188,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
     <>
       <Table
         bordered
+        rowKey={"id"}
         onRow={(record) => {
           return {
             onClick: () => {

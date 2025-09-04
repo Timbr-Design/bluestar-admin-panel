@@ -12,6 +12,8 @@ import {
   deleteAllowance,
   updateAllowance,
   setViewContentDatabase,
+  setSelectedRowType,
+  setSelectedRowIds,
 } from "../../../redux/slices/databaseSlice";
 import { ReactComponent as Clipboard } from "../../../icons/clipboard-x.svg";
 import cn from "classnames";
@@ -143,9 +145,9 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
     selectedRowKeys: React.Key[],
     selectedRows: IAllowanceData[]
   ) => {
-    console.log(selectedRowKeys, "selectedRowKeys");
+    dispatch(setSelectedRowType("allowances"));
+    dispatch(setSelectedRowIds(selectedRowKeys));
     setSelectedRowKeys(selectedRowKeys);
-    console.log("Selected Rows: ", selectedRows);
   };
 
   return (

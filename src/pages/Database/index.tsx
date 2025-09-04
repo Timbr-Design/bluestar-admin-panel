@@ -21,6 +21,8 @@ import {
   setPagination,
   setQueryForSearch,
   setResetSelectedStates,
+  setSelectedRowIds,
+  setSelectedRowType,
   setViewContentDatabase,
 } from "../../redux/slices/databaseSlice";
 import { useSelector } from "react-redux";
@@ -55,6 +57,8 @@ const Database = () => {
   }, [params.type]);
 
   const handleNavClick = (data: IDatabaseItem) => {
+    dispatch(setSelectedRowIds([]));
+    dispatch(setSelectedRowType(""));
     navigate(`${RouteName.DATABASE}/${data.type}`);
     selectedItem(data);
     // empty search field when tab change
@@ -124,9 +128,7 @@ const Database = () => {
       </ul>
       <DatabaseTable item={item} handleOpenSidePanel={handleOpenSidePanel} />
       {openSidePanel && (
-        <div
-          className={cn(styles.sidebar, { [styles.open]: openSidePanel })}
-        >
+        <div className={cn(styles.sidebar, { [styles.open]: openSidePanel })}>
           <button className={styles.closeBtn} onClick={handleCloseSidePanel}>
             <CrossIcon />
           </button>

@@ -894,6 +894,8 @@ const initialState: any = {
     loading: false,
     error: "",
   },
+  selectedRowType: "",
+  selectedRowKeys: [],
 
   // Customer
   customers: {},
@@ -1065,6 +1067,18 @@ export const databaseSlice = createSlice({
       return {
         ...state,
         pagination: action.payload,
+      };
+    },
+    setSelectedRowType: (state, action: PayloadAction<string>) => {
+      return {
+        ...state,
+        selectedRowType: action.payload,
+      };
+    },
+    setSelectedRowIds: (state, action: PayloadAction<React.Key[]>) => {
+      return {
+        ...state,
+        selectedRowKeys: action.payload,
       };
     },
     clearSelectedVehicleGroup: (state) => {
@@ -1885,6 +1899,8 @@ export const {
   clearSelectedAllowance,
   clearSelectedDutyType,
   setSelectedCustomer,
+  setSelectedRowType,
+  setSelectedRowIds
 } = actions;
 
 export default databaseSlice.reducer;

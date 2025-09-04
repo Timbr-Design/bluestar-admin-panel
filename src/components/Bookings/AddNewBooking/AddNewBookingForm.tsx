@@ -19,7 +19,6 @@ import {
 import { DeleteOutlined, PlusOutlined, SyncOutlined } from "@ant-design/icons";
 import CustomizeRequiredMark from "../../Common/CustomizeRequiredMark";
 import CustomDatePicker from "../../Common/CustomDatePicker";
-import { BOOKINGS_STATUS } from "../../../constants/bookings";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import { RootState } from "../../../types/store";
 import {
@@ -46,8 +45,13 @@ const AddNewBookingForm = ({
   form,
   handleSetBookingValues,
 }: AddNewBookingForm) => {
-  const { dutyTypeList, customersOption, vehicleGroupData, currentDutyType } =
-    useAppSelector((state: RootState) => state.database);
+  const {
+    dutyTypeList,
+    customersOption,
+    vehicleGroupData,
+    currentDutyType,
+    customers,
+  } = useAppSelector((state: RootState) => state.database);
   const { companies } = useAppSelector((state: RootState) => state.company);
   const dispatch = useAppDispatch();
 

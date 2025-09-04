@@ -14,6 +14,8 @@ import {
   getTaxesById,
   updateTax,
   setViewContentDatabase,
+  setSelectedRowType,
+  setSelectedRowIds,
 } from "../../../redux/slices/databaseSlice";
 import React, { useState, useEffect } from "react";
 import styles from "./index.module.scss";
@@ -139,9 +141,9 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
     selectedRowKeys: React.Key[],
     selectedRows: ITaxesTableData[]
   ) => {
-    console.log(selectedRowKeys, "selectedRowKeys");
+    dispatch(setSelectedRowType("taxes"));
+    dispatch(setSelectedRowIds(selectedRowKeys));
     setSelectedRowKeys(selectedRowKeys);
-    console.log("Selected Rows: ", selectedRows);
   };
 
   return (

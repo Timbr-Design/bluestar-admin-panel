@@ -202,7 +202,7 @@ const Bookings = () => {
         // pricingDetails: form.getFieldValue("pricingDetails"),
         operator_notes: form.getFieldValue("operator_notes") ?? null,
         driver_notes: form.getFieldValue("notes") ?? null,
-        status: form.getFieldValue("isUnconfirmed")
+        booking_status: form.getFieldValue("isUnconfirmed")
           ? BOOKINGS_STATUS.unconfirmed
           : BOOKINGS_STATUS.booked,
         is_confirmed: false,
