@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 import SearchComponent from "../SearchComponent";
 import { Dropdown } from "antd";
 import { ReactComponent as SearchIcon } from "../../icons/SearchIcon.svg";
@@ -19,7 +19,17 @@ import FastTagTable from "./FastTagTable";
 import PrimaryBtn from "../PrimaryBtn";
 import styles from "./index.module.scss";
 import { useAppDispatch, useAppSelector } from "../../hooks/store";
-import { setQueryForSearch } from "../../redux/slices/databaseSlice";
+import {
+  deleteAllowance,
+  deleteBankAccount,
+  deleteCustomer,
+  deleteDriver,
+  deleteDutyType,
+  deleteTax,
+  deleteVehicle,
+  deleteVehicleGroup,
+  setQueryForSearch,
+} from "../../redux/slices/databaseSlice";
 import { RootState } from "../../types/store";
 
 interface IDatabaseItem {
@@ -36,10 +46,49 @@ interface IDatabaseTable {
 
 const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
   const dispatch = useAppDispatch();
-  const { q } = useAppSelector((state: RootState) => state.database);
+  const { q, selectedRowType, selectedRowKeys } = useAppSelector(
+    (state: RootState) => state.database
+  );
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     dispatch(setQueryForSearch(value));
+  };
+
+  const handleDeleteSelected = async () => {
+    switch (selectedRowType) {
+      case "duty_types":
+        return await Promise.all(
+          selectedRowKeys.map((id) => dispatch(deleteDutyType({ id })))
+        );
+      case "vehicle_groups":
+        return await Promise.all(
+          selectedRowKeys.map((id) => dispatch(deleteVehicleGroup({ id })))
+        );
+      case "customers":
+        return await Promise.all(
+          selectedRowKeys.map((id) => dispatch(deleteCustomer({ id })))
+        );
+      case "drivers":
+        return await Promise.all(
+          selectedRowKeys.map((id) => dispatch(deleteDriver({ id })))
+        );
+      case "vehicles":
+        return await Promise.all(
+          selectedRowKeys.map((id) => dispatch(deleteVehicle({ id })))
+        );
+      case "bank_accounts":
+        return await Promise.all(
+          selectedRowKeys.map((id) => dispatch(deleteBankAccount({ id })))
+        );
+      case "taxes":
+        return await Promise.all(
+          selectedRowKeys.map((id) => dispatch(deleteTax({ id })))
+        );
+      case "allowances":
+        return await Promise.all(
+          selectedRowKeys.map((id) => dispatch(deleteAllowance({ id })))
+        );
+    }
   };
 
   const vehicleItems = [
@@ -150,9 +199,11 @@ const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
           </div>
           {item.type !== "allowance" && item.type !== "fastag" && (
             <PrimaryBtn
-              LeadingIcon={PlusIcon}
-              btnText={`Add ${renderBtnText()}`}
-              onClick={handleOpenSidePanel}
+              LeadingIcon={selectedRowType ? null : PlusIcon}
+              btnText={selectedRowType ? "Delete" : `Add ${renderBtnText()}`}
+              onClick={
+                selectedRowType ? handleDeleteSelected : handleOpenSidePanel
+              }
             />
           )}
           {/* <Dropdown menu={{ items: vehicleItems }} trigger={["click"]}>

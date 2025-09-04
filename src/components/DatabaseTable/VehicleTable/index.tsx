@@ -7,6 +7,8 @@ import {
   getVehicleById,
   setViewContentDatabase,
   updateVehicle,
+  setSelectedRowType,
+  setSelectedRowIds,
 } from "../../../redux/slices/databaseSlice";
 import { VEHICLES } from "../../../constants/database";
 import { ReactComponent as Clipboard } from "../../../icons/clipboard-x.svg";
@@ -139,9 +141,9 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
     selectedRowKeys: React.Key[],
     selectedRows: IVehicleTable[]
   ) => {
-    console.log(selectedRowKeys, "selectedRowKeys");
+    dispatch(setSelectedRowType("vehicles"));
+    dispatch(setSelectedRowIds(selectedRowKeys));
     setSelectedRowKeys(selectedRowKeys);
-    console.log("Selected Rows: ", selectedRows);
   };
 
   return (

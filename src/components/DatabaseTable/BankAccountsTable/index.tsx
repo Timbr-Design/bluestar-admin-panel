@@ -6,6 +6,8 @@ import {
   getBankAccountById,
   deleteBankAccount,
   setViewContentDatabase,
+  setSelectedRowType,
+  setSelectedRowIds,
 } from "../../../redux/slices/databaseSlice";
 import type { MenuProps } from "antd";
 import { Table, Dropdown } from "antd";
@@ -125,9 +127,9 @@ const BankAccountsTable = ({
     selectedRowKeys: React.Key[],
     selectedRows: IBankAccountsTable[]
   ) => {
-    console.log(selectedRowKeys, "selectedRowKeys");
+    dispatch(setSelectedRowType("bank_accounts"));
+    dispatch(setSelectedRowIds(selectedRowKeys));
     setSelectedRowKeys(selectedRowKeys);
-    console.log("Selected Rows: ", selectedRows);
   };
 
   return (

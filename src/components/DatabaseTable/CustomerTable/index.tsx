@@ -8,6 +8,8 @@ import {
   deleteCustomer,
   updateCustomer,
   setViewContentDatabase,
+  setSelectedRowType,
+  setSelectedRowIds,
 } from "../../../redux/slices/databaseSlice";
 import cn from "classnames";
 import { ReactComponent as Clipboard } from "../../../icons/clipboard-x.svg";
@@ -43,10 +45,6 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
   const [customer, setCustomer] = useState({ name: "" });
   const { customers, customersStates, q, deleteCustomersStates, pagination } =
     useAppSelector((state) => state.database);
-
-  useEffect(() => {
-    console.log(customers);
-  }, [customers]);
 
   const handleDeleteVehicleGroup = () => {
     dispatch(deleteCustomer({ id: customerId }));
@@ -132,9 +130,9 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
     selectedRowKeys: React.Key[],
     selectedRows: ICustomerTableData[]
   ) => {
-    console.log(selectedRowKeys, "selectedRowKeys");
+    dispatch(setSelectedRowType("customers"));
+    dispatch(setSelectedRowIds(selectedRowKeys));
     setSelectedRowKeys(selectedRowKeys);
-    console.log("Selected Rows: ", selectedRows);
   };
 
   const debouncedSearch = useDebounce(q, 500);

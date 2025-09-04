@@ -12,6 +12,8 @@ import {
   getVehicleGroupById,
   deleteVehicleGroup,
   setViewContentDatabase,
+  setSelectedRowType,
+  setSelectedRowIds,
 } from "../../../redux/slices/databaseSlice";
 import type { TableProps } from "antd";
 import styles from "./index.module.scss";
@@ -150,9 +152,9 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
     selectedRowKeys: React.Key[],
     selectedRows: IVehicleGroupTableData[]
   ) => {
-    console.log(selectedRowKeys, "selectedRowKeys");
+    dispatch(setSelectedRowType("vehicle_groups"));
+    dispatch(setSelectedRowIds(selectedRowKeys));
     setSelectedRowKeys(selectedRowKeys);
-    console.log("Selected Rows: ", selectedRows);
   };
 
   return (
