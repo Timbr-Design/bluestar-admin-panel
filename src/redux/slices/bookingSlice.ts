@@ -24,11 +24,31 @@ const initialState = {
 export const getBookings = createAsyncThunk(
   "booking/getBookings",
   async (params: any) => {
-     const record = await pb.collection("bookings").getList(1,50, {
-      expand: "vehicle_group_id,customer_id,duty_type_id,driver_id,vehicle_id,billed_customer_id",
-      filter: `booked_by_name ~ "${params.search}" || booking_id ~ "${params.search}" || booked_by_number ~ "${params.search}"`,
+    //  const record = await pb.collection("bookings").getList(1,50, {
+    //   expand: "vehicle_group_id,customer_id,duty_type_id,driver_id,vehicle_id,billed_customer_id",
+    //   filter: `booked_by_name ~ "${params.search}" || booking_id ~ "${params.search}" || booked_by_number ~ "${params.search}" || booking_status ~ "${params.status}"`,
 
+    // });
+
+    const filters: string[] = [];
+
+    if (params.search) {
+      filters.push(
+        `(booked_by_name ~ "${params.search}" || booking_id ~ "${params.search}" || booked_by_number ~ "${params.search}")`
+      );
+    }
+
+    if (params.status) {
+      filters.push(`booking_status ~ "${params.status}"`);
+    }
+
+    const filterString = filters.join(" && "); // use AND to combine
+
+    const record = await pb.collection("bookings").getList(1, 50, {
+      expand: "vehicle_group_id,customer_id,duty_type_id,driver_id,vehicle_id,billed_customer_id",
+      filter: filterString,
     });
+
     return record.items; 
   }
 );

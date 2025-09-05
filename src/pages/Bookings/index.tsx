@@ -19,6 +19,7 @@ import {
   addNewBooking,
   updateBooking,
   getBookings,
+  deleteBooking,
 } from "../../redux/slices/bookingSlice";
 import {
   clearSelectedVehicleGroup,
@@ -68,7 +69,9 @@ const Bookings = () => {
     filters,
     currentSelectedBooking,
   } = useSelector((state: RootState) => state.booking);
-  const { q } = useAppSelector((state) => state.database);
+  const { q, selectedRowKeys, selectedRowType } = useAppSelector(
+    (state) => state.database
+  );
 
   const [bookingValues, setBookingValues] = useState<any>({});
   const [driver, setDriver] = useState<any>({});
@@ -98,6 +101,13 @@ const Bookings = () => {
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     dispatch(setBookingFilter({ search: value }));
+    // dispatch(getBookings({ page: 1, limit: 10, status: filters.status,search: value }))
+  };
+
+  const handleDeleteBookings = async () => {
+    await Promise.all(
+      selectedRowKeys.map((id) => dispatch(deleteBooking({ id })))
+    );
   };
 
   const [form] = Form.useForm();
@@ -217,8 +227,6 @@ const Bookings = () => {
         is_confirmed: currentSelectedBooking?.is_confirmed,
       };
 
-      console.log(bookingData);
-
       if (isEditingBooking && currentSelectedBooking?.id) {
         dispatch(
           updateBooking({
@@ -307,10 +315,16 @@ const Bookings = () => {
           <PrimaryBtn
             LeadingIcon={PlusOutlined}
             onClick={() => {
-              dispatch(setIsAddEditDrawerOpen());
+              selectedRowKeys && selectedRowKeys.length > 0
+                ? handleDeleteBookings()
+                : dispatch(setIsAddEditDrawerOpen());
               dispatch(setIsEditingBooking(true));
             }}
-            btnText="Add bookings"
+            btnText={
+              selectedRowKeys && selectedRowKeys.length > 0
+                ? "Delete Bookings"
+                : "Add bookings"
+            }
           />
         </div>
       </div>
