@@ -24,6 +24,7 @@ import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
 import useDebounce from "../../../hooks/common/useDebounce";
 import EmptyComponent from "../../EmptyComponent/EmptyComponent";
+import useNotification from "../../DeleteNotification/useNotification";
 
 interface IDriversTableData {
   key: string;
@@ -46,6 +47,8 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [driverId, setDriverId] = useState<string>("");
   const [driver, setDriver] = useState({ name: "" });
+  const notify = useNotification();
+
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     if (e.key === "1") {
       dispatch(getDriverById({ id: driverId }));
@@ -58,6 +61,7 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
   };
 
   const handleDeleteDriver = () => {
+    notify.success("Customer Deleted", driver.name);
     dispatch(deleteDriver({ id: driverId }));
     setOpenDeleteModal(false);
   };

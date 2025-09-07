@@ -26,6 +26,7 @@ import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
 import useDebounce from "../../../hooks/common/useDebounce";
 import EmptyComponent from "../../EmptyComponent/EmptyComponent";
+import useNotification from "../../DeleteNotification/useNotification";
 
 interface IBankAccountsTable {
   key: string;
@@ -58,7 +59,10 @@ const BankAccountsTable = ({
   const [deleteBankAccountId, setDeleteBankAccountId] = useState<string>("");
   const [currentBankAccount, setCurrentBankAccount] = useState(null);
   const [bankAccountName, setBankAccountName] = useState("");
+  const notify = useNotification();
+
   const handleDeleteBankAccount = () => {
+    notify.success("Bank account Deleted", bankAccountName);
     dispatch(deleteBankAccount({ id: deleteBankAccountId }));
     setOpenDeleteModal(false);
   };

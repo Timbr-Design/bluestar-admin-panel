@@ -27,6 +27,7 @@ import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
 import useDebounce from "../../../hooks/common/useDebounce";
 import EmptyComponent from "../../EmptyComponent/EmptyComponent";
+import useNotification from "../../DeleteNotification/useNotification";
 
 interface IAllowanceData {
   key: string;
@@ -54,6 +55,7 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
   const [allowance, setAllowance] = useState<any>({});
   const [allowanceName, setAllowanceName] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const notify = useNotification();
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     if (e.key === "1") {
@@ -129,6 +131,7 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
   };
 
   const handleDeleteAllowance = () => {
+    notify.success("Allowance Deleted", allowanceName);
     dispatch(deleteAllowance({ id: allowanceId }));
     setOpenDeleteModal(false);
   };

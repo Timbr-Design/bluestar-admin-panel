@@ -25,6 +25,7 @@ import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
 import useDebounce from "../../../hooks/common/useDebounce";
 import EmptyComponent from "../../EmptyComponent/EmptyComponent";
+import useNotification from "../../DeleteNotification/useNotification";
 
 interface IVehicleGroupTableData {
   key: string;
@@ -55,6 +56,8 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
   const handleCloseModal = () => {
     setOpenDeleteModal(false);
   };
+
+  const notify = useNotification();
 
   // const handleClickOutside = (event: any) => {
   //   if (
@@ -96,6 +99,7 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
   };
 
   const handleDeleteVehicleGroup = () => {
+    notify.success("Vehicle group Deleted", vehicleGroup.name);
     dispatch(deleteVehicleGroup({ id: deleteVehicleGroupId }));
     setOpenDeleteModal(false);
   };

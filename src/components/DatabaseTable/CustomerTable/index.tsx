@@ -26,6 +26,7 @@ import CustomPagination from "../../Common/Pagination";
 import useDebounce from "../../../hooks/common/useDebounce";
 import DeleteModal from "../../Modal/DeleteModal";
 import EmptyComponent from "../../EmptyComponent/EmptyComponent";
+import useNotification from "../../DeleteNotification/useNotification";
 
 interface ICustomerTableData {
   key: string;
@@ -50,7 +51,10 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
   const { customers, customersStates, q, deleteCustomersStates, pagination } =
     useAppSelector((state) => state.database);
 
+  const notify = useNotification();
+
   const handleDeleteVehicleGroup = () => {
+    notify.success("Customer Deleted", customer.name);
     dispatch(deleteCustomer({ id: customerId }));
     setOpenDeleteModal(false);
   };

@@ -68,6 +68,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
     (state: RootState) => state.database
   );
   const [filesArr, setFilesArr] = useState<IFile[]>([]);
+  const [startTime, setStartTime] = useState<Dayjs | null>(null);
 
   const dispatch = useAppDispatch();
 
@@ -129,19 +130,25 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
   const formatTime = (timeString: string): string => {
     return dayjs(timeString).format("h:mm A"); // Changed format here
   };
-  const disabledEndTime = (now: any) => {
-    // const startTime = form.getFieldValue(["timing", "start"]) as Dayjs;
-    const startTime = new Date(form.getFieldValue(["timing", "start"]));
+
+  const disabledEndTime = () => {
+    const startTime = form.getFieldValue(["timing", "start"]);
+
     if (!startTime) {
       return {};
     }
+    const startDate = new Date(startTime);
 
     return {
       disabledHours: () =>
-        Array.from({ length: startTime.getHours() }, (_, i) => i),
-      disabledMinutes: (selectedHour: any) => {
-        if (selectedHour === startTime.getHours()) {
-          return Array.from({ length: startTime.getMinutes() }, (_, i) => i);
+        Array.from({ length: startDate.getHours() }, (_, i) => i),
+
+      disabledMinutes: (selectedHour: number) => {
+        if (selectedHour === startDate.getHours()) {
+          return Array.from(
+            { length: startDate.getMinutes() + 1 },
+            (_, i) => i
+          );
         }
         return [];
       },
@@ -405,6 +412,75 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
             <Input.Group className={styles.twoSections}>
               <div className={styles.section}>
                 <Form.Item
+                  name={["timing", "start"]}
+                  label="Shift Start Time"
+                  rules={[
+                    { required: false, message: "Please select a start time" },
+                  ]}
+                  getValueProps={(value) => {
+                    if (!value) return { value: undefined };
+                    const timeObj = dayjs(value);
+                    return { value: timeObj.isValid() ? timeObj : undefined };
+                  }}
+                  getValueFromEvent={(time) => {
+                    if (!time) {
+                      setStartTime(null);
+                      return undefined;
+                    }
+
+                    setStartTime(time);
+
+                    return dayjs()
+                      .hour(time.hour())
+                      .minute(time.minute())
+                      .second(0)
+                      .millisecond(0)
+                      .toISOString();
+                  }}
+                >
+                  <TimePicker
+                    style={{ width: "100%" }}
+                    use12Hours
+                    format="h:mm A"
+                  />
+                </Form.Item>
+              </div>
+
+              <div className={styles.section}>
+                <Form.Item
+                  name={["timing", "end"]}
+                  label="Shift End Time"
+                  rules={[
+                    { required: false, message: "Please select an end time" },
+                  ]}
+                  getValueProps={(value) => {
+                    if (!value) return { value: undefined };
+                    const timeObj = dayjs(value);
+                    return { value: timeObj.isValid() ? timeObj : undefined };
+                  }}
+                  getValueFromEvent={(time) => {
+                    if (!time) return undefined;
+
+                    return dayjs()
+                      .hour(time.hour())
+                      .minute(time.minute())
+                      .second(0)
+                      .millisecond(0)
+                      .toISOString();
+                  }}
+                >
+                  <TimePicker
+                    style={{ width: "100%" }}
+                    use12Hours
+                    format="h:mm A"
+                    disabled={!startTime} // Disable until start time is selected
+                    disabledTime={disabledEndTime}
+                  />
+                </Form.Item>
+              </div>
+
+              {/* <div className={styles.section}>
+                <Form.Item
                   rules={[
                     {
                       required: false,
@@ -499,7 +575,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
                     format="h:mm A"
                   />
                 </Form.Item>
-              </div>
+              </div> */}
 
               <div className={styles.totalText}>
                 <Form.Item noStyle shouldUpdate>

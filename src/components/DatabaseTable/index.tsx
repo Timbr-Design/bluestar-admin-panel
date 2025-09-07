@@ -1,10 +1,11 @@
 /* eslint-disable */
 import { useState, ChangeEvent, useEffect } from "react";
 import SearchComponent from "../SearchComponent";
-import { Dropdown } from "antd";
+import { Dropdown, MenuProps } from "antd";
 import { ReactComponent as SearchIcon } from "../../icons/SearchIcon.svg";
 import { ReactComponent as PlusIcon } from "../../icons/plus.svg";
-import { ReactComponent as DotsIcon } from "../../icons/dots.svg";
+import { ReactComponent as DotsIcon } from "../../icons/dots-icon.svg";
+import { ReactComponent as DotsVertical } from "../../icons/dots-vertical.svg";
 import { ReactComponent as FileDownloadIcon } from "../../icons/fileDownload.svg";
 import { ReactComponent as UploadCloud } from "../../icons/uploadCloud.svg";
 import DutyTypeTable from "./DutyTypeTable";
@@ -49,6 +50,8 @@ const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
   const { q, selectedRowType, selectedRowKeys } = useAppSelector(
     (state: RootState) => state.database
   );
+
+  const [active, setActive] = useState(false);
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     dispatch(setQueryForSearch(value));
@@ -94,25 +97,108 @@ const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
   const vehicleItems = [
     {
       key: "0",
-      disabled: true,
+      disabled: false,
       label: (
         <div className={styles.item}>
           <UploadCloud />
-          Import
+          Import vehicles
         </div>
       ),
     },
     {
       key: "1",
-      disabled: true,
+      disabled: false,
       label: (
         <div className={styles.item}>
           <FileDownloadIcon />
-          Export
+          Export vehicles
         </div>
       ),
     },
   ];
+
+  const driverItems = [
+    {
+      key: "0",
+      disabled: false,
+      label: (
+        <div className={styles.item}>
+          <UploadCloud />
+          Import drivers
+        </div>
+      ),
+    },
+    {
+      key: "1",
+      disabled: false,
+      label: (
+        <div className={styles.item}>
+          <FileDownloadIcon />
+          Export drivers
+        </div>
+      ),
+    },
+  ];
+
+  const customerItems: MenuProps["items"] = [
+    {
+      key: "0",
+      disabled: false,
+      label: (
+        <div className={styles.item}>
+          <UploadCloud />
+          Manage customer groups
+        </div>
+      ),
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "2",
+      disabled: false,
+      label: (
+        <div className={styles.item}>
+          <FileDownloadIcon />
+          Import customers
+        </div>
+      ),
+    },
+    {
+      key: "3",
+      disabled: false,
+      label: (
+        <div className={styles.item}>
+          <FileDownloadIcon />
+          Export customers
+        </div>
+      ),
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "4",
+      disabled: false,
+      label: (
+        <div className={styles.item}>
+          <FileDownloadIcon />
+          Export pricing
+        </div>
+      ),
+    },
+  ];
+
+  const renderDropdownItems = (item: string) => {
+    switch (item) {
+      case "customers":
+        return customerItems;
+      case "drivers":
+        return driverItems;
+      case "vehicles":
+        return vehicleItems;
+    }
+  };
 
   const renderComponent = () => {
     switch (item.type) {
@@ -206,9 +292,21 @@ const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
               }
             />
           )}
-          {/* <Dropdown menu={{ items: vehicleItems }} trigger={["click"]}>
-            <DotsIcon />
-          </Dropdown> */}
+          {(item.type === "customers" ||
+            item.type === "drivers" ||
+            item.type === "vehicles") && (
+            <Dropdown
+              menu={{ items: renderDropdownItems(item.type) }}
+              trigger={["click"]}
+              onOpenChange={(open) => setActive(open)}
+            >
+              <span
+                className={`${styles.iconButton} ${active ? styles.active : ""}`}
+              >
+                <DotsIcon />
+              </span>
+            </Dropdown>
+          )}
         </div>
       </div>
       <div className={styles.tableContainer}>{renderComponent()}</div>
