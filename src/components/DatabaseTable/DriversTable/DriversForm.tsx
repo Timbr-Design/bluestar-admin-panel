@@ -257,7 +257,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
                 return inputValue.replace(/^\+91\s?/, ""); // Remove +91 if present
               }}
             >
-              <Input prefix="+91" type="text" placeholder="Enter phone..." />
+              <Input prefix="+91" type="number" placeholder="Enter phone..." />
             </Form.Item>
           </div>
           <div className={styles.typeContainer}>
@@ -271,7 +271,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
               id="dob"
               label="Date of birth"
             >
-              <CustomDatePicker />
+              <CustomDatePicker showTime={false} />
             </Form.Item>
           </div>
           {/* identification_id_list */}

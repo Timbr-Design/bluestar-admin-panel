@@ -9,11 +9,14 @@ import {
   updateVehicle,
   setSelectedRowType,
   setSelectedRowIds,
+  setQueryForSearch,
 } from "../../../redux/slices/databaseSlice";
 import { VEHICLES } from "../../../constants/database";
 import { ReactComponent as Clipboard } from "../../../icons/clipboard-x.svg";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
+import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
+import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
 import type { MenuProps } from "antd";
 import { Table, TableProps, Dropdown } from "antd";
 import styles from "./index.module.scss";
@@ -22,6 +25,7 @@ import React, { useState, useEffect } from "react";
 import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
 import useDebounce from "../../../hooks/common/useDebounce";
+import EmptyComponent from "../../EmptyComponent/EmptyComponent";
 
 interface IVehicleTable {
   key: string;
@@ -78,7 +82,7 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
       icon: <EditIcon />,
     },
     {
-      label: <>{currentVehicle?.isActive ? "Mark inactive" : "Mark Active"}</>,
+      label: <>{currentVehicle?.is_active ? "Mark inactive" : "Mark Active"}</>,
       key: "2",
       icon: <Clipboard />,
     },
@@ -88,7 +92,7 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
     items,
     onClick: handleMenuClick,
   };
-  const debouncedSearch = useDebounce(filters.search, 500);
+  const debouncedSearch = useDebounce(q, 500);
 
   useEffect(() => {
     dispatch(
@@ -193,6 +197,22 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
         pagination={false}
         scroll={{
           x: 756,
+        }}
+        locale={{
+          emptyText: (
+            <EmptyComponent
+              backgroundImageIcon={<SpiralIcon />}
+              upperImageIcon={<SearchIcon2 />}
+              headerText={"No items found"}
+              descText={
+                "There is no data in this page Start by clicking the Add button above "
+              }
+              handleCTA={
+                q && q.length > 0 ? () => dispatch(setQueryForSearch()) : null
+              }
+              btnText={"Clear Search"}
+            />
+          ),
         }}
         footer={() => (
           <CustomPagination

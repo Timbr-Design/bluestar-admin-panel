@@ -154,7 +154,7 @@ const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
       case "taxes":
         return "tax name or percentage";
       case "allowances":
-        return "allowances";
+        return "allowance name";
       case "fastag":
         return "Tag account or License Plate no.";
     }

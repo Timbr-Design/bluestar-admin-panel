@@ -3,6 +3,7 @@
 import React from "react";
 import styles from "./EmptyComponent.module.scss";
 import PrimaryBtn from "../PrimaryBtn";
+import SecondaryBtn from "../SecondaryBtn";
 
 interface EmptyComponentProps {
   backgroundImageIcon: any;
@@ -32,11 +33,15 @@ const EmptyComponent: React.FC<EmptyComponentProps> = ({
           <div className={styles.headerText}>{headerText}</div>
           <div className={styles.descText}>{descText}</div>
         </div>
-        {handleCTA && <PrimaryBtn
-          onClick={handleCTA}
-          LeadingIcon={btnLeadingIcon}
-          btnText={`${btnText}`}
-        />}
+        <div>
+          {handleCTA && (
+            <SecondaryBtn
+              onClick={handleCTA}
+              LeadingIcon={btnLeadingIcon}
+              btnText={`${btnText}`}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

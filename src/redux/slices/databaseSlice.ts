@@ -29,9 +29,6 @@ export const addBankAccount = createAsyncThunk(
 export const getBankAccount = createAsyncThunk(
   "database/getBankAccount",
   async (params: any, { dispatch }) => {
-    // const response = await apiClient.get(`/database/bank-accounts/`, {
-    //   params,
-    // });
     const resultList = await pb.collection("bank_accounts").getList(1, 50, {
       filter: `account_name ~ "${params.search}" || bank_name ~ "${params.search}" || account_number~ "${params.search}"`,
     });
@@ -89,11 +86,6 @@ export const updateBankAccount = createAsyncThunk(
 
   async (body: any, { dispatch, getState }: any) => {
     const { id, payload } = body;
-
-    // const response = await apiClient.put(
-    //   `/database/bank-accounts/${id}`,
-    //   payload
-    // );
     const record = await pb.collection("bank-accounts").update(id, payload);
 
     const { database } = getState();
@@ -195,18 +187,20 @@ export const deleteDutyType = createAsyncThunk(
 
   async (params: any, { dispatch, getState }: any) => {
     const { id } = params;
-
     // const response = await apiClient.delete(`/database/duty-type/${id}`);
-    const response = await pb.collection("duty_types").delete(id);
-
-    const { database } = getState();
+    await pb.collection("duty_types").delete(id).then((response)=>{
+       const { database } = getState();
     const { pagination, q } = database;
-
-    if (response) {
-      dispatch(
+dispatch(
         getAllDutyTypes({ page: pagination.page, limit: 10, search: q })
       );
-    }
+    }).catch(()=>{
+      console.log("U RUH")
+      notification.success({
+        message: "Success",
+        description: "Duty type deleted",
+      });
+    });
   }
 );
 
@@ -546,7 +540,7 @@ export const getVehicle = createAsyncThunk(
     console.log(params,"P")
     const resultList = await pb.collection("vehicles").getList(1, 50, {
       filter: `model_name ~ "${params.search}" || vehicle_number ~ "${params.search}"`,
-      expand: "driver_id"
+      expand: "driver_id,vehicle_group_id"
     });
     if (resultList) {
       dispatch(

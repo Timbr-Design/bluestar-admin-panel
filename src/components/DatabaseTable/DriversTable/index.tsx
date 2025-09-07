@@ -6,6 +6,7 @@ import {
   setViewContentDatabase,
   setSelectedRowType,
   setSelectedRowIds,
+  setQueryForSearch,
 } from "../../../redux/slices/databaseSlice";
 import type { TableProps, MenuProps } from "antd";
 import { Table, Dropdown } from "antd";
@@ -13,6 +14,8 @@ import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
+import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
+import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
 import { DRIVERS } from "../../../constants/database";
 import styles from "./index.module.scss";
 import cn from "classnames";
@@ -20,6 +23,7 @@ import React, { useEffect, useState } from "react";
 import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
 import useDebounce from "../../../hooks/common/useDebounce";
+import EmptyComponent from "../../EmptyComponent/EmptyComponent";
 
 interface IDriversTableData {
   key: string;
@@ -152,6 +156,22 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
         pagination={false}
         scroll={{
           x: 756,
+        }}
+        locale={{
+          emptyText: (
+            <EmptyComponent
+              backgroundImageIcon={<SpiralIcon />}
+              upperImageIcon={<SearchIcon2 />}
+              headerText={"No items found"}
+              descText={
+                "There is no data in this page Start by clicking the Add button above "
+              }
+              handleCTA={
+                q && q.length > 0 ? () => dispatch(setQueryForSearch()) : null
+              }
+              btnText={"Clear Search"}
+            />
+          ),
         }}
         footer={() => (
           <CustomPagination

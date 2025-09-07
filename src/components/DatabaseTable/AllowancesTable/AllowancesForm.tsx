@@ -20,7 +20,7 @@ interface IAllowancesForm {
 type NotificationType = "success" | "info" | "warning" | "error";
 
 const AllowancesForm = ({ handleCloseSidePanel }: IAllowancesForm) => {
-  const [allowanceType, setAllowanceType] = useState<string>("");
+  const [allowanceType, setAllowanceType] = useState<string>();
   const [api, contextHolder] = notification.useNotification();
   const dispatch = useAppDispatch();
   const {

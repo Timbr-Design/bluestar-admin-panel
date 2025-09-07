@@ -4,6 +4,8 @@ import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
+import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
+import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
 import { Table, TableProps, Dropdown } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -14,6 +16,7 @@ import {
   setViewContentDatabase,
   setSelectedRowType,
   setSelectedRowIds,
+  setQueryForSearch,
 } from "../../../redux/slices/databaseSlice";
 import { ReactComponent as Clipboard } from "../../../icons/clipboard-x.svg";
 import cn from "classnames";
@@ -23,11 +26,12 @@ import styles from "./index.module.scss";
 import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
 import useDebounce from "../../../hooks/common/useDebounce";
+import EmptyComponent from "../../EmptyComponent/EmptyComponent";
 
 interface IAllowanceData {
   key: string;
   id: string;
-  allowanceType: string;
+  allowance_type: string;
   status: any;
   rate: number;
 }
@@ -65,8 +69,6 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
     }
   };
 
-  console.log(allowance, "allowance");
-
   const items: MenuProps["items"] = [
     {
       label: "Edit allowance",
@@ -103,7 +105,7 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
             onClick={() => {
               setOpenDeleteModal(true);
               setAllowanceId(record.id);
-              setAllowanceName(record?.allowanceType);
+              setAllowanceName(record?.allowance_type);
             }}
             className={styles.deleteBtn}
           >
@@ -176,7 +178,7 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
                 rate: (
                   <div className={styles.rate}>
                     <div className={styles.text}>{`₹${data?.rate}`}</div>
-                    <div className={styles.perDay}>{"per day"}</div>
+                    <div className={styles.perDay}>{"per hour"}</div>
                   </div>
                 ),
                 key: data?.id,
@@ -202,6 +204,22 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
         pagination={false}
         scroll={{
           x: 756,
+        }}
+        locale={{
+          emptyText: (
+            <EmptyComponent
+              backgroundImageIcon={<SpiralIcon />}
+              upperImageIcon={<SearchIcon2 />}
+              headerText={"No items found"}
+              descText={
+                "There is no data in this page Start by clicking the Add button above "
+              }
+              handleCTA={
+                q && q.length > 0 ? () => dispatch(setQueryForSearch()) : null
+              }
+              btnText={"Clear Search"}
+            />
+          ),
         }}
         footer={() => (
           <CustomPagination
