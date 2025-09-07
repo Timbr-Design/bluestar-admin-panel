@@ -1,6 +1,3 @@
-import { notification } from "antd";
-import { ReactComponent as OutlineIcon } from "../../../icons/outline-outer.svg";
-
 /* eslint-disable */
 export const formatEpochToDate = (epoch: number) => {
   const date = new Date(epoch * 1000);
