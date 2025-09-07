@@ -102,6 +102,12 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
           search: searchText,
         })
       );
+    } else {
+      dispatch(
+        getDrivers({
+          search: "",
+        })
+      );
     }
   };
   const getVehicleGroupValue = debounce((searchText: string) => {
@@ -195,9 +201,9 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
           initialValues={{
             model_name: "",
             vehicle_number: "",
-            fuel_type: "",
-            vehicle_group_id: "",
-            driver_id: "",
+            // fuel_type: "",
+            // vehicle_group_id: "",
+            // driver_id: "",
             fast_tag_id: "",
             registration: null,
             insurance: null,
@@ -253,7 +259,7 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
               <Select
                 style={{ width: "100%" }}
                 allowClear
-                placeholder="Select One"
+                placeholder="Select fuel type"
                 dropdownRender={(menu) => <>{menu}</>}
                 options={FuelType.map((fuel) => ({
                   label: fuel.label,
@@ -312,7 +318,7 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                   label: option.label,
                 }))}
                 onSearch={(text) => getPanelValue(text)}
-                placeholder="Search drivers"
+                placeholder="None"
                 fieldNames={{ label: "label", value: "value" }}
                 filterOption={false}
                 notFoundContent={<div>No search result</div>}
@@ -348,7 +354,7 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                   <Input placeholder="Owner Name" />
                 </Form.Item>
                 <Form.Item label="Date" name={["registration", "date"]}>
-                  <CustomDatePicker format="DD-MM-YYYY" />
+                  <CustomDatePicker format="DD-MM-YYYY" showTime={false} />
                 </Form.Item>
                 <Form.Item
                   label="Document"

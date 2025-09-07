@@ -738,155 +738,163 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
               </Radio>
             </Radio.Group>
           </div>
-
           {dutyType && (
-            <div className={styles.dutyTypeTable}>
-              <div className={styles.columnsHeader}>
-                {columnHeader?.map((column) => {
-                  return <div className={styles.column}>{column?.name}</div>;
-                })}
+            <div>
+              <div className={styles.text}>
+                <p>Set pricing for new duty type</p>
+                <sup>*</sup>
               </div>
-              <div className={styles.rowsContainer}>
-                {vehicleGroupDataArray?.map((row: any, index: any) => {
-                  return (
-                    <div className={styles.row}>
-                      <div
-                        className={classNames(styles.vehicleGroup, styles.name)}
-                      >
-                        {row?.name}
-                      </div>
-                      <div className={styles.rowItem}>
-                        <Form.Item
-                          name={["pricing", index, "baseRate"]}
-                          rules={[{ required: true, message: "Required" }]}
-                          initialValue={row?.baseRate}
-                          required={false}
+              <div className={styles.dutyTypeTable}>
+                <div className={styles.columnsHeader}>
+                  {columnHeader?.map((column) => {
+                    return <div className={styles.column}>{column?.name}</div>;
+                  })}
+                </div>
+                <div className={styles.rowsContainer}>
+                  {vehicleGroupDataArray?.map((row: any, index: any) => {
+                    return (
+                      <div className={styles.row}>
+                        <div
+                          className={classNames(
+                            styles.vehicleGroup,
+                            styles.name
+                          )}
                         >
-                          <InputNumber
-                            className={styles.input}
-                            disabled={viewContentDatabase}
-                            placeholder="Enter base rate"
-                            min={0}
-                            style={{ width: "100%", textAlign: "left" }}
-                            controls={false}
-                            precision={0}
-                            keyboard={true}
-                            onKeyDown={(e) => {
-                              if (
-                                !/[0-9]/.test(e.key) &&
-                                ![
-                                  "Backspace",
-                                  "Delete",
-                                  "ArrowLeft",
-                                  "ArrowRight",
-                                  "Tab",
-                                ].includes(e.key)
-                              ) {
-                                e.preventDefault();
-                              }
-                            }}
-                            onChange={(value) => {
-                              if (value === null) return;
-                              const numValue = Number(value);
-                              if (!isNaN(numValue)) {
-                                form.setFieldValue(
-                                  ["pricing", index, "baseRate"],
-                                  numValue
-                                );
-                              }
-                            }}
-                          />
-                        </Form.Item>
+                          {row?.name}
+                        </div>
+                        <div className={styles.rowItem}>
+                          <Form.Item
+                            name={["pricing", index, "baseRate"]}
+                            rules={[{ required: true, message: "Required" }]}
+                            initialValue={row?.baseRate}
+                            required={false}
+                          >
+                            <InputNumber
+                              className={styles.input}
+                              disabled={viewContentDatabase}
+                              placeholder="Enter base rate"
+                              min={0}
+                              style={{ width: "100%", textAlign: "left" }}
+                              controls={false}
+                              precision={0}
+                              keyboard={true}
+                              onKeyDown={(e) => {
+                                if (
+                                  !/[0-9]/.test(e.key) &&
+                                  ![
+                                    "Backspace",
+                                    "Delete",
+                                    "ArrowLeft",
+                                    "ArrowRight",
+                                    "Tab",
+                                  ].includes(e.key)
+                                ) {
+                                  e.preventDefault();
+                                }
+                              }}
+                              onChange={(value) => {
+                                if (value === null) return;
+                                const numValue = Number(value);
+                                if (!isNaN(numValue)) {
+                                  form.setFieldValue(
+                                    ["pricing", index, "baseRate"],
+                                    numValue
+                                  );
+                                }
+                              }}
+                            />
+                          </Form.Item>
+                        </div>
+                        <div className={styles.rowItem}>
+                          <Form.Item
+                            name={["pricing", index, "extraKmRate"]}
+                            rules={[{ required: true, message: "Required" }]}
+                            initialValue={row?.extraKmRate}
+                            required={false}
+                          >
+                            <InputNumber
+                              className={styles.input}
+                              disabled={viewContentDatabase}
+                              placeholder="Enter extra KM rate"
+                              min={0}
+                              style={{ width: "100%", textAlign: "left" }}
+                              controls={false}
+                              precision={0}
+                              keyboard={true}
+                              onKeyDown={(e) => {
+                                if (
+                                  !/[0-9]/.test(e.key) &&
+                                  ![
+                                    "Backspace",
+                                    "Delete",
+                                    "ArrowLeft",
+                                    "ArrowRight",
+                                    "Tab",
+                                  ].includes(e.key)
+                                ) {
+                                  e.preventDefault();
+                                }
+                              }}
+                              onChange={(value) => {
+                                if (value === null) return;
+                                const numValue = Number(value);
+                                if (!isNaN(numValue)) {
+                                  form.setFieldValue(
+                                    ["pricing", index, "extraKmRate"],
+                                    numValue
+                                  );
+                                }
+                              }}
+                            />
+                          </Form.Item>
+                        </div>
+                        <div className={styles.rowItem}>
+                          <Form.Item
+                            name={["pricing", index, "extraHrRate"]}
+                            rules={[{ required: true, message: "Required" }]}
+                            initialValue={row?.extraHrRate}
+                            required={false}
+                          >
+                            <InputNumber
+                              className={styles.input}
+                              disabled={viewContentDatabase}
+                              placeholder="Enter extra HR rate"
+                              min={0}
+                              style={{ width: "100%", textAlign: "left" }}
+                              controls={false}
+                              precision={0}
+                              keyboard={true}
+                              onKeyDown={(e) => {
+                                if (
+                                  !/[0-9]/.test(e.key) &&
+                                  ![
+                                    "Backspace",
+                                    "Delete",
+                                    "ArrowLeft",
+                                    "ArrowRight",
+                                    "Tab",
+                                  ].includes(e.key)
+                                ) {
+                                  e.preventDefault();
+                                }
+                              }}
+                              onChange={(value) => {
+                                if (value === null) return;
+                                const numValue = Number(value);
+                                if (!isNaN(numValue)) {
+                                  form.setFieldValue(
+                                    ["pricing", index, "extraHrRate"],
+                                    numValue
+                                  );
+                                }
+                              }}
+                            />
+                          </Form.Item>
+                        </div>
                       </div>
-                      <div className={styles.rowItem}>
-                        <Form.Item
-                          name={["pricing", index, "extraKmRate"]}
-                          rules={[{ required: true, message: "Required" }]}
-                          initialValue={row?.extraKmRate}
-                          required={false}
-                        >
-                          <InputNumber
-                            className={styles.input}
-                            disabled={viewContentDatabase}
-                            placeholder="Enter extra KM rate"
-                            min={0}
-                            style={{ width: "100%", textAlign: "left" }}
-                            controls={false}
-                            precision={0}
-                            keyboard={true}
-                            onKeyDown={(e) => {
-                              if (
-                                !/[0-9]/.test(e.key) &&
-                                ![
-                                  "Backspace",
-                                  "Delete",
-                                  "ArrowLeft",
-                                  "ArrowRight",
-                                  "Tab",
-                                ].includes(e.key)
-                              ) {
-                                e.preventDefault();
-                              }
-                            }}
-                            onChange={(value) => {
-                              if (value === null) return;
-                              const numValue = Number(value);
-                              if (!isNaN(numValue)) {
-                                form.setFieldValue(
-                                  ["pricing", index, "extraKmRate"],
-                                  numValue
-                                );
-                              }
-                            }}
-                          />
-                        </Form.Item>
-                      </div>
-                      <div className={styles.rowItem}>
-                        <Form.Item
-                          name={["pricing", index, "extraHrRate"]}
-                          rules={[{ required: true, message: "Required" }]}
-                          initialValue={row?.extraHrRate}
-                          required={false}
-                        >
-                          <InputNumber
-                            className={styles.input}
-                            disabled={viewContentDatabase}
-                            placeholder="Enter extra HR rate"
-                            min={0}
-                            style={{ width: "100%", textAlign: "left" }}
-                            controls={false}
-                            precision={0}
-                            keyboard={true}
-                            onKeyDown={(e) => {
-                              if (
-                                !/[0-9]/.test(e.key) &&
-                                ![
-                                  "Backspace",
-                                  "Delete",
-                                  "ArrowLeft",
-                                  "ArrowRight",
-                                  "Tab",
-                                ].includes(e.key)
-                              ) {
-                                e.preventDefault();
-                              }
-                            }}
-                            onChange={(value) => {
-                              if (value === null) return;
-                              const numValue = Number(value);
-                              if (!isNaN(numValue)) {
-                                form.setFieldValue(
-                                  ["pricing", index, "extraHrRate"],
-                                  numValue
-                                );
-                              }
-                            }}
-                          />
-                        </Form.Item>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}

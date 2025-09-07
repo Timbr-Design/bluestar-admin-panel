@@ -5,6 +5,8 @@ import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
+import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
+import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
 import type { MenuProps } from "antd";
 import cn from "classnames";
 import {
@@ -14,6 +16,7 @@ import {
   setViewContentDatabase,
   setSelectedRowType,
   setSelectedRowIds,
+  setQueryForSearch,
 } from "../../../redux/slices/databaseSlice";
 import type { TableProps } from "antd";
 import styles from "./index.module.scss";
@@ -21,6 +24,7 @@ import React, { useEffect, useState, useRef } from "react";
 import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
 import useDebounce from "../../../hooks/common/useDebounce";
+import EmptyComponent from "../../EmptyComponent/EmptyComponent";
 
 interface IVehicleGroupTableData {
   key: string;
@@ -193,6 +197,22 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
         pagination={false}
         scroll={{
           x: 756,
+        }}
+        locale={{
+          emptyText: (
+            <EmptyComponent
+              backgroundImageIcon={<SpiralIcon />}
+              upperImageIcon={<SearchIcon2 />}
+              headerText={"No items found"}
+              descText={
+                "There is no data in this page Start by clicking the Add button above "
+              }
+              handleCTA={
+                q && q.length > 0 ? () => dispatch(setQueryForSearch()) : null
+              }
+              btnText={"Clear Search"}
+            />
+          ),
         }}
         footer={() => (
           <CustomPagination

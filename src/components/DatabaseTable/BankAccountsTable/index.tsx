@@ -8,18 +8,24 @@ import {
   setViewContentDatabase,
   setSelectedRowType,
   setSelectedRowIds,
+  setQueryForSearch,
+  updateBankAccount,
 } from "../../../redux/slices/databaseSlice";
 import type { MenuProps } from "antd";
 import { Table, Dropdown } from "antd";
 import type { TableProps } from "antd";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
+import { ReactComponent as Clipboard } from "../../../icons/clipboard-x.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
+import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
+import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
 import React, { useEffect, useState } from "react";
 import styles from "./index.module.scss";
 import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
 import useDebounce from "../../../hooks/common/useDebounce";
+import EmptyComponent from "../../EmptyComponent/EmptyComponent";
 
 interface IBankAccountsTable {
   key: string;
@@ -50,6 +56,7 @@ const BankAccountsTable = ({
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [deleteBankAccountId, setDeleteBankAccountId] = useState<string>("");
+  const [currentBankAccount, setCurrentBankAccount] = useState(null);
   const [bankAccountName, setBankAccountName] = useState("");
   const handleDeleteBankAccount = () => {
     dispatch(deleteBankAccount({ id: deleteBankAccountId }));
@@ -61,9 +68,17 @@ const BankAccountsTable = ({
   };
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
+    console.log(currentBankAccount);
     if (e.key === "1") {
       dispatch(getBankAccountById({ id: deleteBankAccountId }));
       handleOpenSidePanel();
+    } else if (e.key === "2") {
+      dispatch(
+        updateBankAccount({
+          id: currentBankAccount?.id,
+          payload: { is_active: currentBankAccount?.is_active ? false : true },
+        })
+      );
     }
   };
 
@@ -72,6 +87,13 @@ const BankAccountsTable = ({
       label: "Edit Bank Account",
       key: "1",
       icon: <EditIcon />,
+    },
+    {
+      label: (
+        <>{currentBankAccount?.is_active ? "Mark inactive" : "Mark Active"}</>
+      ),
+      key: "2",
+      icon: <Clipboard />,
     },
   ];
 
@@ -87,7 +109,13 @@ const BankAccountsTable = ({
       dataIndex: "action",
       className: "action-column",
       render: (_, record) => (
-        <div className={styles.editButton} onClick={(e) => e.stopPropagation()}>
+        <div
+          className={styles.editButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            setCurrentBankAccount(record);
+          }}
+        >
           <button
             onClick={() => {
               setOpenDeleteModal(true);
@@ -162,6 +190,22 @@ const BankAccountsTable = ({
         pagination={false}
         scroll={{
           x: 756,
+        }}
+        locale={{
+          emptyText: (
+            <EmptyComponent
+              backgroundImageIcon={<SpiralIcon />}
+              upperImageIcon={<SearchIcon2 />}
+              headerText={"No items found"}
+              descText={
+                "There is no data in this page Start by clicking the Add button above "
+              }
+              handleCTA={
+                q && q.length > 0 ? () => dispatch(setQueryForSearch()) : null
+              }
+              btnText={"Clear Search"}
+            />
+          ),
         }}
         footer={() => (
           <CustomPagination

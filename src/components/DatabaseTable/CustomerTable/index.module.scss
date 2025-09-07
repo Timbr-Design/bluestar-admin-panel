@@ -15,6 +15,11 @@
   align-items: center;
   width: 36px;
   height: 36px;
+
+  &:hover {
+    border-radius: 8px;
+    background: #eff2f5;
+  }
 }
 
 .deleteBtn {
@@ -23,6 +28,11 @@
   outline: none;
   border: none;
   cursor: pointer;
+
+  &:hover {
+    border-radius: 8px;
+    background: #eff2f5;
+  }
 }
 
 .deleteContainer {
@@ -130,7 +140,7 @@
   background-color: #f9fafb;
 
   &.active {
-    width: 63px;
+    // width: 63px;
     border: 1px solid #abefc6;
     background-color: #ecfdf3;
     color: #067647;

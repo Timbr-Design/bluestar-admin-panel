@@ -172,7 +172,6 @@ const VehicleGroupForm = ({ handleCloseSidePanel }: IVehicleGroupForm) => {
                 name="description"
                 rules={[
                   {
-                    required: true,
                     message: "Description is required",
                   },
                 ]}

@@ -6,6 +6,7 @@ import {
   setViewContentDatabase,
   setSelectedRowType,
   setSelectedRowIds,
+  setQueryForSearch,
 } from "../../../redux/slices/databaseSlice";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
@@ -15,7 +16,7 @@ import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 
 import type { MenuProps } from "antd";
-import { Table, TableProps, Dropdown } from "antd";
+import { Table, TableProps, Dropdown, notification } from "antd";
 import React, { useState, useEffect, useRef } from "react";
 import cn from "classnames";
 import CustomPagination from "../../Common/Pagination";
@@ -23,6 +24,7 @@ import styles from "./index.module.scss";
 import EmptyComponent from "../../EmptyComponent/EmptyComponent";
 import useDebounce from "../../../hooks/common/useDebounce";
 import DeleteModal from "../../Modal/DeleteModal";
+import { SmileOutlined } from "@ant-design/icons";
 
 interface IDutyTypeTableData {
   key: string;
@@ -56,10 +58,27 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
   const [openDropdown, setOpenDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleDeleteDutyType = () => {
-    dispatch(deleteDutyType({ id: dutyTypeId }));
-    setOpenDeleteModal(false);
+  const openNotification = () => {
+    api.open({
+      message: "Notification Title",
+      description:
+        "This is the content of the notification. This is the content of the notification. This is the content of the notification.",
+      className: "custom-class",
+      style: {
+        width: 400,
+        borderRadius: 12,
+        // border: "1px solid #D0D5DD",
+      },
+    });
   };
+
+  const handleDeleteDutyType = () => {
+    openNotification();
+    // dispatch(deleteDutyType({ id: dutyTypeId }));
+    // setOpenDeleteModal(false);
+  };
+
+  const [api, contextHolder] = notification.useNotification();
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     if (e.key === "1") {
@@ -222,6 +241,10 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
               descText={
                 "There is no data in this page Start by clicking the Add button above "
               }
+              handleCTA={
+                q && q.length > 0 ? () => dispatch(setQueryForSearch()) : null
+              }
+              btnText={"Clear Search"}
             />
           ),
         }}
@@ -243,6 +266,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
           />
         )}
       />
+      {contextHolder}
       <DeleteModal
         show={openDeleteModal}
         onClose={handleCloseModal}

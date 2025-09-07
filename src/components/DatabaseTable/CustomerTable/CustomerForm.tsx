@@ -305,7 +305,11 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
               name="phone_number"
               id="phone_number"
             >
-              <Input placeholder="Enter phone number..." defaultValue={""} />
+              <Input
+                type="number"
+                placeholder="Enter phone number..."
+                defaultValue={""}
+              />
             </Form.Item>
           </div>
           <div className={styles.typeContainer}>
@@ -326,80 +330,87 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
               />
             </Form.Item>
           </div>
-          <div className={styles.customertax_details}>
-            <div className={styles.customerHeader}>Customer Tax Details</div>
-            <div className={styles.typeContainer}>
-              <Form.Item
-                label="Type"
-                rules={[
-                  {
-                    required: false,
-                  },
-                ]}
-                name="type"
-                id="type"
-              >
-                <Select
-                  style={{ width: "100%" }}
-                  placeholder="Select One"
-                  dropdownRender={(menu) => <>{menu}</>}
-                  options={CUSTOMER_TAX_TYPES.map((state) => ({
-                    label: state.label,
-                    value: state.value,
-                  }))}
-                />
-              </Form.Item>
-            </div>
-            <div className={styles.typeContainer}>
-              <Form.Item
-                rules={[
-                  {
-                    required: false,
-                  },
-                ]}
-                label="GSTIN Number"
-                name="gstNumber"
-                id="gstNumber"
-              >
-                <Input name={"gstNumber"} placeholder="Enter GSTIN ..." />
-              </Form.Item>
-            </div>
-            <div className={styles.typeContainer}>
-              <Form.Item
-                rules={[
-                  {
-                    required: false,
-                  },
-                ]}
-                label="Billing Name"
-                name="billingName"
-                id="billingName"
-              >
-                <Input
-                  name={"billingName"}
-                  placeholder="Enter Billing Name ..."
-                />
-              </Form.Item>
-            </div>
-            <div className={styles.typeContainer}>
-              <Form.Item
-                label="Billing Address"
-                rules={[
-                  {
-                    required: false,
-                  },
-                ]}
-                name="billingAddress"
-                id="billingAddress"
-              >
-                <Input.TextArea
-                  className={styles.textarea}
+          <Form.Item
+            // name="identification_id_list"
+            // id="identification_id_list"
+            label="Customer Tax Details"
+            className={styles.secondaryContainer}
+          >
+            <Input.Group className={"custom-input-group"}>
+              {/* <div className={styles.customertax_details}> */}
+              {/* <div className={styles.customerHeader}>Customer Tax Details</div> */}
+              <div className={styles.typeContainer}>
+                <Form.Item
+                  label="Type"
+                  rules={[
+                    {
+                      required: false,
+                    },
+                  ]}
+                  name="type"
+                  id="type"
+                >
+                  <Select
+                    style={{ width: "100%" }}
+                    placeholder="Select One"
+                    dropdownRender={(menu) => <>{menu}</>}
+                    options={CUSTOMER_TAX_TYPES.map((state) => ({
+                      label: state.label,
+                      value: state.value,
+                    }))}
+                  />
+                </Form.Item>
+              </div>
+              <div className={styles.typeContainer}>
+                <Form.Item
+                  rules={[
+                    {
+                      required: false,
+                    },
+                  ]}
+                  label="GSTIN Number"
+                  name="gstNumber"
+                  id="gstNumber"
+                >
+                  <Input name={"gstNumber"} placeholder="Enter GSTIN ..." />
+                </Form.Item>
+              </div>
+              <div className={styles.typeContainer}>
+                <Form.Item
+                  rules={[
+                    {
+                      required: false,
+                    },
+                  ]}
+                  label="Billing Name"
+                  name="billingName"
+                  id="billingName"
+                >
+                  <Input
+                    name={"billingName"}
+                    placeholder="Enter Billing Name ..."
+                  />
+                </Form.Item>
+              </div>
+              <div className={styles.typeContainer}>
+                <Form.Item
+                  label="Billing Address"
+                  rules={[
+                    {
+                      required: false,
+                    },
+                  ]}
                   name="billingAddress"
-                  placeholder="Enter address..."
-                />
-              </Form.Item>
-            </div>
-            {/* <div className={styles.typeContainer}>
+                  id="billingAddress"
+                >
+                  <Input.TextArea
+                    className={styles.textarea}
+                    name="billingAddress"
+                    placeholder="Enter address..."
+                  />
+                </Form.Item>
+              </div>
+              {/* <div className={styles.typeContainer}>
               <div className={styles.text}>
                 <p>Taxes</p>
               </div>
@@ -413,17 +424,44 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
                 }))}
               />
             </div> */}
-          </div>
+              {/* </div> */}
+            </Input.Group>
+          </Form.Item>
           <div className={styles.typeContainer}>
             <Form.Item
               label="Default discount %"
               name="default_discount"
               id="default_discount"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter a discount",
+                },
+                {
+                  validator: (_, value) => {
+                    if (value === undefined || value === "")
+                      return Promise.resolve();
+                    if (value >= 0 && value <= 100) return Promise.resolve();
+                    return Promise.reject(
+                      new Error("Value must be between 0 and 100")
+                    );
+                  },
+                },
+              ]}
             >
               <Input
                 type="number"
-                name="default_discount"
                 placeholder="Enter default discount..."
+                min={0}
+                max={100}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                    e.preventDefault();
+                  }
+                  if (["e", "E", "+", "-"].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
               />
             </Form.Item>
           </div>

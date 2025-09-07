@@ -54,6 +54,10 @@ import { formatEpochToDate, capitalize } from "../../helper";
 import CustomPagination from "../Common/Pagination";
 import { RouteName } from "../../constants/routes";
 import { useNavigate } from "react-router-dom";
+import {
+  setSelectedRowIds,
+  setSelectedRowType,
+} from "../../redux/slices/databaseSlice";
 
 const BookingsTable = () => {
   const [deleteModal, setDeleteModal] = useState(false);
@@ -66,6 +70,7 @@ const BookingsTable = () => {
     filters,
   } = useSelector((state: RootState) => state.booking);
   const [selectedBooking, setSelectedBooking] = useState<any>({});
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const dispatch = useAppDispatch();
 
@@ -311,20 +316,26 @@ const BookingsTable = () => {
     });
   }
 
-  // rowSelection object indicates the need for row selection
-  const rowSelection = {
-    onChange: (selectedRowKeys: React.Key[], selectedRows: any[]) => {
-      // console.log(
-      //   `selectedRowKeys: ${selectedRowKeys}`,
-      //   "selectedRows: ",
-      //   selectedRows
-      // );
-    },
-    getCheckboxProps: (record: any) => ({
-      // disabled: record.name === "Disabled User", // Column configuration not to be checked
-      // name: record.name,
-    }),
+  const onChange = (selectedRowKeys: React.Key[], selectedRows: any[]) => {
+    dispatch(setSelectedRowType("bookings"));
+    dispatch(setSelectedRowIds(selectedRowKeys));
+    setSelectedRowKeys(selectedRowKeys);
+    console.log(selectedRowKeys);
   };
+
+  // rowSelection object indicates the need for row selection
+  // const rowSelection = {
+  // onChange: (selectedRowKeys: React.Key[], selectedRows: any[]) => {
+  // console.log(selectedRowKeys);
+  // dispatch(setSelectedRowType("bookings"));
+  // dispatch(setSelectedRowIds(selectedRowKeys));
+  // setSelectedRow
+  // },
+  // getCheckboxProps: (record: any) => ({
+  // disabled: record.name === "Disabled User", // Column configuration not to be checked
+  // name: record.name,
+  // }),
+  // };
 
   function handleCloseModal() {
     setDeleteModal(false);
@@ -338,6 +349,7 @@ const BookingsTable = () => {
   const debouncedSearch = useDebounce(filters.search, 500);
 
   useEffect(() => {
+    console.log(debouncedSearch);
     dispatch(
       getBookings({
         ...filters,
@@ -396,9 +408,15 @@ const BookingsTable = () => {
     <>
       <div className={styles.container}>
         <Table
+          // rowSelection={{
+          //   type: "checkbox",
+          //   ...rowSelection,
+          // }}
+          rowKey={"id"}
           rowSelection={{
             type: "checkbox",
-            ...rowSelection,
+            onChange: onChange,
+            selectedRowKeys: selectedRowKeys,
           }}
           onRow={(record, rowIndex) => {
             return {

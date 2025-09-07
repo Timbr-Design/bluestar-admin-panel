@@ -140,12 +140,12 @@ export const VEHICLES = [
   },
   {
     title: "Group",
-    dataIndex: "group",
+    dataIndex: ["expand","vehicle_group_id","name"],
     className: "custom-column",
   },
   {
     title: "Assigned driver",
-    dataIndex: "assigned_driver",
+    dataIndex: ["expand","driver_id","name"],
     className: "custom-column",
   },
   {
