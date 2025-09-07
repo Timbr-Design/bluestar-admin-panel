@@ -24,7 +24,7 @@ import styles from "./index.module.scss";
 import EmptyComponent from "../../EmptyComponent/EmptyComponent";
 import useDebounce from "../../../hooks/common/useDebounce";
 import DeleteModal from "../../Modal/DeleteModal";
-import { SmileOutlined } from "@ant-design/icons";
+import useNotification from "../../DeleteNotification/useNotification";
 
 interface IDutyTypeTableData {
   key: string;
@@ -43,42 +43,22 @@ interface IDutyTypeTable {
 
 const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
   const dispatch = useAppDispatch();
-  const {
-    selectedDutyType,
-    dutyTypeList,
-    q,
-    deleteDutyTypeStates,
-    dutyTypeStates,
-    pagination,
-  } = useAppSelector((state) => state.database);
+  const { dutyTypeList, q, deleteDutyTypeStates, dutyTypeStates, pagination } =
+    useAppSelector((state) => state.database);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [dutyTypeId, setDutyTypeId] = useState<string>("");
   const [dutyType, setDutyType] = useState({ name: "" });
   const [openDropdown, setOpenDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const openNotification = () => {
-    api.open({
-      message: "Notification Title",
-      description:
-        "This is the content of the notification. This is the content of the notification. This is the content of the notification.",
-      className: "custom-class",
-      style: {
-        width: 400,
-        borderRadius: 12,
-        // border: "1px solid #D0D5DD",
-      },
-    });
-  };
+  const [api, contextHolder] = notification.useNotification();
+  const notify = useNotification();
 
   const handleDeleteDutyType = () => {
-    openNotification();
-    // dispatch(deleteDutyType({ id: dutyTypeId }));
-    // setOpenDeleteModal(false);
+    notify.success("Duty type deleted", dutyType?.name);
+    dispatch(deleteDutyType({ id: dutyTypeId }));
+    setOpenDeleteModal(false);
   };
-
-  const [api, contextHolder] = notification.useNotification();
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     if (e.key === "1") {

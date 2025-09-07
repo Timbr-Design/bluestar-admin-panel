@@ -187,20 +187,16 @@ export const deleteDutyType = createAsyncThunk(
 
   async (params: any, { dispatch, getState }: any) => {
     const { id } = params;
-    // const response = await apiClient.delete(`/database/duty-type/${id}`);
-    await pb.collection("duty_types").delete(id).then((response)=>{
-       const { database } = getState();
-    const { pagination, q } = database;
-dispatch(
-        getAllDutyTypes({ page: pagination.page, limit: 10, search: q })
-      );
-    }).catch(()=>{
-      console.log("U RUH")
-      notification.success({
-        message: "Success",
-        description: "Duty type deleted",
+    await pb
+      .collection("duty_types")
+      .delete(id)
+      .then(() => {
+        const { database } = getState();
+        const { pagination, q } = database;
+        dispatch(
+          getAllDutyTypes({ page: pagination.page, limit: 10, search: q })
+        );
       });
-    });
   }
 );
 
@@ -537,10 +533,10 @@ export const getVehicle = createAsyncThunk(
 
   async (params: any, { dispatch, getState }: any) => {
     // const response = await apiClient.get(`/database/vehicle`, { params });
-    console.log(params,"P")
+    console.log(params, "P");
     const resultList = await pb.collection("vehicles").getList(1, 50, {
       filter: `model_name ~ "${params.search}" || vehicle_number ~ "${params.search}"`,
-      expand: "driver_id,vehicle_group_id"
+      expand: "driver_id,vehicle_group_id",
     });
     if (resultList) {
       dispatch(
@@ -1894,7 +1890,7 @@ export const {
   clearSelectedDutyType,
   setSelectedCustomer,
   setSelectedRowType,
-  setSelectedRowIds
+  setSelectedRowIds,
 } = actions;
 
 export default databaseSlice.reducer;

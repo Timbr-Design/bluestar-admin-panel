@@ -51,3 +51,50 @@
   gap: 10px;
   align-items: center;
 }
+
+.dotsIcon{
+  fill: var(--Colors-Background-bg-primary, #FFF);
+filter: drop-shadow(0 0 0 var(--Colors-Effects-Focus-rings-focus-ring, #9E77ED)) drop-shadow(0 0 0 var(--Colors-Background-bg-primary, #FFF));
+width: 20px;
+height: 20px;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05); // hover → only background
+  }
+
+  &.active {
+    padding: 10px 14px 10px 14px;
+    border: 2px solid #8b5cf6; // purple border when clicked
+    background-color: transparent;
+  }
+}
+
+
+.button {
+  // background: none;
+  // outline: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+//   width: 20px;
+// height: 20px;
+background: var(--Colors-Background-bg-primary, #FFF);
+filter: drop-shadow(0 0 0 var(--Colors-Effects-Focus-rings-focus-ring, #9E77ED)) drop-shadow(0 0 0 var(--Colors-Background-bg-primary, #FFF));
+
+  &:hover {
+    border-radius: 8px;
+    background: #eff2f5;
+  }
+}

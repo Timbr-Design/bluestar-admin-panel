@@ -410,6 +410,28 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
                   />
                 </Form.Item>
               </div>
+              <div className={styles.typeContainer}>
+                <Form.Item
+                  label="Taxes"
+                  rules={[
+                    {
+                      required: false,
+                    },
+                  ]}
+                  name="type"
+                  id="type"
+                >
+                  <Select
+                    style={{ width: "100%" }}
+                    placeholder="Select tax"
+                    dropdownRender={(menu) => <>{menu}</>}
+                    options={CUSTOMER_TAX_TYPES.map((state) => ({
+                      label: state.label,
+                      value: state.value,
+                    }))}
+                  />
+                </Form.Item>
+              </div>
               {/* <div className={styles.typeContainer}>
               <div className={styles.text}>
                 <p>Taxes</p>

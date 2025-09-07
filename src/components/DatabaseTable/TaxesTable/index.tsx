@@ -26,6 +26,7 @@ import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
 import useDebounce from "../../../hooks/common/useDebounce";
 import EmptyComponent from "../../EmptyComponent/EmptyComponent";
+import useNotification from "../../DeleteNotification/useNotification";
 
 interface ITaxesTableData {
   key: string;
@@ -48,6 +49,7 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [taxId, setTaxId] = useState("");
+  const notify = useNotification();
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     if (e.key === "1") {
@@ -127,6 +129,7 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
   };
 
   const handleDeleteTax = () => {
+    notify.success("Tax entry Deleted", taxName);
     dispatch(deleteTax({ id: taxId }));
     setOpenDeleteModal(false);
   };

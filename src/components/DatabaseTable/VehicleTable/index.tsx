@@ -26,6 +26,7 @@ import CustomPagination from "../../Common/Pagination";
 import DeleteModal from "../../Modal/DeleteModal";
 import useDebounce from "../../../hooks/common/useDebounce";
 import EmptyComponent from "../../EmptyComponent/EmptyComponent";
+import useNotification from "../../DeleteNotification/useNotification";
 
 interface IVehicleTable {
   key: string;
@@ -45,14 +46,15 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
   const dispatch = useAppDispatch();
   const { vehicleStates, vehicleList, q, deleteVehicleStates, pagination } =
     useAppSelector((state) => state.database);
-  const { filters } = useAppSelector((state) => state.vehicleTracker);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [vehicleId, setVehicleId] = useState<string>("");
   const [currentVehicle, setCurrentVehicle] = useState<any>({});
   const [vehicleName, setVehicleName] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const notify = useNotification();
 
   const handleDeleteVehicle = () => {
+    notify.success("Vehicle Deleted", vehicleName);
     dispatch(deleteVehicle({ id: vehicleId }));
     setOpenDeleteModal(false);
   };
