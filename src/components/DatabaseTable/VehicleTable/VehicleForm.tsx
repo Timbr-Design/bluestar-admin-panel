@@ -356,7 +356,12 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                   <Input placeholder="Owner Name" />
                 </Form.Item>
                 <Form.Item label="Date" name={["registration", "date"]}>
-                  <CustomDatePicker format="DD-MM-YYYY" showTime={false} />
+                  <CustomDatePicker
+                    format="DD-MM-YYYY"
+                    showTime={false}
+                    showHour={false}
+                    showMinute={false}
+                  />
                 </Form.Item>
                 <Form.Item
                   label="Document"
@@ -395,12 +400,22 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
               </div>
               <div className={styles.typeContainer}>
                 <Form.Item label="Issue Date" name={["insurance", "issueDate"]}>
-                  <CustomDatePicker format="DD-MM-YYYY" />
+                  <CustomDatePicker
+                    showTime={false}
+                    showHour={false}
+                    showMinute={false}
+                    format="DD-MM-YYYY"
+                  />
                 </Form.Item>
               </div>
               <div className={styles.typeContainer}>
                 <Form.Item label="Due Date" name={["insurance", "dueDate"]}>
-                  <CustomDatePicker format="DD-MM-YYYY" />
+                  <CustomDatePicker
+                    showTime={false}
+                    showHour={false}
+                    showMinute={false}
+                    format="DD-MM-YYYY"
+                  />
                 </Form.Item>
               </div>
               <div className={styles.typeContainer}>
@@ -454,7 +469,12 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
               </div>
               <div className={styles.typeContainer}>
                 <Form.Item label="Registration Date" name={["rto", "date"]}>
-                  <CustomDatePicker format="DD-MM-YYYY" />
+                  <CustomDatePicker
+                    showTime={false}
+                    showHour={false}
+                    showMinute={false}
+                    format="DD-MM-YYYY"
+                  />
                 </Form.Item>
               </div>
               <div className={styles.typeContainer}>
@@ -494,7 +514,12 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
           </Form.Item>
           <div className={styles.typeContainer}>
             <Form.Item label="Car expiry Date" name="car_expiry_date">
-              <CustomDatePicker format="DD-MM-YYYY" />
+              <CustomDatePicker
+                showTime={false}
+                showHour={false}
+                showMinute={false}
+                format="DD-MM-YYYY"
+              />
             </Form.Item>
           </div>
           {/* TODO- LOAN */}
@@ -551,7 +576,12 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                         },
                       ]}
                     >
-                      <CustomDatePicker format="DD-MM-YYYY" />
+                      <CustomDatePicker
+                        showTime={false}
+                        showHour={false}
+                        showMinute={false}
+                        format="DD-MM-YYYY"
+                      />
                     </Form.Item>
                   </div>
                   <div className={styles.typeContainer}>
@@ -565,7 +595,12 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                         },
                       ]}
                     >
-                      <CustomDatePicker format="DD-MM-YYYY" />
+                      <CustomDatePicker
+                        showTime={false}
+                        showHour={false}
+                        showMinute={false}
+                        format="DD-MM-YYYY"
+                      />
                     </Form.Item>
                   </div>
                   <div className={styles.typeContainer}>
