@@ -77,9 +77,9 @@
           background-color: #fff !important;
           outline: none;
         }
-        input:disabled {
-          background: #fff !important;
-        }
+        // input:disabled {
+        //   background: #fff !important;
+        // }
 
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {

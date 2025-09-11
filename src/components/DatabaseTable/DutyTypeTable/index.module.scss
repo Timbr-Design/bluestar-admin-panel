@@ -116,12 +116,12 @@
           padding: 8px;
           border-radius: 8px;
           border: 1px solid #d0d5dd;
-          background-color: #fff !important;
+          // background-color: #fff !important;
           outline: none;
         }
-        input:disabled {
-          background: #fff !important;
-        }
+        // input:disabled {
+        //   background: #fff !important;
+        // }
 
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
