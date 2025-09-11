@@ -338,7 +338,7 @@ const AverageTable = ({ handleOpenSidePanel }: IAverageTable) => {
     dispatch(
       getAverage({
         ...filters,
-        search: debouncedSearch,
+        search: debouncedSearch ?? "",
       })
     );
   }, [debouncedSearch]);

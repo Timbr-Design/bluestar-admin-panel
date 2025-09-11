@@ -88,7 +88,7 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
 
   useEffect(() => {
     dispatch(
-      getAllDutyTypes({ page: "1", search: debouncedSearch, limit: 10 })
+      getAllDutyTypes({ page: "1", search: debouncedSearch ?? "", limit: 10 })
     );
   }, [debouncedSearch]);
 

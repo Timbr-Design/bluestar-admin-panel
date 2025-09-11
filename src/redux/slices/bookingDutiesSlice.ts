@@ -27,7 +27,10 @@ export const addNewBookingDuties = createAsyncThunk(
   "bookingsDuties/addNewBookingDuties",
   async (body: any, { dispatch }: any) => {
     const response = await apiClient.post("/duty", body);
-    if (response.status === 201) {
+
+    const record = await pb.collection('booking_duty').create(body);
+
+    if (record) {
       dispatch(setCurrentSelectedBookingDuties({}));
       notification.success({
         message: "Success",
@@ -35,7 +38,7 @@ export const addNewBookingDuties = createAsyncThunk(
       });
       console.log("CLOSE");
       dispatch(getBookingsDuties({}));
-      return response.data;
+      return record;
     }
   }
 );

@@ -51,6 +51,8 @@ const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
     (state: RootState) => state.database
   );
 
+  console.log(selectedRowType, selectedRowKeys);
+
   const [active, setActive] = useState(false);
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -285,10 +287,18 @@ const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
           </div>
           {item.type !== "allowance" && item.type !== "fastag" && (
             <PrimaryBtn
-              LeadingIcon={selectedRowType ? null : PlusIcon}
-              btnText={selectedRowType ? "Delete" : `Add ${renderBtnText()}`}
+              LeadingIcon={
+                selectedRowKeys && selectedRowKeys.length > 0 ? null : PlusIcon
+              }
+              btnText={
+                selectedRowKeys && selectedRowKeys.length > 0
+                  ? "Delete Selected"
+                  : `Add ${renderBtnText()}`
+              }
               onClick={
-                selectedRowType ? handleDeleteSelected : handleOpenSidePanel
+                selectedRowKeys && selectedRowKeys.length > 0
+                  ? handleDeleteSelected
+                  : handleOpenSidePanel
               }
             />
           )}

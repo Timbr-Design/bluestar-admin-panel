@@ -178,8 +178,8 @@ const AddNewBookingForm = ({
         // billTo: initialData?.billTo,
         billTo: [
           {
-            label: initialData?.expand?.billed_customer_id.name,
-            value: initialData?.expand?.billed_customer_id.id,
+            label: initialData?.expand?.billed_customer_id?.name,
+            value: initialData?.expand?.billed_customer_id?.id,
           },
         ],
         operator_notes: initialData?.operator_notes,
@@ -818,10 +818,14 @@ const AddNewBookingForm = ({
                     placeholder="Select customer"
                     allowClear
                     showSearch
-                    options={companies?.map((option: any) => ({
-                      value: option.id,
-                      label: option.company_name,
-                    }))}
+                    options={
+                      customers &&
+                      Array.isArray(customers) &&
+                      customers?.map((option: any) => ({
+                        value: option.id,
+                        label: option.name,
+                      }))
+                    }
                     onSearch={(text) => getCompanyValue(text)}
                     fieldNames={{ label: "label", value: "value" }}
                     filterOption={false}

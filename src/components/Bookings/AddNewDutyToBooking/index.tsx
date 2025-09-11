@@ -42,11 +42,25 @@ const AddNewDutyToBookingForm = ({
   let { bookingId } = useParams();
   const { vehicleGroupSelectOption, dutyTypeOption, customersOption } =
     useAppSelector((state: RootState) => state.database);
+  const { currentSelectedBookingDuties } = useAppSelector(
+    (state: RootState) => state.bookingDuties
+  );
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     console.log(dutyTypeOption);
   }, [dutyTypeOption]);
+
+  useEffect(() => {
+    dispatch(
+      getAllDutyTypes({
+        page: "1",
+        limit: "10",
+        search: "",
+      })
+    );
+    dispatch(getVehicleGroup({ page: "1", search: "", limit: 10 }));
+  }, []);
 
   const getDutyTypeValue = (searchText: string) => {
     if (searchText) {
@@ -68,41 +82,52 @@ const AddNewDutyToBookingForm = ({
     }
   };
 
+  const onSubmit = (values: any) => {
+    console.log(values);
+    if (Object.keys(currentSelectedBookingDuties).length) {
+      dispatch(
+        updateBookingDuties({
+          currentSelectedBookingDuties,
+        })
+      );
+    } else {
+      dispatch(addNewBookingDuties(values));
+    }
+  };
+
   useEffect(() => {
     if (initialData && Object.keys(initialData).length) {
       form.setFieldsValue({
-        _id: initialData?._id,
-        dutyTypeId: [
+        id: initialData?.id,
+        base_rate: initialData?.base_rate,
+        duty_type_id: [
           {
-            label: initialData?.dutyTypeId?.name,
-            value: initialData?.dutyTypeId?._id,
+            label: initialData?.duty_type_id?.name,
+            value: initialData?.duty_type_id?.id,
           },
         ],
-        vehicleGroupId: [
+        vehicle_group_id: [
           {
-            label: initialData?.vehicleGroupId?.name,
-            value: initialData?.vehicleGroupId?._id,
+            label: initialData?.vehicle_group_id?.name,
+            value: initialData?.vehicle_group_id?.id,
           },
         ],
-        reportingAddress: initialData?.reportingAddress,
-        duration: {
-          startDateTime: initialData?.duration?.startDateTime
-            ? dayjs(initialData?.duration?.startDateTime)
-            : null,
-          endDateTime: initialData?.duration?.endDateTime
-            ? dayjs(initialData.duration.endDateTime)
-            : null,
+        reporting_address_map_link: initialData?.reporting_address_map_link,
+        start_date: initialData?.start_date
+          ? dayjs(initialData?.start_date)
+          : null,
+        end_date: initialData?.end_date ? dayjs(initialData.end_date) : null,
 
-          startBefore: initialData?.duration?.startBefore
-            ? dayjs(initialData.duration.startBefore)
+        start_from_garage_before_mins:
+          initialData?.start_from_garage_before_mins
+            ? dayjs(initialData.start_from_garage_before_mins)
             : null,
-        },
-        dropAddress: initialData?.dropAddress,
-        fromLocation: initialData?.fromLocation,
-        toLocation: initialData?.toLocation,
+        drop_address_map_link: initialData?.drop_address_map_link,
+        from_address_id: initialData?.from_address_id,
+        to_address_id: initialData?.to_address_id,
         operator_notes: initialData?.operator_notes,
-        driverNotes: initialData?.driverNotes,
-        address: initialData?.address,
+        driver_notes: initialData?.driver_notes,
+        // address: initialData?.address,
       });
     }
   }, [initialData]);
@@ -116,20 +141,20 @@ const AddNewDutyToBookingForm = ({
         console.log("Failed:", errorInfo);
       }}
       onFinish={(values) => {
-        console.log(values);
-        // handleFormSubmit(value);
-        if (isEditable && initialData._id) {
-          dispatch(updateBookingDuties({ id: initialData._id, ...values }));
-        } else {
-          dispatch(addNewBookingDuties({ bookingId, ...values }));
-        }
+        onSubmit(values);
+        // booking_id
+        // if (isEditable && initialData.id) {
+        //   dispatch(updateBookingDuties({ id: initialData.id, ...values }));
+        // } else {
+        //   dispatch(addNewBookingDuties(values));
+        // }
       }}
       requiredMark={CustomizeRequiredMark}
       className={styles.form}
     >
-      {/* dutyTypeId */}
+      {/* duty_type_id */}
       <Form.Item
-        name="dutyTypeId"
+        name="duty_type_id"
         rules={[{ required: true }]}
         label="Duty type"
       >
@@ -137,17 +162,17 @@ const AddNewDutyToBookingForm = ({
           allowClear
           showSearch
           options={dutyTypeOption}
-          value={form.getFieldValue("dutyTypeId")}
+          value={form.getFieldValue("duty_type_id")}
           onSearch={(text) => getDutyTypeValue(text)}
           placeholder="Select Duty type"
           fieldNames={{ label: "label", value: "value" }}
           notFoundContent={<div>No search result</div>}
         />
       </Form.Item>
-      {/* VehicleGroupId */}
+      {/* vehicle_group_id */}
       <Form.Item
-        name="vehicleGroupId"
-        id="VehicleGroupId"
+        name="vehicle_group_id"
+        id="vehicle_group_id"
         rules={[{ required: true }]}
         label="Vehicle Group"
       >
@@ -174,7 +199,7 @@ const AddNewDutyToBookingForm = ({
                 message: "Please enter a valid Google Maps URL!",
               },
             ]}
-            name="fromLocation"
+            name="from_address_id"
             label="from Address"
           >
             <Input type="text" placeholder="Location (Google map link)"></Input>
@@ -183,7 +208,7 @@ const AddNewDutyToBookingForm = ({
         <Col sm={12}>
           {/* to */}
           <Form.Item
-            name="toLocation"
+            name="to_address_id"
             rules={[
               { required: true, message: "Please provide a Google Maps link!" },
               {
@@ -198,7 +223,7 @@ const AddNewDutyToBookingForm = ({
           </Form.Item>
         </Col>
       </Row>
-      {/* reportingAddress */}
+      {/* reporting_address_map_link */}
       <Form.Item
         rules={[
           { required: true, message: "Please provide a Google Maps link!" },
@@ -208,14 +233,14 @@ const AddNewDutyToBookingForm = ({
             message: "Please enter a valid Google Maps URL!",
           },
         ]}
-        name="reportingAddress"
+        name="reporting_address_map_link"
         label="Reporting Address"
       >
         <TextArea placeholder="Location (Google map link)"></TextArea>
       </Form.Item>
-      {/* dropAddress */}
+      {/* drop_address_map_link */}
       <Form.Item
-        name="dropAddress"
+        name="drop_address_map_link"
         rules={[
           { required: true, message: "Please provide a Google Maps link!" },
           {
@@ -242,7 +267,7 @@ const AddNewDutyToBookingForm = ({
                       required: true,
                     },
                   ]}
-                  name={["duration", "startDateTime"]}
+                  name={"start_date"}
                   label="Start Date"
                 >
                   <CustomDatePicker
@@ -262,7 +287,7 @@ const AddNewDutyToBookingForm = ({
                       required: true,
                     },
                   ]}
-                  name={["duration", "endDateTime"]}
+                  name={"end_date"}
                   label="End Date"
                 >
                   <CustomDatePicker
@@ -283,7 +308,7 @@ const AddNewDutyToBookingForm = ({
                       required: true,
                     },
                   ]}
-                  name={["duration", "startBefore"]}
+                  name={"start_from_garage_before_mins"}
                   label="Start from garage before (in mins)"
                 >
                   <TimePicker
@@ -312,7 +337,7 @@ const AddNewDutyToBookingForm = ({
             <Row gutter={16}>
               <Col span={24}>
                 <Form.Item
-                  name={["pricingDetails", "baseRate"]}
+                  name={"base_rate"}
                   label="Base Rate"
                   rules={[
                     {
@@ -332,7 +357,7 @@ const AddNewDutyToBookingForm = ({
               </Col>
               <Col span={12}>
                 <Form.Item
-                  name={["pricingDetails", "extraKmRate"]}
+                  name={"per_extra_km_rate"}
                   label="Per Extra KM Rate"
                   rules={[
                     {
@@ -358,7 +383,7 @@ const AddNewDutyToBookingForm = ({
                       type: "number",
                     },
                   ]}
-                  name={["pricingDetails", "extraHrRate"]}
+                  name={"per_extra_hour_rate"}
                   label="Per Extra Hour Rate"
                 >
                   <InputNumber
@@ -391,7 +416,7 @@ const AddNewDutyToBookingForm = ({
         </div>
       </Card>
 
-      {/* operator_notes driverNotes */}
+      {/* operator_notes driver_notes */}
       <div
         style={{
           marginTop: "1rem",
@@ -400,7 +425,7 @@ const AddNewDutyToBookingForm = ({
         <Form.Item name="operator_notes" label="Operator Notes">
           <TextArea placeholder="Add a note...."></TextArea>
         </Form.Item>
-        <Form.Item name="driverNotes" label="Driver Notes">
+        <Form.Item name="driver_notes" label="Driver Notes">
           <TextArea placeholder="Add a note...."></TextArea>
         </Form.Item>
       </div>

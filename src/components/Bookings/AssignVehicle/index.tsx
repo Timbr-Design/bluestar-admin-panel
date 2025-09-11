@@ -70,9 +70,9 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
   ];
 
   const getInitials = (name: string) => {
-    const names = name.split(" "); // Split the name by spaces
-    const firstInitial = names[0]?.charAt(0).toUpperCase(); // Get the first letter of the first name
-    const lastInitial = names[1]?.charAt(0).toUpperCase(); // Get the first letter of the last name (if exists)
+    const names = name?.split(" "); // Split the name by spaces
+    const firstInitial = names && names[0]?.charAt(0).toUpperCase(); // Get the first letter of the first name
+    const lastInitial = names && names[1]?.charAt(0).toUpperCase(); // Get the first letter of the last name (if exists)
 
     return firstInitial + (lastInitial || ""); // Combine the initials
   };

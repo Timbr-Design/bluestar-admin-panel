@@ -101,7 +101,7 @@ const VehicleTable = ({ handleOpenSidePanel }: IVehicleTableTable) => {
       getVehicle({
         page: 1,
         limit: "10",
-        search: debouncedSearch,
+        search: debouncedSearch ?? "",
       })
     );
   }, [debouncedSearch]);

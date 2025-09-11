@@ -6,6 +6,7 @@ import cn from "classnames";
 import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as Clipboard } from "../../../icons/clipboard-x.svg";
+import { ReactComponent as ClipboardActive } from "../../../icons/clipboard-check.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
@@ -78,7 +79,11 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
     {
       label: <>{currentTax?.is_active ? "Mark inactive" : "Mark Active"}</>,
       key: "2",
-      icon: <Clipboard />,
+      icon: !currentTax?.is_active ? (
+        <Clipboard />
+      ) : (
+        <ClipboardActive height={16} width={16} />
+      ),
     },
   ];
 
@@ -139,7 +144,7 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
   useEffect(() => {
     dispatch(
       getTaxes({
-        search: debouncedSearch,
+        search: debouncedSearch ?? "",
       })
     );
   }, [debouncedSearch]);

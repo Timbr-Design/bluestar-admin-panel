@@ -79,7 +79,7 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
     },
   ]);
 
-  console.log(selectedDutyType);
+  console.log(vehicleGroupDataArray);
 
   const handleBaseRateChange = (value: number | null, key: string) => {
     setData((prevData) =>
@@ -94,12 +94,12 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
   }, []);
 
   useEffect(() => {
-    console.log(vehicleGroupData);
     if (Object.keys(selectedDutyType).length) {
+      console.log(selectedDutyType, "SDFSDF");
       const tempArr = selectedDutyType?.pricing?.map((data: any) => {
         return {
-          name: data?.vehicleGroup?.name,
-          vehicleGroupId: data?.id,
+          vehicleGroupName: data?.vehicleGroupName,
+          vehicleGroupId: data?.vehicle_group_id,
           baseRate: data?.baseRate,
           extraKmRate: data?.per_extra_km_rate,
           extraHrRate: data?.extraKmRate,
@@ -143,6 +143,8 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
       } else {
         // Set form values for non-Custom duty type
         const pricingValues = selectedDutyType?.pricing?.map((data: any) => ({
+          vehicleGroupName: data?.vehicleGroupName,
+          vehicleGroupId: data?.vehicle_group_id,
           baseRate: data?.baseRate,
           extraKmRate: data?.extraKmRate,
           extraHrRate: data?.extraHrRate,
@@ -155,12 +157,13 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
         });
       }
     } else {
+      console.log(vehicleGroupData);
       const tempArr =
         vehicleGroupData &&
         Array.isArray(vehicleGroupData) &&
         vehicleGroupData?.map((data: any) => {
           return {
-            name: data?.name,
+            vehicleGroupName: data?.name,
             vehicleGroupId: data?.id,
             baseRate: data?.baseRate ?? 0,
             extraKmRate: data?.extraKmRate ?? 0,
@@ -193,6 +196,7 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
+      console.log(values, "VALUES");
 
       // Validate base rates for custom duty type
       if (capitalize(dutyType) === "Custom") {
@@ -239,17 +243,18 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                 name: values.name,
                 category: values.dutyType,
                 secondary_type: value,
-                pricing: vehicleGroupDataArray?.map((data: any) =>
-                  omit(
-                    {
-                      ...data,
-                      baseRate: Number(data.baseRate),
-                      extraKmRate: Number(data.extraKmRate),
-                      extraHrRate: Number(data.extraHrRate),
-                    },
-                    "name"
-                  )
-                ),
+                pricing: vehicleGroupDataArray,
+                //   ?.map((data: any) =>
+                //     omit(
+                //       {
+                //         ...data,
+                //         baseRate: Number(data.baseRate),
+                //         extraKmRate: Number(data.extraKmRate),
+                //         extraHrRate: Number(data.extraHrRate),
+                //       },
+                //       "vehicleGroupName"
+                //     )
+                //   ),
               },
               id: selectedDutyType?.id,
             })
@@ -277,7 +282,7 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
             })
           );
         } else {
-          console.log(vehicleGroupDataArray, values);
+          // console.log(vehicleGroupDataArray, values);
           dispatch(
             addDutyType({
               name: values.name,
@@ -517,9 +522,9 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
               pagination={false}
               className={styles["custom-table"]}
             />
-            <Form.Item name="baseRates" className={styles.errorText}>
+            {/* <Form.Item name="baseRates" className={styles.errorText}>
               <div></div>
-            </Form.Item>
+            </Form.Item> */}
           </div>
 
           <div className={styles.text}>
@@ -760,9 +765,23 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                             styles.name
                           )}
                         >
-                          {row?.name}
+                          {row?.vehicleGroupName}
                         </div>
                         <div className={styles.rowItem}>
+                          <Form.Item
+                            name={["pricing", index, "vehicleGroupId"]}
+                            initialValue={row?.vehicleGroupId}
+                            hidden
+                          >
+                            <Input type="hidden" />
+                          </Form.Item>
+                          <Form.Item
+                            name={["pricing", index, "vehicleGroupName"]}
+                            initialValue={row?.vehicleGroupName}
+                            hidden
+                          >
+                            <Input type="hidden" />
+                          </Form.Item>
                           <Form.Item
                             name={["pricing", index, "baseRate"]}
                             rules={[{ required: true, message: "Required" }]}

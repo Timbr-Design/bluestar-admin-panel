@@ -151,7 +151,7 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
       getVehicleGroup({
         page: 1,
         limit: "",
-        search: debouncedSearch,
+        search: debouncedSearch ?? "",
       })
     );
   }, [debouncedSearch]);

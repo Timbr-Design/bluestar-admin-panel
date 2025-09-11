@@ -44,8 +44,9 @@ const BookingsTabs = () => {
 
   return (
     <div className={styles.tabsContainer}>
-      {BOOKINGS_TABS?.map((item) => (
+      {BOOKINGS_TABS?.map((item, idx) => (
         <button
+          key={idx}
           className={cn(styles.tab, {
             [styles.selected]: item.type === status,
           })}
@@ -164,7 +165,6 @@ const Bookings = () => {
     } else if (formStep === 2) {
       setFormSetp(3);
     } else if (formStep === 3) {
-      console.log(form.getFieldValue("dutyType"));
       const bookingData = {
         booking_id: form.getFieldValue("bookingId"),
         customer_id: form.getFieldValue("customer"),
@@ -192,30 +192,23 @@ const Bookings = () => {
         local_booking: form.getFieldValue("bookingType") === "Local",
         outstation_booking: form.getFieldValue("bookingType") === "Outstation",
         airportBooking: form.getFieldValue("airportBooking"),
-        // durationDetails: {
-        start_date: dayjs(
-          form.getFieldValue("durationDetails").start_date.valueOf()
-        ),
-        end_date: dayjs(
-          form.getFieldValue("durationDetails").end_date.valueOf()
-        ),
+        start_date: dayjs(form.getFieldValue("durationDetails").start_date),
+        end_date: dayjs(form.getFieldValue("durationDetails").end_date),
         reporting_time: dayjs(
-          form.getFieldValue("durationDetails").reporting_time.valueOf()
+          form.getFieldValue("durationDetails").reporting_time
         ),
-        est_drop_time: form
-          .getFieldValue("durationDetails")
-          .est_drop_time.valueOf(),
+        est_drop_time: dayjs(
+          form.getFieldValue("durationDetails").est_drop_time
+        ),
         start_from_garage_before_mins: form
           .getFieldValue("durationDetails")
           .start_from_garage_before_mins.valueOf(),
-        // },
-        // pricingDetails: form.getFieldValue("pricingDetails"),
         operator_notes: form.getFieldValue("operator_notes") ?? null,
         driver_notes: form.getFieldValue("notes") ?? null,
         booking_status: form.getFieldValue("isUnconfirmed")
           ? BOOKINGS_STATUS.unconfirmed
           : BOOKINGS_STATUS.booked,
-        is_confirmed: false,
+        is_confirmed: !form.getFieldValue("isUnconfirmed"),
         billed_customer_id: form.getFieldValue("billTo"),
       };
 
@@ -315,9 +308,7 @@ const Bookings = () => {
           <PrimaryBtn
             LeadingIcon={PlusOutlined}
             onClick={() => {
-              selectedRowKeys && selectedRowKeys.length > 0
-                ? handleDeleteBookings()
-                : dispatch(setIsAddEditDrawerOpen());
+              dispatch(setIsAddEditDrawerOpen());
               dispatch(setIsEditingBooking(true));
             }}
             btnText={

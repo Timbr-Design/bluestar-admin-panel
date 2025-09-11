@@ -82,7 +82,7 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
   const debouncedSearch = useDebounce(q, 500);
 
   useEffect(() => {
-    dispatch(getDrivers({ search: debouncedSearch }));
+    dispatch(getDrivers({ search: debouncedSearch ?? "" }));
   }, [debouncedSearch]);
 
   const columns: TableProps<IDriversTableData>["columns"] = [
