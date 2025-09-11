@@ -93,6 +93,9 @@ const BankAccountsTable = ({
       icon: <EditIcon />,
     },
     {
+      type: "divider",
+    },
+    {
       label: (
         <>{currentBankAccount?.is_active ? "Mark inactive" : "Mark Active"}</>
       ),
@@ -150,7 +153,7 @@ const BankAccountsTable = ({
       getBankAccount({
         page: pagination.page,
         limit: pagination.limit,
-        search: debouncedSearch,
+        search: debouncedSearch ?? "",
       })
     );
   }, [debouncedSearch]);

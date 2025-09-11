@@ -146,6 +146,8 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
     }
   }, [selectedVehicle]);
 
+  console.log(options);
+
   useEffect(() => {
     dispatch(getVehicleGroup({ page: "1", search: "", limit: 10 }));
     dispatch(

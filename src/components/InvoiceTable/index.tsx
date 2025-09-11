@@ -63,7 +63,7 @@ const InvoiceTable = () => {
     if (e.key === "4") {
       setOpenCustomerForm(true);
       const wrapWithData = (obj: object) => ({ data: obj });
-console.log(invoices[0].customer)
+      console.log(invoices[0].customer);
       dispatch(setSelectedCustomer(invoices[0].customer));
       // console.log(invoices[0].customer)
       // dispatch(setOpenSidePanel(true));
@@ -86,9 +86,9 @@ console.log(invoices[0].customer)
       key: "2",
       icon: <EditIcon />,
     },
-      {
-        type: "divider",
-      },
+    {
+      type: "divider",
+    },
     {
       label: "Print/Download PDF",
       key: "3",
@@ -104,9 +104,9 @@ console.log(invoices[0].customer)
       key: "5",
       icon: <EditIcon />,
     },
-      {
-        type: "divider",
-      },
+    {
+      type: "divider",
+    },
     {
       label: "Cancel Invoice",
       key: "6",
@@ -219,7 +219,7 @@ console.log(invoices[0].customer)
     dispatch(
       getInvoices({
         ...filters,
-        search: debouncedSearch,
+        search: debouncedSearch ?? "",
       })
     );
   }, [debouncedSearch]);
@@ -281,16 +281,16 @@ console.log(invoices[0].customer)
           <button
             className={styles1.closeBtn}
             onClick={() => {
-              setOpenCustomerForm(false)
-              dispatch(setSelectedCustomer(null))
+              setOpenCustomerForm(false);
+              dispatch(setSelectedCustomer(null));
             }}
           >
             <CrossIcon />
           </button>
           <CustomerForm
             handleCloseSidePanel={() => {
-              setOpenCustomerForm(false)
-              dispatch(setSelectedCustomer(null))
+              setOpenCustomerForm(false);
+              dispatch(setSelectedCustomer(null));
             }}
           />
         </div>

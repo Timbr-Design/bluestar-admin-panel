@@ -64,7 +64,6 @@ const BankAccountForm = ({ handleCloseSidePanel }: IBankAccountForm) => {
     }
   }, [selectedBankAccount]);
 
-  console.log(selectedBankAccount, "selectedBankAccount");
   return (
     <div className={styles.formContainer}>
       {contextHolder}
@@ -191,7 +190,7 @@ const BankAccountForm = ({ handleCloseSidePanel }: IBankAccountForm) => {
                 },
               ]}
               label="Bank Branch"
-              id="branch_name"
+              // id="branch_name"
               name="branch_name"
             >
               <Input placeholder="Enter Bank Branch..." />

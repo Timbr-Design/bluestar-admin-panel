@@ -502,3 +502,24 @@ input {
   }
 }
 
+
+// :where(.ant-input[disabled], .ant-input-disabled, .ant-input-affix-wrapper-disabled) {
+//   background-color: #f5f5f5 !important;
+//   cursor: not-allowed !important;
+//   opacity: 0.7;
+// }
+// :where(.ant-input[disabled]:hover, .ant-input-disabled:hover) {
+//   border-color: #d9d9d9 !important;
+// }
+
+.ant-input[disabled],
+.ant-input-disabled {
+  background-color: #f5f5f5 !important;  /* default AntD color */
+  color: rgba(0, 0, 0, 0.25) !important;
+  cursor: not-allowed !important;
+}
+.ant-form-item-control-input-content[disabled],.ant-form-item-control-input-content{
+  background-color: #f5f5f5 !important;  /* default AntD color */
+  color: rgba(0, 0, 0, 0.25) !important;
+  cursor: not-allowed !important;
+}

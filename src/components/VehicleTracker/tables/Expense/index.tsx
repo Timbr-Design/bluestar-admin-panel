@@ -174,7 +174,7 @@ const ExpenseTable = ({ handleOpenSidePanel }: IExpenseTable) => {
     dispatch(
       getExpenses({
         ...filters,
-        search: debouncedSearch,
+        search: debouncedSearch ?? "",
       })
     );
   }, [debouncedSearch]);

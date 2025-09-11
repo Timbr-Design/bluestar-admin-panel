@@ -353,7 +353,7 @@ const BookingsTable = () => {
     dispatch(
       getBookings({
         ...filters,
-        search: debouncedSearch,
+        search: debouncedSearch ?? "",
       })
     );
   }, [debouncedSearch, filters.status]);
@@ -392,14 +392,9 @@ const BookingsTable = () => {
     dispatch(
       updateBooking({
         id: currentSelectedBooking?.id,
-        body: _.omit(bookingDataUpdate, [
-          "isActive",
-          "customer",
-          "dutyType",
-          "vehicleGroup",
-          "vehicle",
-          "driver",
-        ]),
+        body: {
+          is_confirmed: !currentSelectedBooking?.is_confirmed,
+        },
       })
     );
   };

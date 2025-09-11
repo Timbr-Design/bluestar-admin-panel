@@ -11,16 +11,22 @@ import pb from "../../utils/configurePocketbase";
 
 export const addBankAccount = createAsyncThunk(
   "database/addBankAccount",
-  async (body: any, { dispatch }) => {
+  async (body: any, { dispatch,getState }:any) => {
     const record = await pb.collection("bank_accounts").create(body);
-
+    console.log(record)
+    const { database } = getState();
+    const { pagination,q } = database;
     if (record) {
       dispatch(setOpenSidePanel(false));
       notification.success({
         message: "Success",
         description: "New bank account added successfully",
       });
-      dispatch(getBankAccount({ page: 1, limit: 10 }));
+      dispatch(getBankAccount({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: q,
+      }));
       return record;
     }
   }
@@ -63,9 +69,6 @@ export const deleteBankAccount = createAsyncThunk(
   "database/deleteBankAccount",
   async (params: any, { dispatch, getState }: any) => {
     const { id } = params;
-
-    // const response = await apiClient.delete(`/database/bank-accounts/${id}`);
-    console.log(getState(), "getState()");
     const response = await pb.collection("bank_accounts").delete(id);
     const { database } = getState();
     const { pagination, q } = database;
@@ -343,9 +346,19 @@ export const getCustomer = createAsyncThunk(
   "database/getCustomer",
   async (params: any, { dispatch }) => {
     // const response = await apiClient.get(`/database/customer`, { params });
-    const resultList = await pb.collection("customers").getList(1, 50, {
-      filter: `name ~ "${params.search}" || phone_number ~ "${params.search}"`,
-    });
+    // const resultList = await pb.collection("customers").getList(1, 50, {
+    //   filter: `name ~ "${params.search}" || phone_number ~ "${params.search}" || tax_details.gstNumber ~ "${params.search}`,
+    // });
+
+    let filter = "";
+
+if (params.search && params.search.trim() !== "") {
+  filter = `name ~ "${params.search}" || phone_number ~ "${params.search}" || tax_details.gstNumber ~ "${params.search}"`;
+}
+
+const resultList = await pb.collection("customers").getList(1, 50, {
+  ...(filter ? { filter } : {}),
+});
 
     if (resultList) {
       dispatch(
@@ -598,12 +611,27 @@ export const deleteVehicle = createAsyncThunk(
   }
 );
 
+//Identification APIs
+
+export const addIdentification = createAsyncThunk(
+  "database/addIdentification",
+  async (body: any, { dispatch, getState }: any) => {
+    const record = await pb.collection('identifications').create(body);
+
+    return record;
+  }
+);
+
 // Driver APIs
 export const addNewDriver = createAsyncThunk(
   "database/addNewDriver",
   async (body: any, { dispatch, getState }: any) => {
     // const response = await apiClient.post("/database/driver", body);
     const record = await pb.collection("drivers").create(body);
+
+    console.log(body);
+
+    // dispatch(addIdentification(data))
 
     const { database } = getState();
     const { pagination } = database;
@@ -633,7 +661,7 @@ export const getDrivers = createAsyncThunk(
 
     if (resultList) {
       let option: Array<object> = resultList.items?.map((each: any) => ({
-        value: each._id,
+        value: each.id,
         label: each.name,
       }));
       dispatch(
@@ -855,6 +883,14 @@ const initialState: any = {
     limit: 10,
   },
   viewContentDatabase: false,
+
+  // Identification
+
+  identificationStates: {
+    state: "idle",
+    loading: false,
+    error: "",
+  },
 
   // Vehicle Group
 
@@ -1605,6 +1641,22 @@ export const databaseSlice = createSlice({
         state.vehicleStates.status = "failed";
         state.vehicleStates.loading = false;
         state.vehicleStates.error = "Error";
+      })
+
+      .addCase(addIdentification.pending, (state) => {
+        state.identificationStates.status = "loading";
+        state.identificationStates.loading = true;
+        state.identificationStates.error = "";
+      })
+      .addCase(addIdentification.fulfilled, (state) => {
+        state.identificationStates.status = "succeeded";
+        state.identificationStates.loading = false;
+        state.identificationStates.error = "";
+      })
+      .addCase(addIdentification.rejected, (state) => {
+        state.identificationStates.status = "failed";
+        state.identificationStates.loading = false;
+        state.identificationStates.error = "Error";
       })
 
       // Add Driver

@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { useAppDispatch, useAppSelector } from "../../../../hooks/store";
-import {  Table } from "antd";
+import { Table } from "antd";
 import type { TableColumnsType } from "antd";
 import React, { useEffect } from "react";
 
@@ -56,7 +56,7 @@ const LoansTable = () => {
     dispatch(
       getLoans({
         ...filters,
-        search: debouncedSearch,
+        search: debouncedSearch ?? "",
       })
     );
   }, [debouncedSearch]);

@@ -141,7 +141,7 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
   useEffect(() => {
     dispatch(
       getAllowances({
-        search: debouncedSearch,
+        search: debouncedSearch ?? "",
       })
     );
   }, [debouncedSearch]);

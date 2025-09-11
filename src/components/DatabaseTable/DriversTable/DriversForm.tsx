@@ -84,7 +84,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
       handleCloseSidePanel();
     } else {
       console.log(values);
-      dispatch(addNewDriver(values));
+      // dispatch(addNewDriver(values));
       handleCloseSidePanel();
     }
   };
@@ -92,7 +92,6 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
   useEffect(() => {
     if (selectedDriver && Object.keys(selectedDriver).length > 0) {
       const valuesToMaped = selectedDriver;
-      console.log(valuesToMaped);
       setFilesArr(valuesToMaped?.files || []);
       form.setFieldsValue({
         // address: {
@@ -121,6 +120,8 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
       });
     }
   }, [selectedDriver]);
+
+  useEffect(() => {}, []);
 
   const handleUploadUrl = (file: IFile) => {
     const tempFilesArr = [...filesArr, file];
@@ -278,7 +279,12 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
               id="dob"
               label="Date of birth"
             >
-              <CustomDatePicker showTime={false} />
+              <CustomDatePicker
+                showTime={false}
+                showHour={false}
+                showMinute={false}
+                format="DD-MM-YYYY"
+              />
             </Form.Item>
           </div>
           {/* identification_id_list */}

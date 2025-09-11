@@ -456,7 +456,6 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
               id="default_discount"
               rules={[
                 {
-                  required: true,
                   message: "Please enter a discount",
                 },
                 {
@@ -474,6 +473,7 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
               <Input
                 type="number"
                 placeholder="Enter default discount..."
+                onWheel={(e) => e.currentTarget.blur()}
                 min={0}
                 max={100}
                 onKeyDown={(e) => {

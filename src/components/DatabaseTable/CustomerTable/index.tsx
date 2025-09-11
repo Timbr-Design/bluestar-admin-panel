@@ -146,7 +146,7 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
   const debouncedSearch = useDebounce(q, 500);
 
   useEffect(() => {
-    dispatch(getCustomer({ search: debouncedSearch }));
+    dispatch(getCustomer({ search: debouncedSearch ?? "" }));
   }, [debouncedSearch]);
 
   return (
