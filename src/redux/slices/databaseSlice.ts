@@ -11,22 +11,24 @@ import pb from "../../utils/configurePocketbase";
 
 export const addBankAccount = createAsyncThunk(
   "database/addBankAccount",
-  async (body: any, { dispatch,getState }:any) => {
+  async (body: any, { dispatch, getState }: any) => {
     const record = await pb.collection("bank_accounts").create(body);
-    console.log(record)
+    console.log(record);
     const { database } = getState();
-    const { pagination,q } = database;
+    const { pagination, q } = database;
     if (record) {
       dispatch(setOpenSidePanel(false));
       notification.success({
         message: "Success",
         description: "New bank account added successfully",
       });
-      dispatch(getBankAccount({
-        page: pagination.page,
-        limit: pagination.limit,
-        search: q,
-      }));
+      dispatch(
+        getBankAccount({
+          page: pagination.page,
+          limit: pagination.limit,
+          search: q,
+        })
+      );
       return record;
     }
   }
@@ -352,13 +354,13 @@ export const getCustomer = createAsyncThunk(
 
     let filter = "";
 
-if (params.search && params.search.trim() !== "") {
-  filter = `name ~ "${params.search}" || phone_number ~ "${params.search}" || tax_details.gstNumber ~ "${params.search}"`;
-}
+    if (params.search && params.search.trim() !== "") {
+      filter = `name ~ "${params.search}" || phone_number ~ "${params.search}" || tax_details.gstNumber ~ "${params.search}"`;
+    }
 
-const resultList = await pb.collection("customers").getList(1, 50, {
-  ...(filter ? { filter } : {}),
-});
+    const resultList = await pb.collection("customers").getList(1, 50, {
+      ...(filter ? { filter } : {}),
+    });
 
     if (resultList) {
       dispatch(
@@ -545,12 +547,21 @@ export const getVehicle = createAsyncThunk(
   "database/getVehicle",
 
   async (params: any, { dispatch, getState }: any) => {
-    // const response = await apiClient.get(`/database/vehicle`, { params });
-    console.log(params, "P");
-    const resultList = await pb.collection("vehicles").getList(1, 50, {
-      filter: `model_name ~ "${params.search}" || vehicle_number ~ "${params.search}"`,
-      expand: "driver_id,vehicle_group_id",
-    });
+    let resultList;
+
+    if (params.vehicle_group_id) {
+      dispatch(getDrivers({ search: "" }));
+      resultList = await pb.collection("vehicles").getFullList({
+        filter: `vehicle_group_id="${params.vehicle_group_id}"`,
+        expand: "driver_id",
+      });
+      return resultList;
+    } else {
+      resultList = await pb.collection("vehicles").getList(1, 50, {
+        filter: `model_name ~ "${params.search}" || vehicle_number ~ "${params.search}"`,
+        expand: "driver_id,vehicle_group_id",
+      });
+    }
     if (resultList) {
       dispatch(
         setPagination({
@@ -616,7 +627,7 @@ export const deleteVehicle = createAsyncThunk(
 export const addIdentification = createAsyncThunk(
   "database/addIdentification",
   async (body: any, { dispatch, getState }: any) => {
-    const record = await pb.collection('identifications').create(body);
+    const record = await pb.collection("identifications").create(body);
 
     return record;
   }
@@ -736,6 +747,23 @@ export const deleteDriver = createAsyncThunk(
       })
     );
     return response;
+  }
+);
+
+export const getAllAddresses = createAsyncThunk(
+  "database/getAllAddresses",
+  async (params: any, { dispatch, getState }: any) => {
+    // const response = await apiClient.post("/database/vehicle-group", body);
+    const records = await pb.collection("address").getFullList();
+
+    if (records) {
+      let option: Array<object> = records?.map((each: any) => ({
+        value: each.id,
+        label: each.name,
+      }));
+      dispatch(setAddressOption(option));
+      return records;
+    }
   }
 );
 
@@ -915,6 +943,7 @@ const initialState: any = {
   // Vehicle Group Option
   vehicleGroupOption: {},
   vehicleGroupSelectOption: [],
+  addressListSelectOption: [],
   vehicleGroupOptionStates: {
     status: "idle",
     loading: false,
@@ -1007,6 +1036,7 @@ const initialState: any = {
 
   // Allowances
   allowancesList: {},
+  addressList: {},
   selectedAllowance: {},
   allowanceStates: {
     state: "idle",
@@ -1081,6 +1111,12 @@ export const databaseSlice = createSlice({
       return {
         ...state,
         vehicleGroupSelectOption: action.payload,
+      };
+    },
+    setAddressOption: (state, action: PayloadAction<Array<object>>) => {
+      return {
+        ...state,
+        addressListSelectOption: action.payload,
       };
     },
     setDutyTypeOption: (state, action: PayloadAction<Array<object>>) => {
@@ -1775,6 +1811,12 @@ export const databaseSlice = createSlice({
         state.allowanceStates.error = "";
         state.allowancesList = action.payload;
       })
+      .addCase(getAllAddresses.fulfilled, (state, action) => {
+        // state.allowanceStates.status = "succeeded";
+        // state.allowanceStates.loading = false;
+        // state.allowanceStates.error = "";
+        state.addressList = action.payload;
+      })
       .addCase(getAllowances.rejected, (state) => {
         state.allowanceStates.status = "failed";
         state.allowanceStates.loading = false;
@@ -1928,6 +1970,7 @@ export const {
   setDriverOption,
   setCustomerOption,
   setVehicleGroupOption,
+  setAddressOption,
   setDutyTypeOption,
   setPagination,
   setResetSelectedStates,

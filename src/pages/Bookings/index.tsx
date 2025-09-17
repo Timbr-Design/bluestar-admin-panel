@@ -5,7 +5,12 @@ import { BOOKINGS_STATUS, BOOKINGS_TABS } from "../../constants/bookings";
 import styles from "./index.module.scss";
 import SecondaryBtn from "../../components/SecondaryBtn";
 import PrimaryBtn from "../../components/PrimaryBtn";
-import { getVehicle, getDrivers } from "../../redux/slices/databaseSlice";
+import {
+  getVehicle,
+  getDrivers,
+  setSelectedRowIds,
+  setSelectedRowType,
+} from "../../redux/slices/databaseSlice";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import BookingsTable from "../../components/BookingsTable";
 import { Button, DatePicker, Drawer, Form, Input, Radio } from "antd";
@@ -38,9 +43,9 @@ import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 
-const BookingsTabs = () => {
+const BookingsTabs = ({ status, setStatus }) => {
   const dispatch = useAppDispatch();
-  const [status, setStatus] = useState<string>("");
+  // const [status, setStatus] = useState<string>("");
 
   return (
     <div className={styles.tabsContainer}>
@@ -77,7 +82,8 @@ const Bookings = () => {
   const [bookingValues, setBookingValues] = useState<any>({});
   const [driver, setDriver] = useState<any>({});
   const [vehicle, setVehicle] = useState<any>({});
-  const [dateRange, setDateRange] = useState<[number, number] | null>(null);
+  const [dateRange, setDateRange] = useState<[string, string] | null>(null);
+  const [status, setStatus] = useState<string>("");
 
   useEffect(() => {
     if (currentSelectedBooking) {
@@ -105,21 +111,12 @@ const Bookings = () => {
     // dispatch(getBookings({ page: 1, limit: 10, status: filters.status,search: value }))
   };
 
-  const handleDeleteBookings = async () => {
-    await Promise.all(
-      selectedRowKeys.map((id) => dispatch(deleteBooking({ id })))
-    );
-  };
-
   const [form] = Form.useForm();
   const [formStep, setFormSetp] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getVehicle({ page: 1, limit: "10", search: q || "" }));
-  }, [q]);
-
-  useEffect(() => {
     dispatch(
       getDrivers({
         search: q,
@@ -134,6 +131,14 @@ const Bookings = () => {
     dispatch(clearSelectedVehicleGroup());
     dispatch(clearSelectedDutyType());
     form.resetFields();
+  };
+
+  const handleDeleteSelected = async () => {
+    await Promise.all(
+      selectedRowKeys.map((id) => dispatch(deleteBooking({ id })))
+    );
+    dispatch(setSelectedRowIds([]));
+    dispatch(setSelectedRowType(""));
   };
 
   const primaryBtnText = useMemo(() => {
@@ -270,19 +275,13 @@ const Bookings = () => {
 
   const handleDateRangeChange = (dates: any) => {
     if (dates) {
-      // Convert to epoch timestamps (milliseconds)
-      const startDate = dates[0]?.valueOf();
-      const endDate = dates[1]?.valueOf();
+      const start_date = dayjs(dates[0]).format("YYYY-MM-DD HH:mm:ss");
+      const end_date = dayjs(dates[1]).format("YYYY-MM-DD HH:mm:ss");
 
-      setDateRange([startDate, endDate]);
-
-      // You can use these values to filter your data or make API calls
-      // console.log("Start Date (epoch):", startDate);
-      // console.log("End Date (epoch):", endDate);
-
-      // If you need to update filters or fetch data based on date range
-      // dispatch(setBookingFilter({ startDate, endDate }));
-      dispatch(getBookings({ startDate, endDate }));
+      setDateRange([start_date, end_date]);
+      dispatch(
+        getBookings({ search: q, status: status, start_date, end_date })
+      );
     } else {
       dispatch(getBookings({ page: "1", search: "", limit: 10 }));
       setDateRange(null);
@@ -308,8 +307,12 @@ const Bookings = () => {
           <PrimaryBtn
             LeadingIcon={PlusOutlined}
             onClick={() => {
-              dispatch(setIsAddEditDrawerOpen());
-              dispatch(setIsEditingBooking(true));
+              if (selectedRowKeys && selectedRowKeys.length > 0)
+                handleDeleteSelected();
+              else {
+                dispatch(setIsAddEditDrawerOpen());
+                dispatch(setIsEditingBooking(true));
+              }
             }}
             btnText={
               selectedRowKeys && selectedRowKeys.length > 0
@@ -320,7 +323,7 @@ const Bookings = () => {
         </div>
       </div>
       <div className={styles.mainContainer}>
-        <BookingsTabs />
+        <BookingsTabs status={status} setStatus={setStatus} />
 
         <div className={styles.searchContainer}>
           <Input

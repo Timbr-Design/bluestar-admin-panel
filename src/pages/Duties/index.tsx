@@ -109,10 +109,13 @@ const SingleBookingDuties = () => {
                 filters.endDate ? dayjs(filters.endDate) : null,
               ]}
               onChange={(dates, dateString) => {
+                // console.log(dayjs(dateString[0]).format("YYYY-MM-DD HH:mm:ss"));
                 dispatch(
                   setBookingDutiesFilter({
-                    startDate: dayjs(dateString[0]).utc(true).toISOString(),
-                    endDate: dayjs(dateString[1]).utc(true).toISOString(),
+                    startDate: dayjs(dateString[0]).format(
+                      "YYYY-MM-DD HH:mm:ss"
+                    ),
+                    endDate: dayjs(dateString[1]).format("YYYY-MM-DD HH:mm:ss"),
                   })
                 );
               }}

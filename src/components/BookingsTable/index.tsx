@@ -58,6 +58,7 @@ import {
   setSelectedRowIds,
   setSelectedRowType,
 } from "../../redux/slices/databaseSlice";
+import dayjs from "dayjs";
 
 const BookingsTable = () => {
   const [deleteModal, setDeleteModal] = useState(false);
@@ -154,14 +155,13 @@ const BookingsTable = () => {
       className: "custom-booking-header",
       key: "start_date",
       render: (_, record) => {
-        const start_date = formatEpochToDate(
-          new Date(record?.start_date).getTime()
-        );
-        const endDate = formatEpochToDate(new Date(record?.end_date).getTime());
+        const start_date = dayjs(record?.start_date).format("DD/MM/YYYY");
+        const endDate = dayjs(record?.end_date).format("DD/MM/YYYY");
 
         return (
           <div>
             <span className={styles.start}>{`${start_date} `}</span>
+            <br></br>
             <span className={styles.end}>{`to ${endDate}`}</span>
           </div>
         );
@@ -204,7 +204,7 @@ const BookingsTable = () => {
                             <UserOutlined /> {each.name}
                           </p>
                           <p>
-                            <PhoneOutlined /> {each.phoneNumber}
+                            <PhoneOutlined /> {each.phoneNo}
                           </p>
                           <hr />
                         </div>
@@ -349,7 +349,6 @@ const BookingsTable = () => {
   const debouncedSearch = useDebounce(filters.search, 500);
 
   useEffect(() => {
-    console.log(debouncedSearch);
     dispatch(
       getBookings({
         ...filters,
@@ -357,6 +356,11 @@ const BookingsTable = () => {
       })
     );
   }, [debouncedSearch, filters.status]);
+
+  useEffect(() => {
+    dispatch(setSelectedRowIds([]));
+    dispatch(setSelectedRowType(""));
+  }, []);
 
   let navigate = useNavigate();
 

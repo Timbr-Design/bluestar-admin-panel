@@ -2,7 +2,10 @@
 
 import {
   Badge,
+  Button,
+  Drawer,
   Dropdown,
+  Form,
   MenuProps,
   Popover,
   Space,
@@ -10,7 +13,6 @@ import {
   TableColumnsType,
 } from "antd";
 import styles from "../index.module.scss";
-import { formatEpochToDate, capitalize } from "../../../helper";
 import {
   CarOutlined,
   DeleteOutlined,
@@ -21,9 +23,8 @@ import {
   RedoOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-
 import { RootState } from "../../../types/store";
 import CustomPagination from "../../Common/Pagination";
 import { useAppDispatch } from "../../../hooks/store";
@@ -32,18 +33,71 @@ import { useParams } from "react-router-dom";
 import {
   getBookingsDuties,
   setCurrentSelectedBookingDuties,
+  setIsAddEditDrawerClose,
   setIsAddEditDrawerOpen,
   setIsEditingBookingDuties,
+  updateBookingDuties,
 } from "../../../redux/slices/bookingDutiesSlice";
-import { formatDateFull } from "../../../utils/date";
+import dayjs from "dayjs";
+import useDebounce from "../../../hooks/common/useDebounce";
+import AssignVehicle from "../../Bookings/AssignVehicle";
+import { ReactComponent as CrossIcon } from "../../../icons/x.svg";
+import {
+  clearSelectedDriver,
+  clearSelectedVehicleGroup,
+  getVehicle,
+} from "../../../redux/slices/databaseSlice";
+import SecondaryBtn from "../../SecondaryBtn";
+import AssignDriver from "../../Bookings/AssignDriver";
 
 const SingleBookingsTable = () => {
   let { bookingId } = useParams();
-  const { data, pagination, filters, bookingDutiesStates } = useSelector(
-    (state: RootState) => state.bookingDuties
+  const {
+    data,
+    pagination,
+    filters,
+    bookingDutiesStates,
+    isEditingBookingDuties,
+  } = useSelector((state: RootState) => state.bookingDuties);
+
+  const { vehicleList, driverList } = useSelector(
+    (state: RootState) => state.database
   );
 
   const dispatch = useAppDispatch();
+  const [vehicle, setVehicle] = useState<any>({});
+  const [driver, setDriver] = useState<any>({});
+  const [formStep, setFormStep] = useState(1);
+  const [currentSelectedDuty, setCurrentSelectedDuty] = useState({});
+
+  useEffect(() => {
+    if (vehicleList) setVehicle(vehicleList);
+    if (driverList) setDriver(driverList);
+  }, [vehicleList, driverList]);
+
+  const handleUnconfirmDuty = (dutyId: string) => {
+    dispatch(
+      updateBookingDuties({
+        id: dutyId,
+        bookingId: bookingId,
+        data: {
+          status: "Unconfirmed",
+        },
+      })
+    );
+  };
+
+  const handleCancelDuty = (dutyId: string) => {
+    dispatch(
+      updateBookingDuties({
+        id: dutyId,
+        bookingId: bookingId,
+        data: {
+          status: "Cancelled",
+        },
+      })
+    );
+  };
 
   function returnItems(row: any) {
     const items: MenuProps["items"] = [
@@ -53,8 +107,8 @@ const SingleBookingsTable = () => {
           <div
             onClick={() => {
               dispatch(setCurrentSelectedBookingDuties(row));
-              dispatch(setIsAddEditDrawerOpen());
               dispatch(setIsEditingBookingDuties(false));
+              dispatch(setIsAddEditDrawerOpen());
             }}
           >
             <Space>
@@ -90,7 +144,19 @@ const SingleBookingsTable = () => {
       {
         key: "3",
         label: (
-          <div onClick={() => {}}>
+          <div
+            onClick={() => {
+              setCurrentSelectedDuty(row);
+              dispatch(
+                getVehicle({
+                  vehicle_group_id: row?.expand?.vehicle_group_id?.id,
+                })
+              );
+              dispatch(setCurrentSelectedBookingDuties(row));
+              dispatch(setIsAddEditDrawerOpen());
+              dispatch(setIsEditingBookingDuties(true));
+            }}
+          >
             <Space>
               <CarOutlined />
               Allot vehicle and driver
@@ -104,10 +170,10 @@ const SingleBookingsTable = () => {
       {
         key: "4",
         label: (
-          <div>
+          <div onClick={() => handleUnconfirmDuty(row.id)}>
             <Space>
               <RedoOutlined />
-              Un confirm Duty
+              Unconfirm Duty
             </Space>
           </div>
         ),
@@ -122,6 +188,7 @@ const SingleBookingsTable = () => {
             style={{
               color: "#F04438",
             }}
+            onClick={() => handleCancelDuty(row?.id)}
           >
             <Space>
               <DeleteOutlined />
@@ -141,8 +208,8 @@ const SingleBookingsTable = () => {
       className: "custom-booking-header",
       key: "dutiesDate",
       render: (_, record) => {
-        const startDate = formatEpochToDate(record?.durationDetails?.startDate);
-        const endDate = formatEpochToDate(record?.durationDetails?.endDate);
+        const startDate = dayjs(record?.start_date).format("DD/MM/YYYY");
+        const endDate = dayjs(record?.end_date).format("DD/MM/YYYY");
 
         return (
           <div>
@@ -153,32 +220,40 @@ const SingleBookingsTable = () => {
       },
     },
     {
+      title: "Customer",
+      dataIndex: "customer",
+      key: "customer",
+      render: (_, record) => {
+        return <span>{record?.expand?.billed_customer_id?.name}</span>;
+      },
+    },
+    {
       title: "Passenger",
       dataIndex: "passengers",
       key: "passengers",
-      render: (data: any) => {
-        if (Array.isArray(data)) {
-          if (data.length <= 0) {
+      render: (_, data: any) => {
+        const passengerList = data?.expand?.booking_id?.passengers;
+        if (Array.isArray(passengerList)) {
+          if (passengerList.length <= 0) {
             return "No passengers data";
           }
-          if (data.length == 1) {
-            return data[0].name;
+          if (passengerList.length == 1) {
+            return passengerList[0].name;
           }
           return (
             <Space>
-              {data[0].name}
-
+              {passengerList[0].name}
               <Popover
                 content={() => {
                   return (
                     <>
-                      {data?.map((each) => (
-                        <div>
+                      {passengerList?.map((each, idx) => (
+                        <div key={idx}>
                           <p>
                             <UserOutlined /> {each.name}
                           </p>
                           <p>
-                            <PhoneOutlined /> {each.phoneNumber}
+                            <PhoneOutlined /> {each.phoneNo}
                           </p>
                           <hr />
                         </div>
@@ -188,7 +263,7 @@ const SingleBookingsTable = () => {
                 }}
                 title="Passenger List"
               >
-                <Badge color="yellow" count={`+${data.length - 1}`} />
+                <Badge color="yellow" count={`+${passengerList.length - 1}`} />
               </Popover>
             </Space>
           );
@@ -200,7 +275,7 @@ const SingleBookingsTable = () => {
       dataIndex: "vehicleGroup",
       key: "vehicleGroup",
       render: (_, record) => {
-        const vehicleGroupName = record?.vehicleGroup?.name;
+        const vehicleGroupName = record?.expand?.vehicle_group_id?.name;
         return <span>{vehicleGroupName}</span>;
       },
     },
@@ -209,7 +284,7 @@ const SingleBookingsTable = () => {
       dataIndex: "dutyTypeId",
       key: "dutyTypeId",
       render: (_, record) => {
-        const name = record?.dutyType?.name;
+        const name = record?.expand?.duty_type_id?.name;
         return <span>{name}</span>;
       },
     },
@@ -217,36 +292,25 @@ const SingleBookingsTable = () => {
       title: "Driver",
       dataIndex: "driver",
       key: "driver",
-    },
-    {
-      title: "Duration",
-      dataIndex: "duration",
-      key: "duration",
-      render: (data) => <div>{"Date"}</div>,
-    },
-    {
-      title: "Address",
-      dataIndex: "address",
-      key: "address",
-      render: (data) => {
+      render: (_, record) => {
+        const name = record?.expand?.driver_id?.name;
         return (
-          <>
-            <a href={data?.dropAddress} target="_blank">
-              Drop address
-            </a>
-            <br />
-            <a href={data?.reportingAddress} target="_blank">
-              Reporting address
-            </a>
-          </>
+          <span style={{ textAlign: "center", alignItems: "center" }}>
+            {name ?? "-"}
+          </span>
         );
       },
     },
-
+    {
+      title: "Rep. Time",
+      dataIndex: "reporting_time",
+      key: "reporting_time",
+      render: (data) => <div>{dayjs(data).format("HH:mm")}</div>,
+    },
     {
       title: "Status",
-      dataIndex: "dutyStatus",
-      key: "dutyStatus",
+      dataIndex: "status",
+      key: "status",
       render: (data: any) => {
         return data;
       },
@@ -260,7 +324,7 @@ const SingleBookingsTable = () => {
       render: (data: any, row: any) => {
         return (
           <div className={styles.columnsAction}>
-            <Dropdown menu={{ items: returnItems(row) }}>
+            <Dropdown menu={{ items: returnItems(row) }} trigger={["click"]}>
               <MoreOutlined />
             </Dropdown>
           </div>
@@ -273,22 +337,26 @@ const SingleBookingsTable = () => {
     return data?.map((each: any) => {
       return {
         ...each,
-
         driver: each.driver,
-        passengers: each.bookingId.passengers,
-        vehicleGroupId: each?.vehicleGroupId,
+        passengers: each?.passengers,
         dutyTypeId: each?.dutyTypeId,
-        dutyStatus: each.dutyStatus,
+        dutyStatus: each.booking_status,
         duration: each.duration,
-        address: {
-          dropAddress: each?.dropAddress,
-          reportingAddress: each?.reportingAddress,
-        },
-        id: each._id,
+        to_address_id: each?.to_address_id,
+        reporting_address_map_link: each?.reporting_address_map_link,
+        id: each.id,
         action: "",
       };
     });
   }
+
+  const debouncedSearch = useDebounce(filters.search, 500);
+
+  // useEffect(() => {
+  //   dispatch(
+  //     getAllDutyTypes({ page: "1", search: debouncedSearch ?? "", limit: 10 })
+  //   );
+  // }, [debouncedSearch]);
 
   useEffect(() => {
     if (bookingId) {
@@ -299,12 +367,76 @@ const SingleBookingsTable = () => {
   }, [
     bookingId,
     filters.status,
-    filters.search,
+    debouncedSearch,
     filters.startDate,
     filters.endDate,
   ]);
 
-  console.log("Single Booking");
+  const handleSetVehicle = (values: any) => {
+    setVehicle(values);
+  };
+
+  const handleSetDriver = (values: any) => {
+    setDriver(values);
+  };
+
+  const primaryBtnText = useMemo(() => {
+    if (formStep === 1) {
+      return "next";
+    } else if (formStep === 2) {
+      return "save";
+    }
+  }, [formStep]);
+
+  const secondaryBtnText = useMemo(() => {
+    if (formStep === 1) {
+      return "cancel";
+    } else if (formStep === 2) {
+      return "back";
+    }
+  }, [formStep]);
+
+  const handlePrimaryBtn = async () => {
+    // To move forward in the form
+    if (formStep === 1) {
+      try {
+        await form.validateFields();
+        form.submit();
+        setFormStep(2);
+      } catch (error) {
+        // Form validation failed
+      }
+    } else if (formStep === 2) {
+      console.log("DATA");
+    }
+  };
+
+  const handleCloseSidePanel = () => {
+    dispatch(setIsAddEditDrawerClose());
+    dispatch(setIsEditingBookingDuties(false));
+    dispatch(clearSelectedVehicleGroup());
+    dispatch(clearSelectedDriver());
+    form.resetFields();
+  };
+
+  const handleSecondaryBtn = () => {
+    // To move backward in the form
+    if (formStep === 1) {
+      handleCloseSidePanel();
+    } else if (formStep === 2) {
+      setFormStep(1);
+    }
+  };
+
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (Object.keys(currentSelectedDuty).length) {
+      form.setFieldsValue(currentSelectedDuty);
+    } else {
+      form.resetFields();
+    }
+  }, [form]);
 
   return (
     <>
@@ -332,6 +464,64 @@ const SingleBookingsTable = () => {
             />
           )}
         />
+        <Drawer
+          destroyOnClose
+          width={630}
+          size="large"
+          closable={false} // Remove the default close button
+          mask
+          title={
+            <div className={styles.formHeader}>
+              {/* <div className={styles.header}>
+              {isEditable
+                ? currentSelectedBooking?.id
+                  ? "Edit Booking"
+                  : "New Booking"
+                : "Booking Details"}
+            </div> */}
+              <div className={styles.primaryText}>
+                {formStep === 1 && "Select the vehicle"}
+                {formStep === 2 && "Select the driver"}
+              </div>
+            </div>
+          }
+          footer={
+            <div
+              className={`${styles.bottomContainer}`}
+              style={{ height: "72px" }}
+            >
+              <SecondaryBtn
+                btnText={secondaryBtnText}
+                onClick={handleSecondaryBtn}
+              />
+              <Button
+                type="primary"
+                loading={false}
+                onClick={handlePrimaryBtn}
+                className="primary-btn"
+              >
+                {primaryBtnText}
+              </Button>
+            </div>
+          }
+          open={false}
+        >
+          <button className={styles.closeBtn} onClick={handleCloseSidePanel}>
+            <CrossIcon />
+          </button>
+          <div>
+            {/* {formStep == 1 && (
+              <AssignVehicle
+                form={form}
+                handleSetVehicle={handleSetVehicle}
+                vehicle={vehicle}
+              />
+            )} */}
+            {formStep == 2 && (
+              <AssignDriver handleSetDriver={handleSetDriver} driver={driver} />
+            )}
+          </div>
+        </Drawer>
       </div>
     </>
   );
