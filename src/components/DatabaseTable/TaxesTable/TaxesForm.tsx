@@ -137,6 +137,16 @@ const TaxesForm = ({ handleCloseSidePanel }: ITaxesForm) => {
                 {
                   required: true,
                 },
+                {
+                  validator: (_, value) => {
+                    if (value === undefined || value === "")
+                      return Promise.resolve();
+                    if (value >= 0 && value <= 100) return Promise.resolve();
+                    return Promise.reject(
+                      new Error("Value must be between 0 and 100")
+                    );
+                  },
+                },
               ]}
               name="percentage"
               label="Percentage%"
@@ -147,6 +157,15 @@ const TaxesForm = ({ handleCloseSidePanel }: ITaxesForm) => {
                 max={100}
                 className={styles.input}
                 placeholder="Enter..."
+                onWheel={(e) => e.currentTarget.blur()}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                    e.preventDefault();
+                  }
+                  if (["e", "E", "+", "-"].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
               />
             </Form.Item>
           </div>

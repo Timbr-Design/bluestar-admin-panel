@@ -300,21 +300,24 @@ const AddNewBookingForm = ({
         // name="booked_by_name"
         // id="booked_by_name"
         label="Booked By"
+        labelCol={{
+          style: { fontWeight: 500, fontSize: "16px" },
+        }}
         className={styles.secondaryContainer}
       >
         <div className={styles.typeContainer}>
           <Form.Item
             name="booked_by_name"
-            label="Booked by name"
+            label="Booked by Name"
             style={{ marginTop: "12px" }}
           >
-            <Input />
+            <Input placeholder="Name" />
           </Form.Item>
         </div>
 
         <Form.Item
           name="booked_by_number"
-          label="Phone Number"
+          label="Booked by Phone Number"
           rules={[
             { required: false },
             {
@@ -324,15 +327,15 @@ const AddNewBookingForm = ({
           ]}
           style={{ marginTop: "12px" }}
         >
-          <Input />
+          <Input placeholder="Phone number" />
         </Form.Item>
         <Form.Item
           name="booked_by_email"
-          label="Email"
+          label="Booked by Email"
           rules={[{ required: false, type: "email" }]}
           style={{ marginTop: "12px" }}
         >
-          <Input type="email" />
+          <Input type="email" placeholder="Email" />
         </Form.Item>
         {!initialData?.id && (
           <Form.Item>
@@ -356,6 +359,9 @@ const AddNewBookingForm = ({
             {fields.map(({ key, name, ...restField }, index) => (
               <Form.Item
                 label="Passenger Details"
+                labelCol={{
+                  style: { fontWeight: 500, fontSize: "16px" },
+                }}
                 className={styles.secondaryContainer}
               >
                 <Form.Item

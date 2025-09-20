@@ -19,11 +19,15 @@ import {
   addNewDriver,
   updateDriver,
   setViewContentDatabase,
+  addIdentification,
+  addNewAddress,
+  updateIdentification,
+  updateAddress,
 } from "../../../redux/slices/databaseSlice";
 import UploadComponent from "../../Upload";
 import { ReactComponent as EditIcon } from "../../../icons/edit-icon.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RootState } from "../../../types/store";
 import durationPlugin from "dayjs/plugin/duration";
 
@@ -49,10 +53,7 @@ dayjs.extend(weekday);
 dayjs.extend(localeData);
 
 const convertIsoToDayjsObject = (isoString: string) => {
-  console.log(isoString, "isoString");
   const dayjsObject = dayjs(isoString);
-
-  console.log(dayjsObject.isValid(), "dayjsObject.isValid()");
 
   if (!dayjsObject.isValid()) {
     throw new Error("Invalid ISO string");
@@ -72,20 +73,78 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
 
   const dispatch = useAppDispatch();
 
+  const randomDriverId = useMemo(() => {
+    return Math.floor(100000 + Math.random() * 900000);
+  }, []);
+
   const [form] = Form.useForm();
-  const onSubmit = (values: any) => {
+  const onSubmit = async (values: any) => {
+    const identificationData = {
+      details: {
+        ...values.identification_id_list,
+      },
+      id_number: values.driverId,
+      id_files: [],
+    };
+
+    const addressData = {
+      line1: values.address.fullAddress,
+      address_type: values.address.type,
+    };
+
     if (selectedDriver?.id && Object.keys(selectedDriver).length > 0) {
-      dispatch(
-        updateDriver({
-          payload: values,
-          id: selectedDriver?.id,
+      const resultAction: any = await dispatch(
+        updateIdentification({
+          id: selectedDriver.identification_id_list,
+          data: identificationData,
         })
       );
+
+      const resultAction2: any = await dispatch(
+        updateAddress({ id: selectedDriver.address_id, data: addressData })
+      );
+
+      if (resultAction && resultAction2) {
+        const updatedValues = {
+          ...values,
+          dob: dayjs(values.dob).format("DD-MM-YYYY"),
+          identification_id_list: resultAction.id,
+          address_id: resultAction.id,
+        };
+        dispatch(
+          updateDriver({
+            payload: updatedValues,
+            id: selectedDriver?.id,
+          })
+        );
+        handleCloseSidePanel();
+      } else {
+        console.log("ERROR");
+      }
+
       handleCloseSidePanel();
     } else {
-      console.log(values);
-      // dispatch(addNewDriver(values));
-      handleCloseSidePanel();
+      const resultAction = await dispatch(
+        addIdentification(identificationData)
+      );
+
+      const resultAction2 = await dispatch(addNewAddress(addressData));
+
+      if (
+        addIdentification.fulfilled.match(resultAction) &&
+        addNewAddress.fulfilled.match(resultAction2)
+      ) {
+        const updatedValues = {
+          ...values,
+          dob: dayjs(values.dob).format("YYYY-MM-DD HH:mm:ss"),
+          identification_id_list: resultAction.payload.id,
+          address_id: resultAction2.payload.id,
+        };
+        dispatch(addNewDriver(updatedValues));
+        handleCloseSidePanel();
+      } else {
+        console.log("ERROR");
+      }
     }
   };
 
@@ -94,20 +153,26 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
       const valuesToMaped = selectedDriver;
       setFilesArr(valuesToMaped?.files || []);
       form.setFieldsValue({
-        // address: {
-        //   type: valuesToMaped.address.type,
-        //   fullAddress: valuesToMaped.address.fullAddress,
-        // },
+        address: {
+          type: valuesToMaped?.expand?.address_id?.address_type,
+          fullAddress: valuesToMaped?.expand?.address_id?.line1,
+        },
         id: valuesToMaped.id,
         driverId: valuesToMaped.id,
         name: valuesToMaped.name,
         phone_number: valuesToMaped.phone_number,
-        dob: valuesToMaped.dob,
-        // identification_id_list: {
-        //   pan: valuesToMaped.identification_id_list.pan,
-        //   aadhar: valuesToMaped.identification_id_list.aadhar,
-        //   drivingLiscence: valuesToMaped.identification_id_list.drivingLiscence,
-        // },
+        dob:
+          valuesToMaped.dob && valuesToMaped.dob.length > 0
+            ? dayjs(valuesToMaped.dob).format("YYYY-MM-DD")
+            : "",
+        identification_id_list: {
+          pan: valuesToMaped?.expand?.identification_id_list?.details?.pan,
+          aadhar:
+            valuesToMaped?.expand?.identification_id_list?.details?.aadhar,
+          drivingLicense:
+            valuesToMaped?.expand?.identification_id_list?.details
+              ?.drivingLicense,
+        },
         monthly_salary: valuesToMaped.monthly_salary,
         daily_salary: valuesToMaped.daily_salary,
         timing: {
@@ -118,10 +183,12 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
         notes: valuesToMaped.notes,
         files: valuesToMaped?.files || [],
       });
+    } else {
+      form.setFieldsValue({
+        driverId: randomDriverId.toString(),
+      });
     }
   }, [selectedDriver]);
-
-  useEffect(() => {}, []);
 
   const handleUploadUrl = (file: IFile) => {
     const tempFilesArr = [...filesArr, file];
@@ -224,7 +291,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
                 },
               ]}
             >
-              <Input placeholder="Enter Driver ID..." />
+              <Input placeholder="Enter Driver ID..." disabled />
             </Form.Item>
           </div>
           <div className={styles.typeContainer}>
@@ -328,7 +395,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
                       required: true,
                     },
                   ]}
-                  name={["identification_id_list", "drivingLiscence"]}
+                  name={["identification_id_list", "drivingLicense"]}
                   label="Driver License"
                 >
                   <Input placeholder="Enter driving  license" />
@@ -397,6 +464,7 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
                 type="number"
                 placeholder="Enter salary per month..."
                 min={0}
+                onWheel={(e) => e.currentTarget.blur()}
               />
             </Form.Item>
           </div>
@@ -411,7 +479,12 @@ const DriversForm = ({ handleCloseSidePanel }: IDriverForm) => {
               id="daily_salary"
               label="Daily Wages"
             >
-              <Input type="number" placeholder="Enter daily wage..." min={0} />
+              <Input
+                type="number"
+                placeholder="Enter daily wage..."
+                min={0}
+                onWheel={(e) => e.currentTarget.blur()}
+              />
             </Form.Item>
           </div>
           <Form.Item id="timing" name="timing">

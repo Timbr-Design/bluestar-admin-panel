@@ -7,6 +7,7 @@ import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
 import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
+import { ReactComponent as IllustrationIcon } from "../../../icons/Illustration.svg";
 import type { MenuProps } from "antd";
 import cn from "classnames";
 import {
@@ -98,9 +99,21 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
     onClick: handleMenuClick,
   };
 
-  const handleDeleteVehicleGroup = () => {
-    notify.success("Vehicle group Deleted", vehicleGroup.name);
-    dispatch(deleteVehicleGroup({ id: deleteVehicleGroupId }));
+  const handleDeleteVehicleGroup = async () => {
+    try {
+      const resultAction = await dispatch(
+        deleteVehicleGroup({ id: deleteVehicleGroupId })
+      );
+
+      if (deleteVehicleGroup.fulfilled.match(resultAction)) {
+        notify.success("Vehicle group Deleted", vehicleGroup.name);
+      } else {
+        console.log("ERROR");
+      }
+    } catch (error) {
+      console.log("ERRRO");
+    }
+
     setOpenDeleteModal(false);
   };
 
@@ -206,7 +219,9 @@ const VehicleGroupTable = ({ handleOpenSidePanel }: IVehicleGroupTable) => {
           emptyText: (
             <EmptyComponent
               backgroundImageIcon={<SpiralIcon />}
-              upperImageIcon={<SearchIcon2 />}
+              upperImageIcon={
+                q && q.length > 0 ? <SearchIcon2 /> : <IllustrationIcon />
+              }
               headerText={"No items found"}
               descText={
                 "There is no data in this page Start by clicking the Add button above "

@@ -6,6 +6,7 @@ import { SmileOutlined } from "@ant-design/icons"; // Import any Ant Design icon
 import apiClient from "../../utils/configureAxios";
 import { notification } from "antd";
 import pb from "../../utils/configurePocketbase";
+import useNotification from "antd/es/notification/useNotification";
 
 // Bank Account APIs
 
@@ -154,7 +155,6 @@ export const getDutyTypeById = createAsyncThunk(
   "database/getDutyTypeById",
   async (params: any) => {
     const { id } = params;
-    console.log(id);
     // const response = await apiClient.get(`/database/duty-type/${id}`);
     const record = await pb.collection("duty_types").getOne(id);
     return record;
@@ -273,8 +273,8 @@ export const deleteTax = createAsyncThunk(
 
     dispatch(
       getTaxes({
-        page: pagination.page,
-        search: q,
+        page: pagination.page || 1,
+        search: q || "",
         limit: 10,
       })
     );
@@ -410,7 +410,6 @@ export const deleteCustomer = createAsyncThunk(
     const { database } = getState();
     const { pagination, q } = database;
 
-    // const response = await apiClient.delete(`/database/customer/${id}`);
     const result = await pb.collection("customers").delete(id);
 
     if (result) {
@@ -582,7 +581,9 @@ export const getVehicleById = createAsyncThunk(
     const { id } = params;
 
     // const response = await apiClient.get(`/database/vehicle/${id}`);
-    const record = await pb.collection("vehicles").getOne(id);
+    const record = await pb.collection("vehicles").getOne(id, {
+      expand: "vehicle_group_id,driver_id",
+    });
 
     return record;
   }
@@ -628,6 +629,17 @@ export const addIdentification = createAsyncThunk(
   "database/addIdentification",
   async (body: any, { dispatch, getState }: any) => {
     const record = await pb.collection("identifications").create(body);
+
+    return record;
+  }
+);
+
+export const updateIdentification = createAsyncThunk(
+  "database/updateIdentification",
+  async (body: any, { dispatch, getState }: any) => {
+    const record = await pb
+      .collection("identifications")
+      .update(body.id, body.data);
 
     return record;
   }
@@ -694,7 +706,7 @@ export const getDriverById = createAsyncThunk(
   async (params: any) => {
     const { id } = params;
     const record = await pb.collection("drivers").getOne(id, {
-      expand: "address_id",
+      expand: "address_id,identification_id_list",
     });
 
     return record;
@@ -716,9 +728,9 @@ export const updateDriver = createAsyncThunk(
       dispatch(setOpenSidePanel(false));
       dispatch(
         getDrivers({
-          page: pagination?.page,
-          search: pagination?.search,
-          limit: pagination?.limit,
+          page: pagination?.page || 1,
+          search: pagination?.search || "",
+          limit: pagination?.limit || 10,
         })
       );
 
@@ -763,6 +775,29 @@ export const getAllAddresses = createAsyncThunk(
       }));
       dispatch(setAddressOption(option));
       return records;
+    }
+  }
+);
+
+export const addNewAddress = createAsyncThunk(
+  "database/addNewAddress",
+  async (body: any, { dispatch, getState }: any) => {
+    // const response = await apiClient.post("/database/driver", body);
+    const record = await pb.collection("address").create(body);
+
+    if (record) {
+      return record;
+    }
+  }
+);
+
+export const updateAddress = createAsyncThunk(
+  "database/updateAddress",
+  async (body: any, { dispatch, getState }: any) => {
+    const record = await pb.collection("address").update(body.id, body.data);
+
+    if (record) {
+      return record;
     }
   }
 );
@@ -920,6 +955,14 @@ const initialState: any = {
     error: "",
   },
 
+  //Address
+
+  addressStates: {
+    state: "idle",
+    loading: false,
+    error: "",
+  },
+
   // Vehicle Group
 
   vehicleGroupData: {},
@@ -951,6 +994,9 @@ const initialState: any = {
   },
   selectedRowType: "",
   selectedRowKeys: [],
+
+  identification: {},
+  address: {},
 
   // Customer
   customers: {},
@@ -1684,15 +1730,68 @@ export const databaseSlice = createSlice({
         state.identificationStates.loading = true;
         state.identificationStates.error = "";
       })
-      .addCase(addIdentification.fulfilled, (state) => {
+      .addCase(addIdentification.fulfilled, (state, action) => {
+        state.identificationStates.status = "succeeded";
+        state.identificationStates.loading = false;
+        state.identificationStates.error = "";
+        state.identification = action.payload;
+      })
+
+      .addCase(updateIdentification.pending, (state) => {
+        state.identificationStates.status = "loading";
+        state.identificationStates.loading = true;
+        state.identificationStates.error = "";
+      })
+      .addCase(updateIdentification.fulfilled, (state) => {
         state.identificationStates.status = "succeeded";
         state.identificationStates.loading = false;
         state.identificationStates.error = "";
       })
-      .addCase(addIdentification.rejected, (state) => {
+      .addCase(updateIdentification.rejected, (state) => {
         state.identificationStates.status = "failed";
         state.identificationStates.loading = false;
         state.identificationStates.error = "Error";
+      })
+
+      //Address
+
+      .addCase(addNewAddress.rejected, (state) => {
+        state.identificationStates.status = "failed";
+        state.identificationStates.loading = false;
+        state.identificationStates.error = "Error";
+      })
+
+      .addCase(addNewAddress.pending, (state) => {
+        state.addressStates.status = "loading";
+        state.addressStates.loading = true;
+        state.addressStates.error = "";
+      })
+      .addCase(addNewAddress.fulfilled, (state, action) => {
+        state.addressStates.status = "succeeded";
+        state.addressStates.loading = false;
+        state.addressStates.error = "";
+        state.address = action.payload;
+      })
+      .addCase(updateAddress.pending, (state) => {
+        state.addressStates.status = "loading";
+        state.addressStates.loading = true;
+        state.addressStates.error = "";
+      })
+      .addCase(updateAddress.fulfilled, (state) => {
+        state.addressStates.status = "succeeded";
+        state.addressStates.loading = false;
+        state.addressStates.error = "";
+      })
+      .addCase(updateAddress.rejected, (state) => {
+        state.addressStates.status = "failed";
+        state.addressStates.loading = false;
+        state.addressStates.error = "Error";
+      })
+
+      .addCase(addIdentification.rejected, (state) => {
+        state.addressStates.status = "failed";
+        state.addressStates.loading = false;
+        state.addressStates.error = "Error";
       })
 
       // Add Driver

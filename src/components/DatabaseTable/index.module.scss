@@ -52,11 +52,14 @@
   align-items: center;
 }
 
-.dotsIcon{
-  fill: var(--Colors-Background-bg-primary, #FFF);
-filter: drop-shadow(0 0 0 var(--Colors-Effects-Focus-rings-focus-ring, #9E77ED)) drop-shadow(0 0 0 var(--Colors-Background-bg-primary, #FFF));
-width: 20px;
-height: 20px;
+.dotsIcon {
+  fill: var(--Colors-Background-bg-primary, #fff);
+  filter: drop-shadow(
+      0 0 0 var(--Colors-Effects-Focus-rings-focus-ring, #9e77ed)
+    )
+    drop-shadow(0 0 0 var(--Colors-Background-bg-primary, #fff));
+  width: 20px;
+  height: 20px;
 }
 
 .iconButton {
@@ -78,7 +81,6 @@ height: 20px;
   }
 }
 
-
 .button {
   // background: none;
   // outline: none;
@@ -88,13 +90,31 @@ height: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-//   width: 20px;
-// height: 20px;
-background: var(--Colors-Background-bg-primary, #FFF);
-filter: drop-shadow(0 0 0 var(--Colors-Effects-Focus-rings-focus-ring, #9E77ED)) drop-shadow(0 0 0 var(--Colors-Background-bg-primary, #FFF));
+  //   width: 20px;
+  // height: 20px;
+  background: var(--Colors-Background-bg-primary, #fff);
+  filter: drop-shadow(
+      0 0 0 var(--Colors-Effects-Focus-rings-focus-ring, #9e77ed)
+    )
+    drop-shadow(0 0 0 var(--Colors-Background-bg-primary, #fff));
 
   &:hover {
     border-radius: 8px;
     background: #eff2f5;
   }
+}
+
+.deleteBtn {
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  background: #d92d20;
+  width: 148px;
+  height: 40px;
+  align-items: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+  cursor: pointer;
+  font-family: "Inter", sans-serif !important;
 }

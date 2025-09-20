@@ -12,6 +12,7 @@ import {
 } from "../../../redux/slices/databaseSlice";
 import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
 import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
+import { ReactComponent as IllustrationIcon } from "../../../icons/Illustration.svg";
 import EmptyComponent from "../../EmptyComponent/EmptyComponent";
 
 interface IFastTagTableData {
@@ -111,7 +112,9 @@ const FastTagTable = () => {
         emptyText: (
           <EmptyComponent
             backgroundImageIcon={<SpiralIcon />}
-            upperImageIcon={<SearchIcon2 />}
+            upperImageIcon={
+              q && q.length > 0 ? <SearchIcon2 /> : <IllustrationIcon />
+            }
             headerText={"No items found"}
             descText={
               "There is no data in this page Start by clicking the Add button above "

@@ -19,6 +19,7 @@ import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
 import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
+import { ReactComponent as IllustrationIcon } from "../../../icons/Illustration.svg";
 import { Table, TableProps, Dropdown } from "antd";
 import styles from "./index.module.scss";
 import React, { useState, useEffect } from "react";
@@ -53,9 +54,18 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
 
   const notify = useNotification();
 
-  const handleDeleteVehicleGroup = () => {
-    notify.success("Customer Deleted", customer.name);
-    dispatch(deleteCustomer({ id: customerId }));
+  const handleDeleteVehicleGroup = async () => {
+    try {
+      const resultAction = await dispatch(deleteCustomer({ id: customerId }));
+
+      if (deleteCustomer.fulfilled.match(resultAction)) {
+        notify.success("Customer Deleted", customer.name);
+      } else {
+        console.log("ERROR");
+      }
+    } catch (error) {
+      console.log("ERRRO");
+    }
     setOpenDeleteModal(false);
   };
 
@@ -202,7 +212,9 @@ const CustomerTable = ({ handleOpenSidePanel }: ICustomerTable) => {
           emptyText: (
             <EmptyComponent
               backgroundImageIcon={<SpiralIcon />}
-              upperImageIcon={<SearchIcon2 />}
+              upperImageIcon={
+                q && q.length > 0 ? <SearchIcon2 /> : <IllustrationIcon />
+              }
               headerText={"No items found"}
               descText={
                 "There is no data in this page Start by clicking the Add button above "

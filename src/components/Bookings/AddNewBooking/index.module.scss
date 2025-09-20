@@ -52,7 +52,6 @@
     background: #f9fafb;
   }
   .pricingDetailsCard {
-    margin: 1rem 0rem;
     background: #f9fafb;
     .pricingDetails {
       display: flex;
@@ -208,6 +207,13 @@
         background: #f9fafb;
         width: 582px;
         padding: 24px;
+        margin-top: 16px;
+
+        .ant-space-item{
+ font-weight: bold;
+  color: #1890ff;
+  font-size: 16px;
+        }
 
         .headerText {
           display: flex;

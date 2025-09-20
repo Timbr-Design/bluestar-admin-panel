@@ -6,6 +6,7 @@ interface IPrimaryBtn {
   btnText: string;
   onClick: VoidFunction;
   loading?: boolean;
+  className?: any;
 }
 
 const PrimaryBtn = ({
@@ -13,10 +14,15 @@ const PrimaryBtn = ({
   LeadingIcon,
   onClick,
   loading,
+  className,
 }: IPrimaryBtn) => {
   return (
-    <button type={"button"} className={styles.container} onClick={onClick}>
-      {loading && <Spin size="small"/>}
+    <button
+      type={"button"}
+      className={className ?? styles.container}
+      onClick={onClick}
+    >
+      {loading && <Spin size="small" />}
       {LeadingIcon ? <LeadingIcon style={{ fontSize: "18px" }} /> : null}
       <div className={styles.text}>{btnText}</div>
     </button>
