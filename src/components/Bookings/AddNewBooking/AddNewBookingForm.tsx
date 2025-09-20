@@ -261,142 +261,155 @@ const AddNewBookingForm = ({
       requiredMark={CustomizeRequiredMark}
       className={styles.form}
     >
-      <Form.Item
-        name="bookingId"
-        label="Booking ID"
-        rules={[{ required: true }]}
-      >
-        <Input type="text" disabled />
-      </Form.Item>
-      <Form.Item
-        name={"customer"}
-        rules={[{ required: true, message: "Please select Customer" }]}
-        label="Customer"
-        style={{ marginTop: "12px" }}
-      >
-        <Select
-          placeholder="Select customer"
-          allowClear
-          showSearch
-          options={customersOption?.map(
-            (option: { value: any; label: any }) => ({
-              value: option.value,
-              label: option.label,
-            })
-          )}
-          onSearch={(text) => getCustomerList(text)}
-          fieldNames={{ label: "label", value: "value" }}
-          filterOption={false}
-          notFoundContent={<div>No search result</div>}
-        />
-      </Form.Item>
-
-      <Card className={styles.booked_by_nameCardContainer}>
-        <div
-          // name="booked_by_name"
-          // id="booked_by_name"
-          // label="Booked By"
-          className={styles.secondaryContainer}
+      <div className={styles.typeContainer}>
+        <Form.Item
+          name="bookingId"
+          label="Booking ID"
+          rules={[{ required: true }]}
         >
-          {/* <Input.Group> */}
+          <Input type="text" disabled />
+        </Form.Item>
+      </div>
+
+      <div className={styles.typeContainer}>
+        <Form.Item
+          name={"customer"}
+          rules={[{ required: true, message: "Please select Customer" }]}
+          label="Customer"
+          style={{ marginTop: "12px" }}
+        >
+          <Select
+            placeholder="Select customer"
+            allowClear
+            showSearch
+            options={customersOption?.map(
+              (option: { value: any; label: any }) => ({
+                value: option.value,
+                label: option.label,
+              })
+            )}
+            onSearch={(text) => getCustomerList(text)}
+            fieldNames={{ label: "label", value: "value" }}
+            filterOption={false}
+            notFoundContent={<div>No search result</div>}
+          />
+        </Form.Item>
+      </div>
+
+      <Form.Item
+        // name="booked_by_name"
+        // id="booked_by_name"
+        label="Booked By"
+        labelCol={{
+          style: { fontWeight: 500, fontSize: "16px" },
+        }}
+        className={styles.secondaryContainer}
+      >
+        <div className={styles.typeContainer}>
           <Form.Item
             name="booked_by_name"
-            label="Booked by name"
+            label="Booked by Name"
             style={{ marginTop: "12px" }}
           >
-            <Input />
+            <Input placeholder="Name" />
           </Form.Item>
-          <Form.Item
-            name="booked_by_number"
-            label="Phone Number"
-            rules={[
-              { required: false },
-              {
-                pattern: /^(\+91)?[6-9][0-9]{9}$/,
-                message: "Please enter a valid Indian phone number",
-              },
-            ]}
-            style={{ marginTop: "12px" }}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="booked_by_email"
-            label="Email"
-            rules={[{ required: false, type: "email" }]}
-            style={{ marginTop: "12px" }}
-          >
-            <Input type="email" />
-          </Form.Item>
-          {/* </Input.Group> */}
         </div>
-        <div className={styles[`passenger-switch`]}>
-          <Switch
-            checked={useThisPassenger}
-            onChange={handleToggle}
-            size="small"
-          />
-          <span className={styles["passenger-switch__label"]}>
-            Use the same details for passenger
-          </span>
-        </div>
-      </Card>
-      {/*  passenger detail */}
-      <Card className={styles.PassengerCardContainer}>
-        <p>Passenger Details</p>
-        <Form.List name="passenger">
-          {(fields, { add, remove }) => (
-            <>
-              {fields.map(({ key, name, ...restField }, index) => (
-                <Card key={key} className={styles.PassengerCard}>
-                  <Form.Item
-                    {...restField}
-                    name={[name, "name"]}
-                    label="Passenger name"
-                  >
-                    <Input placeholder="Passenger name" />
-                  </Form.Item>
 
-                  <Form.Item
-                    {...restField}
-                    name={[name, "phoneNo"]}
-                    rules={[
-                      { required: false },
-                      {
-                        pattern: /^(\+91)?[6-9][0-9]{9}$/,
-                        message: "Please enter a valid Indian phone number",
-                      },
-                    ]}
-                    label="Passenger phone number"
-                    style={{ marginTop: "16px" }}
-                  >
-                    <Input placeholder="Passenger phone number" />
-                  </Form.Item>
+        <Form.Item
+          name="booked_by_number"
+          label="Booked by Phone Number"
+          rules={[
+            { required: false },
+            {
+              pattern: /^(\+91)?[6-9][0-9]{9}$/,
+              message: "Please enter a valid Indian phone number",
+            },
+          ]}
+          style={{ marginTop: "12px" }}
+        >
+          <Input placeholder="Phone number" />
+        </Form.Item>
+        <Form.Item
+          name="booked_by_email"
+          label="Booked by Email"
+          rules={[{ required: false, type: "email" }]}
+          style={{ marginTop: "12px" }}
+        >
+          <Input type="email" placeholder="Email" />
+        </Form.Item>
+        {!initialData?.id && (
+          <Form.Item>
+            <div className={styles[`passenger-switch`]}>
+              <Switch
+                checked={useThisPassenger}
+                onChange={handleToggle}
+                size="small"
+              />
+              <span className={styles["passenger-switch__label"]}>
+                Use the same details for passenger
+              </span>
+            </div>
+          </Form.Item>
+        )}
+      </Form.Item>
 
-                  {fields.length > 1 && (
-                    <Button
-                      icon={<DeleteOutlined />}
-                      onClick={() => remove(name)}
-                      className={styles.deletePassengerButton}
-                    />
-                  )}
-                </Card>
-              ))}
-
-              <Form.Item>
-                <Button
-                  className={styles.addPassengerButton}
-                  type="text"
-                  onClick={() => add()}
-                  icon={<PlusOutlined />}
+      <Form.List name="passenger">
+        {(fields, { add, remove }) => (
+          <>
+            {fields.map(({ key, name, ...restField }, index) => (
+              <Form.Item
+                label="Passenger Details"
+                labelCol={{
+                  style: { fontWeight: 500, fontSize: "16px" },
+                }}
+                className={styles.secondaryContainer}
+              >
+                <Form.Item
+                  {...restField}
+                  name={[name, "name"]}
+                  label="Passenger name"
                 >
-                  Add Passenger
-                </Button>
+                  <Input placeholder="Passenger name" />
+                </Form.Item>
+
+                <Form.Item
+                  {...restField}
+                  name={[name, "phoneNo"]}
+                  rules={[
+                    { required: false },
+                    {
+                      pattern: /^(\+91)?[6-9][0-9]{9}$/,
+                      message: "Please enter a valid Indian phone number",
+                    },
+                  ]}
+                  label="Passenger phone number"
+                  style={{ marginTop: "16px" }}
+                >
+                  <Input placeholder="Passenger phone number" />
+                </Form.Item>
+
+                {fields.length > 1 && (
+                  <Button
+                    icon={<DeleteOutlined />}
+                    onClick={() => remove(name)}
+                    className={styles.deletePassengerButton}
+                  />
+                )}
               </Form.Item>
-            </>
-          )}
-        </Form.List>
-      </Card>
+            ))}
+            <Form.Item>
+              <Button
+                className={styles.addPassengerButton}
+                type="text"
+                onClick={() => add()}
+                icon={<PlusOutlined />}
+              >
+                Add more
+              </Button>
+            </Form.Item>
+          </>
+        )}
+      </Form.List>
       <Form.Item name="dutyType" rules={[{ required: true }]} label="Duty type">
         <Select
           allowClear
@@ -569,11 +582,10 @@ const AddNewBookingForm = ({
                 disabledDate={(current) =>
                   current && current < dayjs().startOf("day")
                 }
-                showHour={true}
-                showMinute={true}
-                showTime={true}
-                format="DD-MM-YYYY hh:mm A"
-                use12Hours
+                showHour={false}
+                showMinute={false}
+                showTime={false}
+                format="DD-MM-YYYY"
               />
             </Form.Item>
             <Form.Item
@@ -587,10 +599,10 @@ const AddNewBookingForm = ({
               label="End Date"
             >
               <CustomDatePicker
-                showHour={true}
-                showMinute={true}
-                showTime={true}
-                use12Hours
+                showHour={false}
+                showMinute={false}
+                showTime={false}
+                format="DD-MM-YYYY"
                 disabledDate={(current) => {
                   // Get the start time from form values
                   const startTime = form.getFieldValue([
@@ -604,56 +616,78 @@ const AddNewBookingForm = ({
                       current < dayjs().startOf("day"))
                   );
                 }}
-                format="DD-MM-YYYY hh:mm A"
               />
             </Form.Item>
           </div>
+
           <div className={styles.timeRow}>
             <Form.Item
               style={{ width: "100%" }}
               rules={[
-                {
-                  required: true,
-                },
+                { required: true, message: "Reporting time is required" },
               ]}
               name={["durationDetails", "reporting_time"]}
               label="Reporting Time"
             >
-              <CustomDatePicker
-                disabledDate={(current) =>
-                  current && current < dayjs().startOf("day")
-                }
-                showHour={true}
-                showMinute={true}
-                showTime={true}
-                format="DD-MM-YYYY hh:mm A"
-                use12Hours
+              <TimePicker
+                format="HH:mm" // 24-hour format
+                minuteStep={5}
+                defaultValue={dayjs("12:00", "HH:mm")}
+                style={{ width: "100%" }}
               />
             </Form.Item>
+
+            {/* Est Drop Time */}
             <Form.Item
               style={{ width: "100%" }}
               name={["durationDetails", "est_drop_time"]}
               label="Est Drop Time"
+              dependencies={[["durationDetails", "reporting_time"]]}
+              rules={[
+                {
+                  validator: (_, value) => {
+                    const start = form.getFieldValue([
+                      "durationDetails",
+                      "reporting_time",
+                    ]);
+                    if (!value || !start) return Promise.resolve();
+                    if (dayjs(value).isAfter(dayjs(start))) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("End time must be greater than start time")
+                    );
+                  },
+                },
+              ]}
             >
-              <CustomDatePicker
-                showHour={true}
-                showMinute={true}
-                showTime={true}
-                use12Hours
-                disabledDate={(current) => {
-                  // Get the start time from form values
-                  const startTime = form.getFieldValue([
+              <TimePicker
+                format="HH:mm"
+                minuteStep={5}
+                style={{ width: "100%" }}
+                disabledTime={() => {
+                  const start = form.getFieldValue([
                     "durationDetails",
                     "reporting_time",
                   ]);
+                  if (!start) return {};
+                  const startHour = dayjs(start).hour();
+                  const startMinute = dayjs(start).minute();
 
-                  return (
-                    current &&
-                    (current < dayjs(startTime || undefined).startOf("day") ||
-                      current < dayjs().startOf("day"))
-                  );
+                  return {
+                    disabledHours: () =>
+                      Array.from({ length: startHour }, (_, i) => i),
+                    disabledMinutes: (selectedHour) => {
+                      if (selectedHour === startHour) {
+                        return Array.from(
+                          { length: startMinute + 1 },
+                          (_, i) => i
+                        );
+                      }
+                      return [];
+                    },
+                  };
                 }}
-                format="DD-MM-YYYY hh:mm A"
               />
             </Form.Item>
           </div>

@@ -32,6 +32,8 @@ import {
   setQueryForSearch,
 } from "../../redux/slices/databaseSlice";
 import { RootState } from "../../types/store";
+import DeleteModal from "../Modal/DeleteModal";
+import useNotification from "../DeleteNotification/useNotification";
 
 interface IDatabaseItem {
   id: number;
@@ -50,8 +52,7 @@ const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
   const { q, selectedRowType, selectedRowKeys } = useAppSelector(
     (state: RootState) => state.database
   );
-
-  console.log(selectedRowType, selectedRowKeys);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
   const [active, setActive] = useState(false);
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -59,42 +60,96 @@ const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
     dispatch(setQueryForSearch(value));
   };
 
+  const notify = useNotification();
+
+  const deleteMultiple = async (
+    ids: string[],
+    deleteAction: (payload: any) => any,
+    label: string
+  ) => {
+    // Run deletions in parallel, but handle per-item success/failure
+    await Promise.all(
+      ids.map(async (id) => {
+        try {
+          await dispatch(deleteAction({ id })).unwrap(); // unwrap to catch error from createAsyncThunk
+          notify.success(`${label} deleted`, `ID: ${id}`);
+        } catch (err: any) {
+          console.log(err);
+          // notify.error(`Failed to delete ${label}`, err?.message || `ID: ${id}`);
+        }
+      })
+    );
+  };
+
   const handleDeleteSelected = async () => {
     switch (selectedRowType) {
       case "duty_types":
-        return await Promise.all(
-          selectedRowKeys.map((id) => dispatch(deleteDutyType({ id })))
-        );
+        return deleteMultiple(selectedRowKeys, deleteDutyType, "Duty type");
       case "vehicle_groups":
-        return await Promise.all(
-          selectedRowKeys.map((id) => dispatch(deleteVehicleGroup({ id })))
+        return deleteMultiple(
+          selectedRowKeys,
+          deleteVehicleGroup,
+          "Vehicle group"
         );
       case "customers":
-        return await Promise.all(
-          selectedRowKeys.map((id) => dispatch(deleteCustomer({ id })))
-        );
+        return deleteMultiple(selectedRowKeys, deleteCustomer, "Customer");
       case "drivers":
-        return await Promise.all(
-          selectedRowKeys.map((id) => dispatch(deleteDriver({ id })))
-        );
+        return deleteMultiple(selectedRowKeys, deleteDriver, "Driver");
       case "vehicles":
-        return await Promise.all(
-          selectedRowKeys.map((id) => dispatch(deleteVehicle({ id })))
-        );
+        return deleteMultiple(selectedRowKeys, deleteVehicle, "Vehicle");
       case "bank_accounts":
-        return await Promise.all(
-          selectedRowKeys.map((id) => dispatch(deleteBankAccount({ id })))
+        return deleteMultiple(
+          selectedRowKeys,
+          deleteBankAccount,
+          "Bank account"
         );
       case "taxes":
-        return await Promise.all(
-          selectedRowKeys.map((id) => dispatch(deleteTax({ id })))
-        );
+        return deleteMultiple(selectedRowKeys, deleteTax, "Tax");
       case "allowances":
-        return await Promise.all(
-          selectedRowKeys.map((id) => dispatch(deleteAllowance({ id })))
-        );
+        return deleteMultiple(selectedRowKeys, deleteAllowance, "Allowance");
     }
   };
+
+  // const handleDeleteSelected = async () => {
+  //   // notify.success(`${item.type} deleted`, "");
+  //   switch (selectedRowType) {
+  //     case "duty_types":
+  //       return await Promise.all(
+  //         selectedRowKeys.map(async (id) => {
+  //           await dispatch(deleteDutyType({ id })).unwrap();
+  //           // notify.success("Duty type deleted", "");
+  //         })
+  //       );
+  //     case "vehicle_groups":
+  //       return await Promise.all(
+  //         selectedRowKeys.map((id) => dispatch(deleteVehicleGroup({ id })))
+  //       );
+  //     case "customers":
+  //       return await Promise.all(
+  //         selectedRowKeys.map((id) => dispatch(deleteCustomer({ id })))
+  //       );
+  //     case "drivers":
+  //       return await Promise.all(
+  //         selectedRowKeys.map((id) => dispatch(deleteDriver({ id })))
+  //       );
+  //     case "vehicles":
+  //       return await Promise.all(
+  //         selectedRowKeys.map((id) => dispatch(deleteVehicle({ id })))
+  //       );
+  //     case "bank_accounts":
+  //       return await Promise.all(
+  //         selectedRowKeys.map((id) => dispatch(deleteBankAccount({ id })))
+  //       );
+  //     case "taxes":
+  //       return await Promise.all(
+  //         selectedRowKeys.map((id) => dispatch(deleteTax({ id })))
+  //       );
+  //     case "allowances":
+  //       return await Promise.all(
+  //         selectedRowKeys.map((id) => dispatch(deleteAllowance({ id })))
+  //       );
+  //   }
+  // };
 
   const vehicleItems = [
     {
@@ -287,6 +342,11 @@ const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
           </div>
           {item.type !== "allowance" && item.type !== "fastag" && (
             <PrimaryBtn
+              className={
+                selectedRowKeys && selectedRowKeys.length > 0
+                  ? styles.deleteBtn
+                  : null
+              }
               LeadingIcon={
                 selectedRowKeys && selectedRowKeys.length > 0 ? null : PlusIcon
               }
@@ -297,7 +357,7 @@ const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
               }
               onClick={
                 selectedRowKeys && selectedRowKeys.length > 0
-                  ? handleDeleteSelected
+                  ? () => setOpenDeleteModal(true)
                   : handleOpenSidePanel
               }
             />
@@ -319,6 +379,13 @@ const DatabaseTable = ({ item, handleOpenSidePanel }: IDatabaseTable) => {
           )}
         </div>
       </div>
+      <DeleteModal
+        show={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        title={`Delete ${item.type}`}
+        desc={`Are you sure you want to delete ${selectedRowKeys.length} ${item.type}?`}
+        onDelete={handleDeleteSelected}
+      />
       <div className={styles.tableContainer}>{renderComponent()}</div>
     </div>
   );

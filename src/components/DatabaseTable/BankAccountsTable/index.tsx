@@ -20,6 +20,7 @@ import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
 import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
+import { ReactComponent as IllustrationIcon } from "../../../icons/Illustration.svg";
 import React, { useEffect, useState } from "react";
 import styles from "./index.module.scss";
 import CustomPagination from "../../Common/Pagination";
@@ -61,9 +62,20 @@ const BankAccountsTable = ({
   const [bankAccountName, setBankAccountName] = useState("");
   const notify = useNotification();
 
-  const handleDeleteBankAccount = () => {
-    notify.success("Bank account Deleted", bankAccountName);
-    dispatch(deleteBankAccount({ id: deleteBankAccountId }));
+  const handleDeleteBankAccount = async () => {
+    try {
+      const resultAction = await dispatch(
+        deleteBankAccount({ id: deleteBankAccountId })
+      );
+
+      if (deleteBankAccount.fulfilled.match(resultAction)) {
+        notify.success("Bank account Deleted", bankAccountName);
+      } else {
+        console.log("ERROR");
+      }
+    } catch (error) {
+      console.log("ERRRO");
+    }
     setOpenDeleteModal(false);
   };
 
@@ -202,7 +214,9 @@ const BankAccountsTable = ({
           emptyText: (
             <EmptyComponent
               backgroundImageIcon={<SpiralIcon />}
-              upperImageIcon={<SearchIcon2 />}
+              upperImageIcon={
+                q && q.length > 0 ? <SearchIcon2 /> : <IllustrationIcon />
+              }
               headerText={"No items found"}
               descText={
                 "There is no data in this page Start by clicking the Add button above "

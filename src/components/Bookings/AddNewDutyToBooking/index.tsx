@@ -17,6 +17,7 @@ import CustomDatePicker from "../../Common/CustomDatePicker";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import { RootState } from "../../../types/store";
 import {
+  getAllAddresses,
   getAllDutyTypes,
   getVehicleGroup,
 } from "../../../redux/slices/databaseSlice";
@@ -40,16 +41,17 @@ const AddNewDutyToBookingForm = ({
   form,
 }: AddNewDutyToBookingForm) => {
   let { bookingId } = useParams();
-  const { vehicleGroupSelectOption, dutyTypeOption, customersOption } =
-    useAppSelector((state: RootState) => state.database);
+  const {
+    vehicleGroupSelectOption,
+    dutyTypeOption,
+    customersOption,
+    addressList,
+    addressListSelectOption,
+  } = useAppSelector((state: RootState) => state.database);
   const { currentSelectedBookingDuties } = useAppSelector(
     (state: RootState) => state.bookingDuties
   );
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    console.log(dutyTypeOption);
-  }, [dutyTypeOption]);
 
   useEffect(() => {
     dispatch(
@@ -60,6 +62,7 @@ const AddNewDutyToBookingForm = ({
       })
     );
     dispatch(getVehicleGroup({ page: "1", search: "", limit: 10 }));
+    dispatch(getAllAddresses({}));
   }, []);
 
   const getDutyTypeValue = (searchText: string) => {
@@ -83,15 +86,25 @@ const AddNewDutyToBookingForm = ({
   };
 
   const onSubmit = (values: any) => {
-    console.log(values);
-    if (Object.keys(currentSelectedBookingDuties).length) {
+    const updatedValues = {
+      ...values,
+      start_date: dayjs(values.start_date).format("YYYY-MM-DD HH:mm:ss"),
+      end_date: dayjs(values.start_date).format("YYYY-MM-DD HH:mm:ss"),
+      start_from_garage_before_mins: new Date(
+        values.start_from_garage_before_mins
+      ).getTime(),
+      reporting_time: dayjs(values.reporting_time).format(
+        "YYYY-MM-DD HH:mm:ss"
+      ),
+      est_drop_time: dayjs(values.est_drop_time).format("YYYY-MM-DD HH:mm:ss"),
+      booking_id: bookingId,
+    };
+    if (isEditable && initialData?.id) {
       dispatch(
-        updateBookingDuties({
-          currentSelectedBookingDuties,
-        })
+        updateBookingDuties({ id: initialData.id, data: updatedValues })
       );
     } else {
-      dispatch(addNewBookingDuties(values));
+      dispatch(addNewBookingDuties(updatedValues));
     }
   };
 
@@ -102,26 +115,29 @@ const AddNewDutyToBookingForm = ({
         base_rate: initialData?.base_rate,
         duty_type_id: [
           {
-            label: initialData?.duty_type_id?.name,
-            value: initialData?.duty_type_id?.id,
+            label: initialData?.expand?.duty_type_id?.name,
+            value: initialData?.expand?.duty_type_id?.id,
           },
         ],
         vehicle_group_id: [
           {
-            label: initialData?.vehicle_group_id?.name,
-            value: initialData?.vehicle_group_id?.id,
+            label: initialData?.expand?.vehicle_group_id?.name,
+            value: initialData?.expand?.vehicle_group_id?.id,
           },
         ],
+        reporting_time: dayjs(initialData?.reporting_time),
+        est_drop_time: dayjs(initialData?.est_drop_time),
         reporting_address_map_link: initialData?.reporting_address_map_link,
         start_date: initialData?.start_date
           ? dayjs(initialData?.start_date)
           : null,
         end_date: initialData?.end_date ? dayjs(initialData.end_date) : null,
-
         start_from_garage_before_mins:
           initialData?.start_from_garage_before_mins
             ? dayjs(initialData.start_from_garage_before_mins)
             : null,
+        per_extra_km_rate: initialData?.per_extra_km_rate,
+        per_extra_hour_rate: initialData?.per_extra_hour_rate,
         drop_address_map_link: initialData?.drop_address_map_link,
         from_address_id: initialData?.from_address_id,
         to_address_id: initialData?.to_address_id,
@@ -140,15 +156,7 @@ const AddNewDutyToBookingForm = ({
       onFinishFailed={(errorInfo) => {
         console.log("Failed:", errorInfo);
       }}
-      onFinish={(values) => {
-        onSubmit(values);
-        // booking_id
-        // if (isEditable && initialData.id) {
-        //   dispatch(updateBookingDuties({ id: initialData.id, ...values }));
-        // } else {
-        //   dispatch(addNewBookingDuties(values));
-        // }
-      }}
+      onFinish={(values) => onSubmit(values)}
       requiredMark={CustomizeRequiredMark}
       className={styles.form}
     >
@@ -191,35 +199,33 @@ const AddNewDutyToBookingForm = ({
         <Col sm={12}>
           {/* from */}
           <Form.Item
-            rules={[
-              { required: true, message: "Please provide a Google Maps link!" },
-              {
-                pattern:
-                  /^(https:\/\/(www\.)?google\.(com|[a-z]{2})\/maps\/.+|https:\/\/maps\.app\.goo\.gl\/.+)/,
-                message: "Please enter a valid Google Maps URL!",
-              },
-            ]}
+            rules={[{ required: true }]}
             name="from_address_id"
-            label="from Address"
+            label="From (Service Location)"
           >
-            <Input type="text" placeholder="Location (Google map link)"></Input>
+            <Select
+              allowClear
+              showSearch
+              options={addressListSelectOption}
+              // onSearch={(text) => getVehicleGroupValue(text)}
+              placeholder="Location"
+              fieldNames={{ label: "label", value: "value" }}
+              notFoundContent={<div>No search result</div>}
+            ></Select>
+            {/* <Input type="text" placeholder="Location"></Input> */}
           </Form.Item>
         </Col>
         <Col sm={12}>
           {/* to */}
-          <Form.Item
-            name="to_address_id"
-            rules={[
-              { required: true, message: "Please provide a Google Maps link!" },
-              {
-                pattern:
-                  /^(https:\/\/(www\.)?google\.(com|[a-z]{2})\/maps\/.+|https:\/\/maps\.app\.goo\.gl\/.+)/,
-                message: "Please enter a valid Google Maps URL!",
-              },
-            ]}
-            label="to Address"
-          >
-            <Input type="text" placeholder="Location (Google map link)"></Input>
+          <Form.Item name="to_address_id" label="To">
+            <Select
+              allowClear
+              showSearch
+              options={addressListSelectOption}
+              placeholder="Location"
+              fieldNames={{ label: "label", value: "value" }}
+              notFoundContent={<div>No search result</div>}
+            ></Select>
           </Form.Item>
         </Col>
       </Row>
@@ -289,6 +295,47 @@ const AddNewDutyToBookingForm = ({
                   ]}
                   name={"end_date"}
                   label="End Date"
+                >
+                  <CustomDatePicker
+                    showHour={true}
+                    showMinute={true}
+                    showTime={true}
+                    use12Hours
+                    format="DD-MM-YYYY"
+                    onChange={form.onChange}
+                  />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                  name={"reporting_time"}
+                  label="Reporting Time"
+                >
+                  <CustomDatePicker
+                    showHour={true}
+                    showMinute={true}
+                    showTime={true}
+                    format="DD-MM-YYYY HH:mm"
+                    use12Hours
+                    onChange={form.onChange}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  rules={[
+                    {
+                      required: false,
+                    },
+                  ]}
+                  name={"est_drop_time"}
+                  label="Est Drop Time"
                 >
                   <CustomDatePicker
                     showHour={true}

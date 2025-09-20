@@ -26,7 +26,9 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
   const [selectedVehicle, setSelectedVehicle] = useState({ id: "" });
   const { vehicleList, q, pagination, selectedDutyType, selectedVehicleGroup } =
     useAppSelector((state) => state.database);
-  console.log(vehicleList);
+
+  console.log(form);
+
   useEffect(() => {
     setSelectedVehicle(vehicle);
   }, [vehicle]);
@@ -35,15 +37,19 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
     { label: "Booking ID", value: form.getFieldValue("bookingId") },
     {
       label: "Start Date",
-      value: new Date(
-        form.getFieldValue("durationDetails").start_date
-      ).toLocaleDateString(),
+      value: form.getFieldValue("durationDetails")?.start_date
+        ? new Date(
+            form.getFieldValue("durationDetails").start_date
+          ).toLocaleDateString()
+        : undefined,
     },
     {
       label: "End Date",
-      value: new Date(
-        form.getFieldValue("durationDetails").end_date
-      ).toLocaleDateString(),
+      value: form.getFieldValue("durationDetails")?.end_date
+        ? new Date(
+            form.getFieldValue("durationDetails").end_date
+          ).toLocaleDateString()
+        : undefined,
     },
     {
       label: "Garage Start Time",
@@ -68,6 +74,8 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
       value: form.getFieldValue("drop_address"),
     },
   ];
+
+  console.log(bookingInfo);
 
   const getInitials = (name: string) => {
     const names = name?.split(" "); // Split the name by spaces
@@ -130,7 +138,7 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
   return (
     <div className={styles["duty-details-container"]}>
       <div className={styles["duty-info-section"]}>
-        {bookingInfo.map((item, index) => (
+        {bookingInfo?.map((item, index) => (
           <div className={styles["duty-info-row"]} key={index}>
             <Text className={styles["duty-info-label"]}>{item.label}</Text>
             <Text className={styles["duty-info-value"]}>{item.value}</Text>

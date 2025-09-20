@@ -17,12 +17,13 @@ import {
   addNewCustomer,
   updateCustomer,
   setViewContentDatabase,
+  getTaxes,
 } from "../../../redux/slices/databaseSlice";
 import UploadComponent from "../../Upload";
 import { ReactComponent as EditIcon } from "../../../icons/edit-icon.svg";
 import { ReactComponent as UploadIcon } from "../../../icons/uploadCloud.svg";
 import { STATES, CUSTOMER_TAX_TYPES, IFile } from "../../../constants/database";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import styles from "../DutyTypeTable/index.module.scss";
 import CustomizeRequiredMark from "../../Common/CustomizeRequiredMark";
 
@@ -39,8 +40,8 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
     customersStates,
     updateCustomersStates,
     viewContentDatabase,
+    taxes,
   } = useAppSelector((state) => state.database);
-  console.log("I RUNI", selectedCustomer);
   const { Dragger } = Upload;
   const [api, contextHolder] = notification.useNotification();
   const [customerPaylod, setCustomerPayload] = useState({
@@ -66,9 +67,12 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
 
   const handleUploadUrl = (file: IFile) => {
     const tempFilesArr = [...filesArr, file];
-    console.log(tempFilesArr, "tempFilesArr");
     setFilesArr(tempFilesArr);
   };
+
+  const randomCustomerId = useMemo(() => {
+    return Math.floor(100000 + Math.random() * 900000);
+  }, []);
 
   const handleSelectChange = (value: string) => {
     setCustomerPayload({ ...customerPaylod, state: value });
@@ -114,8 +118,11 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
+    dispatch(getTaxes({ search: "" }));
+  }, []);
+
+  useEffect(() => {
     if (Object.keys(selectedCustomer).length) {
-      console.log(selectedCustomer, "HELLO");
       setFilesArr(selectedCustomer?.files || []);
       form.setFieldsValue({
         customer_code: selectedCustomer?.customer_code,
@@ -133,6 +140,10 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
         gstNumber: selectedCustomer?.tax_details?.gstNumber,
         billingAddress: selectedCustomer?.tax_details?.billingAddress,
         files: selectedCustomer?.files,
+      });
+    } else {
+      form.setFieldsValue({
+        customer_code: randomCustomerId.toString(),
       });
     }
   }, [selectedCustomer]);
@@ -182,7 +193,6 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
           form={form}
           className={styles.form}
           onFinish={(values) => {
-            console.log(values);
             const valuesToSend = {
               customer_code: values.customer_code,
               name: values.name,
@@ -219,7 +229,7 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
               name="customer_code"
               id="customer_code"
             >
-              <Input placeholder="Enter Customer code..." />
+              <Input placeholder="Enter Customer code..." disabled />
             </Form.Item>
           </div>
           <div className={styles.typeContainer}>
@@ -259,6 +269,10 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
               rules={[
                 {
                   required: false,
+                },
+                {
+                  pattern: /^[0-9]{6}$/,
+                  message: "Pin code must be exactly 6 digits",
                 },
               ]}
               name="pin_code"
@@ -309,6 +323,12 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
                 type="number"
                 placeholder="Enter phone number..."
                 defaultValue={""}
+                maxLength={10}
+                onKeyPress={(e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault(); // block anything that’s not a digit
+                  }
+                }}
               />
             </Form.Item>
           </div>
@@ -418,16 +438,16 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
                       required: false,
                     },
                   ]}
-                  name="type"
+                  name="taxId"
                   id="type"
                 >
                   <Select
                     style={{ width: "100%" }}
                     placeholder="Select tax"
                     dropdownRender={(menu) => <>{menu}</>}
-                    options={CUSTOMER_TAX_TYPES.map((state) => ({
-                      label: state.label,
-                      value: state.value,
+                    options={taxes?.map((state) => ({
+                      label: state.name,
+                      value: state.id,
                     }))}
                   />
                 </Form.Item>

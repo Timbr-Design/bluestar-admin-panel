@@ -79,8 +79,6 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
     },
   ]);
 
-  console.log(vehicleGroupDataArray);
-
   const handleBaseRateChange = (value: number | null, key: string) => {
     setData((prevData) =>
       prevData.map((item) =>
@@ -89,20 +87,34 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
     );
   };
 
+  const handleSelectChange = (value: any) => {
+    setDutyType(value);
+  };
+
+  const onChange = (e: RadioChangeEvent) => {
+    setValue(e.target.value);
+  };
+
+  const columnHeader = [
+    { id: 1, name: "Vehicle Group" },
+    { id: 2, name: "Base Rate" },
+    { id: 3, name: "Extra KM rate" },
+    { id: 4, name: "Extra HR rate" },
+  ];
+
   useEffect(() => {
     dispatch(getVehicleGroup({ page: "1", search: "", limit: 10 }));
   }, []);
 
   useEffect(() => {
     if (Object.keys(selectedDutyType).length) {
-      console.log(selectedDutyType, "SDFSDF");
       const tempArr = selectedDutyType?.pricing?.map((data: any) => {
         return {
           vehicleGroupName: data?.vehicleGroupName,
-          vehicleGroupId: data?.vehicle_group_id,
+          vehicleGroupId: data?.vehicleGroupId,
           baseRate: data?.baseRate,
-          extraKmRate: data?.per_extra_km_rate,
-          extraHrRate: data?.extraKmRate,
+          extraKmRate: data?.extraKmRate,
+          extraHrRate: data?.extraHrRate,
         };
       });
 
@@ -136,9 +148,9 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
         form.setFieldsValue({
           dutyType: capitalize(selectedDutyType?.category),
           name: selectedDutyType?.name,
-          vehicleGroup: selectedDutyType?.custom_duty_type?.vehicle_group_id,
+          vehicleGroup: selectedDutyType?.custom_duty_type?.vehicleGroupId,
           thresholdKM: selectedDutyType?.custom_duty_type?.thresholdKm,
-          ratePerKm: selectedDutyType?.custom_duty_type?.per_extra_km_rate,
+          ratePerKm: selectedDutyType?.custom_duty_type?.ratePerKm,
         });
       } else {
         // Set form values for non-Custom duty type
@@ -157,7 +169,6 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
         });
       }
     } else {
-      console.log(vehicleGroupData);
       const tempArr =
         vehicleGroupData &&
         Array.isArray(vehicleGroupData) &&
@@ -178,25 +189,9 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
     }
   }, [vehicleGroupData, selectedDutyType, form]);
 
-  const handleSelectChange = (value: any) => {
-    setDutyType(value);
-  };
-
-  const onChange = (e: RadioChangeEvent) => {
-    setValue(e.target.value);
-  };
-
-  const columnHeader = [
-    { id: 1, name: "Vehicle Group" },
-    { id: 2, name: "Base Rate" },
-    { id: 3, name: "Extra KM rate" },
-    { id: 4, name: "Extra HR rate" },
-  ];
-
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      console.log(values, "VALUES");
 
       // Validate base rates for custom duty type
       if (capitalize(dutyType) === "Custom") {
@@ -244,17 +239,6 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                 category: values.dutyType,
                 secondary_type: value,
                 pricing: vehicleGroupDataArray,
-                //   ?.map((data: any) =>
-                //     omit(
-                //       {
-                //         ...data,
-                //         baseRate: Number(data.baseRate),
-                //         extraKmRate: Number(data.extraKmRate),
-                //         extraHrRate: Number(data.extraHrRate),
-                //       },
-                //       "vehicleGroupName"
-                //     )
-                //   ),
               },
               id: selectedDutyType?.id,
             })
@@ -282,13 +266,12 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
             })
           );
         } else {
-          // console.log(vehicleGroupDataArray, values);
           dispatch(
             addDutyType({
               name: values.name,
               category: values.dutyType,
               secondary_type: value,
-              pricing: values.pricing,
+              pricing: vehicleGroupDataArray,
             })
           );
         }
@@ -298,13 +281,16 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
     }
   };
 
-  const handlePricingValueChange = (e: any, index: any) => {
-    const regex = /^[0-9]*\.?[0-9]*$/;
-    if (regex.test(e.target.value)) {
+  const handlePricingValueChange = (
+    value: number,
+    name: string,
+    index: any
+  ) => {
+    if (value) {
       const tempVehicleGroupDataArray = vehicleGroupDataArray?.map(
         (data: any, i: any) => {
           if (i === index) {
-            return { ...data, [e.target.name]: e.target.value };
+            return { ...data, [name]: value };
           } else return data;
         }
       );
@@ -811,15 +797,13 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                                   e.preventDefault();
                                 }
                               }}
-                              onChange={(value) => {
-                                if (value === null) return;
-                                const numValue = Number(value);
-                                if (!isNaN(numValue)) {
-                                  form.setFieldValue(
-                                    ["pricing", index, "baseRate"],
-                                    numValue
-                                  );
-                                }
+                              onChange={(val) => {
+                                if (val === null) return;
+                                handlePricingValueChange(
+                                  Number(val),
+                                  "baseRate",
+                                  index
+                                );
                               }}
                             />
                           </Form.Item>
@@ -854,15 +838,13 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                                   e.preventDefault();
                                 }
                               }}
-                              onChange={(value) => {
-                                if (value === null) return;
-                                const numValue = Number(value);
-                                if (!isNaN(numValue)) {
-                                  form.setFieldValue(
-                                    ["pricing", index, "extraKmRate"],
-                                    numValue
-                                  );
-                                }
+                              onChange={(val) => {
+                                if (val === null) return;
+                                handlePricingValueChange(
+                                  Number(val),
+                                  "extraKmRate",
+                                  index
+                                );
                               }}
                             />
                           </Form.Item>
@@ -897,15 +879,13 @@ const DutyTypeForm = ({ handleCloseSidePanel }: IDutyForm) => {
                                   e.preventDefault();
                                 }
                               }}
-                              onChange={(value) => {
-                                if (value === null) return;
-                                const numValue = Number(value);
-                                if (!isNaN(numValue)) {
-                                  form.setFieldValue(
-                                    ["pricing", index, "extraHrRate"],
-                                    numValue
-                                  );
-                                }
+                              onChange={(val) => {
+                                if (val === null) return;
+                                handlePricingValueChange(
+                                  Number(val),
+                                  "extraHrRate",
+                                  index
+                                );
                               }}
                             />
                           </Form.Item>

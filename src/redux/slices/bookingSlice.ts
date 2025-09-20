@@ -30,24 +30,57 @@ export const getBookings = createAsyncThunk(
 
     // });
 
+    // const filters: string[] = [];
+
+    // if (params.search) {
+    //   filters.push(
+    //     `(booked_by_name ~ "${params.search}" || booking_id ~ "${params.search}" || booked_by_number ~ "${params.search}")`
+    //   );
+    // }
+
+    // if (params.status) {
+    //   filters.push(`booking_status ~ "${params.status}"`);
+    // }
+
+    // const filterString = filters.join(" && "); // use AND to combine
+
+    // const record = await pb.collection("bookings").getList(1, 50, {
+    //   expand: "vehicle_group_id,customer_id,duty_type_id,driver_id,vehicle_id,billed_customer_id",
+    //   filter: filterString,
+    // });
+    console.log(params)
+
     const filters: string[] = [];
 
-    if (params.search) {
-      filters.push(
-        `(booked_by_name ~ "${params.search}" || booking_id ~ "${params.search}" || booked_by_number ~ "${params.search}")`
-      );
-    }
+if (params.search) {
+  filters.push(
+    `(booked_by_name ~ "${params.search}" || booking_id ~ "${params.search}" || booked_by_number ~ "${params.search}")`
+  );
+}
 
-    if (params.status) {
-      filters.push(`booking_status ~ "${params.status}"`);
-    }
+if (params.status) {
+  filters.push(`booking_status ~ "${params.status}"`);
+}
 
-    const filterString = filters.join(" && "); // use AND to combine
+if (params.start_date && params.end_date) {
+  filters.push(
+    `(start_date <= "${params.start_date}" && end_date >= "${params.end_date}")`
+  );
+} 
+// else if (params.start_date) {
+//   filters.push(`start_date <= "${params.start_date}"`);
+// } else if (params.end_date) {
+//   filters.push(`end_date >= "${params.end_date}"`);
+// }
 
-    const record = await pb.collection("bookings").getList(1, 50, {
-      expand: "vehicle_group_id,customer_id,duty_type_id,driver_id,vehicle_id,billed_customer_id",
-      filter: filterString,
-    });
+const filterString = filters.join(" && ");
+
+const record = await pb.collection("bookings").getList(1, 50, {
+  expand:
+    "vehicle_group_id,customer_id,duty_type_id,driver_id,vehicle_id,billed_customer_id",
+  filter: filterString,
+});
+
 
     return record.items; 
   }

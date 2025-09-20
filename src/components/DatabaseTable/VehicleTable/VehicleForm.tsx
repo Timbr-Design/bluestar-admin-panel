@@ -91,10 +91,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
     }
   };
 
-  useEffect(() => {
-    console.log(selectedVehicle);
-  }, [selectedVehicle]);
-
   const getPanelValue = (searchText: string) => {
     if (searchText) {
       dispatch(
@@ -125,6 +121,7 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
   useEffect(() => {
     if (Object.keys(selectedVehicle).length) {
       const values = selectedVehicle;
+      console.log(values);
       setRegistrationDocument(
         values?.registration?.registrationDocument || null
       );
@@ -135,18 +132,16 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
 
       form.setFieldsValue(values);
       form.setFieldValue("vehicle_group_id", {
-        value: selectedVehicle?.vehicleGroup?.id,
-        label: selectedVehicle?.vehicleGroup?.name,
+        value: selectedVehicle?.expand?.vehicle_group_id?.id,
+        label: selectedVehicle?.expand?.vehicle_group_id?.name,
       });
       form.setFieldValue("driver_id", {
-        value: selectedVehicle?.driver?.id,
-        label: selectedVehicle?.driver?.name,
+        value: selectedVehicle?.expand?.driver_id?.id,
+        label: selectedVehicle?.expand?.driver_id?.name,
       });
       setIsActive(values?.loan?.isActive);
     }
   }, [selectedVehicle]);
-
-  console.log(options);
 
   useEffect(() => {
     dispatch(getVehicleGroup({ page: "1", search: "", limit: 10 }));
@@ -628,7 +623,12 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
                         },
                       ]}
                     >
-                      <CustomDatePicker format="DD" />
+                      <CustomDatePicker
+                        format="DD"
+                        showTime={false}
+                        showHour={false}
+                        showMinute={false}
+                      />
                     </Form.Item>
                   </div>
                   <div className={styles.typeContainer}>

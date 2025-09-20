@@ -6,6 +6,7 @@ import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
 import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
+import { ReactComponent as IllustrationIcon } from "../../../icons/Illustration.svg";
 import { Table, TableProps, Dropdown } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -130,9 +131,19 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
     setOpenDeleteModal(false);
   };
 
-  const handleDeleteAllowance = () => {
-    notify.success("Allowance Deleted", allowanceName);
-    dispatch(deleteAllowance({ id: allowanceId }));
+  const handleDeleteAllowance = async () => {
+    try {
+      const resultAction = await dispatch(deleteAllowance({ id: allowanceId }));
+
+      if (deleteAllowance.fulfilled.match(resultAction)) {
+        notify.success("Allowance Deleted", allowanceName);
+      } else {
+        console.log("ERROR");
+      }
+    } catch (error) {
+      console.log("ERRRO");
+    }
+
     setOpenDeleteModal(false);
   };
 
@@ -212,7 +223,9 @@ const AllowancesTable = ({ handleOpenSidePanel }: IAllowanceTable) => {
           emptyText: (
             <EmptyComponent
               backgroundImageIcon={<SpiralIcon />}
-              upperImageIcon={<SearchIcon2 />}
+              upperImageIcon={
+                q && q.length > 0 ? <SearchIcon2 /> : <IllustrationIcon />
+              }
               headerText={"No items found"}
               descText={
                 "There is no data in this page Start by clicking the Add button above "

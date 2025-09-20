@@ -10,6 +10,7 @@ import { ReactComponent as ClipboardActive } from "../../../icons/clipboard-chec
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
+import { ReactComponent as IllustrationIcon } from "../../../icons/Illustration.svg";
 import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
 import {
   getTaxes,
@@ -133,9 +134,19 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
     setOpenDeleteModal(false);
   };
 
-  const handleDeleteTax = () => {
-    notify.success("Tax entry Deleted", taxName);
-    dispatch(deleteTax({ id: taxId }));
+  const handleDeleteTax = async () => {
+    try {
+      const resultAction = await dispatch(deleteTax({ id: taxId }));
+
+      if (deleteTax.fulfilled.match(resultAction)) {
+        notify.success("Tax entry Deleted", taxName);
+      } else {
+        console.log("ERROR");
+      }
+    } catch (error) {
+      console.log("ERRRO");
+    }
+
     setOpenDeleteModal(false);
   };
 
@@ -210,10 +221,12 @@ const TaxesTable = ({ handleOpenSidePanel }: ITaxesTable) => {
           emptyText: (
             <EmptyComponent
               backgroundImageIcon={<SpiralIcon />}
-              upperImageIcon={<SearchIcon2 />}
+              upperImageIcon={
+                q && q.length > 0 ? <SearchIcon2 /> : <IllustrationIcon />
+              }
               headerText={"No items found"}
               descText={
-                "There is no data in this page Start by clicking the Add button above "
+                "There is no data in this page. Start by clicking the Add button above"
               }
               handleCTA={
                 q && q.length > 0 ? () => dispatch(setQueryForSearch()) : null

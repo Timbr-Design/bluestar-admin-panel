@@ -13,9 +13,11 @@ import { Table, Dropdown } from "antd";
 import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import { ReactComponent as DotsHorizontal } from "../../../icons/dots-horizontal.svg";
 import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
+// import { ReactComponent as Clipboard } from "../../../icons/clipboard-x.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
 import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
+import { ReactComponent as IllustrationIcon } from "../../../icons/Illustration.svg";
 import { DRIVERS } from "../../../constants/database";
 import styles from "./index.module.scss";
 import cn from "classnames";
@@ -60,9 +62,18 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
     setOpenDeleteModal(false);
   };
 
-  const handleDeleteDriver = () => {
-    notify.success("Customer Deleted", driver.name);
-    dispatch(deleteDriver({ id: driverId }));
+  const handleDeleteDriver = async () => {
+    try {
+      const resultAction = await dispatch(deleteDriver({ id: driverId }));
+
+      if (deleteDriver.fulfilled.match(resultAction)) {
+        notify.success("Driver Deleted", driver.name);
+      } else {
+        console.log("ERROR");
+      }
+    } catch (error) {
+      console.log("ERRRO");
+    }
     setOpenDeleteModal(false);
   };
 
@@ -72,6 +83,16 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
       key: "1",
       icon: <EditIcon />,
     },
+    // {
+    //    type: "divider",
+    // },
+    // {
+    //       label: (
+    //         <>{currentBankAccount?.is_active ? "Mark inactive" : "Mark Active"}</>
+    //       ),
+    //       key: "2",
+    //       icon: <Clipboard />,
+    //     },
   ];
 
   const menuProps = {
@@ -165,7 +186,9 @@ const DriversTable = ({ handleOpenSidePanel }: IDriversTable) => {
           emptyText: (
             <EmptyComponent
               backgroundImageIcon={<SpiralIcon />}
-              upperImageIcon={<SearchIcon2 />}
+              upperImageIcon={
+                q && q.length > 0 ? <SearchIcon2 /> : <IllustrationIcon />
+              }
               headerText={"No items found"}
               descText={
                 "There is no data in this page Start by clicking the Add button above "

@@ -1,30 +1,37 @@
 .form {
+  display: flex;
+      flex-direction: column;
+      // gap: 16px;
+      // height: 100%;
+      // overflow-y: auto;
+      // overflow-x: hidden;
+      // padding: 0px 24px 0 24px;
   .BookedByCardContainer {
     margin: 1rem 0rem;
     background-color: #f9fafb;
   }
-  .PassengerCardContainer {
-    margin: 1rem 0rem;
+  // .PassengerCardContainer {
+  //   margin: 1rem 0rem;
 
-    background-color: #f9fafb;
-    .PassengerCard {
-      position: relative;
-      margin: 1rem 0rem;
-      .deletePassengerButton {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        color: red;
-        border: none !important;
-        width: 20px;
-        height: 20px;
-        background-color: none;
-      }
-    }
-    .addPassengerButton {
-      color: #7f56d9;
-    }
-  }
+  //   background-color: #f9fafb;
+  //   .PassengerCard {
+  //     position: relative;
+  //     margin: 1rem 0rem;
+  //     .deletePassengerButton {
+  //       position: absolute;
+  //       top: 1rem;
+  //       right: 1rem;
+  //       color: red;
+  //       border: none !important;
+  //       width: 20px;
+  //       height: 20px;
+  //       background-color: none;
+  //     }
+  //   }
+  //   .addPassengerButton {
+  //     color: #7f56d9;
+  //   }
+  // }
   .bookingType {
     // width: 100%;
     display: flex;
@@ -45,7 +52,6 @@
     background: #f9fafb;
   }
   .pricingDetailsCard {
-    margin: 1rem 0rem;
     background: #f9fafb;
     .pricingDetails {
       display: flex;
@@ -104,3 +110,127 @@
   margin-bottom: 16px;
   width: 100%;
 }
+
+// .typeContainer {
+//         display: flex;
+//         flex-direction: column;
+//         gap: 6px;
+
+//         .text {
+//           display: flex;
+//           gap: 2px;
+//           color: #344054;
+//           font-size: 14px;
+//           font-weight: 500;
+//           line-height: 20px;
+
+//           sup {
+//             color: #7f56d9;
+//             font-weight: 500;
+//             line-height: 20px;
+//           }
+//         }
+
+//         .secondaryText {
+//           color: #667085;
+//           font-size: 14px;
+//           font-weight: 400;
+//           line-height: 20px;
+//         }
+
+//         .input {
+//           width: 100%;
+//           padding: 8px;
+//           border-radius: 8px;
+//           border: 1px solid #d0d5dd;
+//           background-color: #fff !important;
+//           outline: none;
+//         }
+//         input:disabled {
+//           background: #fff !important;
+//         }
+
+//         input[type="number"]::-webkit-outer-spin-button,
+//         input[type="number"]::-webkit-inner-spin-button {
+//           -webkit-appearance: none;
+//           margin: 0;
+//         }
+
+//         /* For Firefox */
+//         input[type="number"] {
+//           -moz-appearance: textfield;
+
+//           overflow: hidden;
+//           color: #667085;
+//           text-overflow: ellipsis;
+//           // font-size: 16px;
+//           font-weight: 400;
+//           line-height: 24px;
+//           background: #fff;
+//         }
+
+//         input[type="date"]::-webkit-inner-spin-button,
+//         input[type="date"]::-webkit-calendar-picker-indicator {
+//           display: none;
+//           -webkit-appearance: none;
+//         }
+
+//         input[type="date"] {
+//           padding: 10px;
+//           font-size: 16px;
+//           border: 1px solid #ccc;
+//           border-radius: 5px;
+//           background-color: #f9f9f9;
+//           color: #333;
+//         }
+
+//         .textarea {
+//           width: 100% !important;
+//           border-radius: 8px;
+//           border: 1px solid #d0d5dd;
+//           background: #fff;
+//           box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+//           padding: 12px;
+//           resize: none;
+//           outline: none;
+//           height: 128px;
+//           overflow-y: auto;
+//         }
+//       }
+
+      .secondaryContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        border-radius: 12px;
+        border: 1px solid #e4e7ec;
+        background: #f9fafb;
+        width: 582px;
+        padding: 24px;
+        margin-top: 16px;
+
+        .ant-space-item{
+ font-weight: bold;
+  color: #1890ff;
+  font-size: 16px;
+        }
+
+        .headerText {
+          display: flex;
+          gap: 2px;
+          color: #344054;
+          font-size: 16px;
+          font-weight: 500;
+          line-height: 24px;
+
+          sup {
+            color: #7f56d9;
+            font-weight: 500;
+            line-height: 20px;
+          }
+        }
+      }
+
+      .addPassengerButton {
+      color: #7f56d9;
+    }

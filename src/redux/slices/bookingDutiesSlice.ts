@@ -11,11 +11,12 @@ const initialState = {
   data: [],
   filters: {
     status: undefined,
-    search: undefined,
+    search: "",
     startDate: undefined,
     endDate: undefined,
   },
   isEditingBookingDuties: true,
+  bookingDashboardView: {} as any,
   bookingDutiesStates: { status: "idle", loading: false, error: "" },
   pagination: {
     total: 0,
@@ -25,49 +26,111 @@ const initialState = {
 };
 export const addNewBookingDuties = createAsyncThunk(
   "bookingsDuties/addNewBookingDuties",
-  async (body: any, { dispatch }: any) => {
-    const response = await apiClient.post("/duty", body);
+  async (body: any, { dispatch, getState }: any) => {
+    // const response = await apiClient.post("/duty", body);
 
-    const record = await pb.collection('booking_duty').create(body);
-
+    const record = await pb.collection("booking_duty").create(body);
+    const { bookingDuties } = getState();
+    const { filters } = bookingDuties;
     if (record) {
       dispatch(setCurrentSelectedBookingDuties({}));
+      dispatch(setIsAddEditDrawerClose());
       notification.success({
         message: "Success",
         description: "New Booking duties added successfully",
       });
-      console.log("CLOSE");
-      dispatch(getBookingsDuties({}));
+      dispatch(getBookingsDuties({ ...filters }));
       return record;
     }
   }
 );
 export const updateBookingDuties = createAsyncThunk(
   "bookingsDuties/updateBookingDuties",
-  async (body: any, { dispatch }: any) => {
-    const response = await apiClient.patch(`/duty/${body.id}`, body);
-    if (response.status === 200) {
+  async (body: any, { dispatch, getState }: any) => {
+    const { bookingDuties } = getState();
+    const { filters } = bookingDuties;
+    const record = await pb
+      .collection("booking_duty")
+      .update(body.id, body.data);
+
+    if (record) {
       dispatch(setCurrentSelectedBookingDuties({}));
       notification.success({
         message: "Success",
         description: "update booking duties successfully",
       });
       dispatch(setIsAddEditDrawerClose());
-      dispatch(getBookingsDuties({}));
-      return response.data;
+      console.log(body.booking_id)
+      dispatch(getBookingsDuties({bookingId: body.bookingId, ...filters }));
+      return record;
     }
   }
 );
 export const getBookingsDuties = createAsyncThunk(
   "bookingsDuties/getBookingsDuties",
-  async (params: any) => {
+  async (params: any, { dispatch }: any) => {
     const { bookingId } = params;
+    console.log(params,bookingId)
+    const filters: string[] = [];
 
-    // const resultList = await pb.collection('booking_duty').getList(1, 50);
-    const record = await pb.collection('booking_duty').getOne(bookingId);
+// Always filter by bookingId
+if(bookingId)
+  filters.push(`booking_id = "${bookingId}"`);
 
-    // const response = await apiClient.get(`/booking/duty/booking/${bookingId}`);
-    return record;
+if (params.startDate && params.endDate) {
+  filters.push(
+    `(start_date <= "${params.startDate}" && end_date >= "${params.endDate}")`
+  );
+} 
+
+// Apply search filter (if provided)
+// if (params.search) {
+//   filters.push(
+//     `(booking_id ~ "${params.search}" || duty_type.name ~ "${params.search}" || driver_id.name ~ "${params.search}")`
+//   );
+// }
+
+if(params.status){
+  filters.push(`status = "${params.status}"`);
+}
+
+const filterString = filters.join(" && ");
+
+const resultList = await pb.collection("booking_duty").getList(1, 50, {
+  filter: filterString,
+  expand: "vehicle_group_id,duty_type_id,driver_id,booking_id,billed_customer_id",
+});
+
+
+
+    // const resultList = await pb.collection("booking_duty").getList(1, 50, {
+    //   filter: `booking_id ~ "${bookingId}"`,
+    //   expand: "vehicle_group_id,duty_type_id,driver_id",
+    // });
+
+    // const record = await pb
+    //   .collection("bookings_dashboard_view")
+    //   .getOne(bookingId, {
+    //     expand: "customer_id",
+    //   });
+    // if (record) {
+    //   const cleaned = {
+    //     ...record,
+    //     expand: {
+    //       customer_id: record?.expand?.customer_id
+    //         ? {
+    //             id: record.expand.customer_id.id,
+    //             name: record.expand.customer_id.name,
+    //           }
+    //         : null,
+    //     },
+    //   };
+    //   dispatch(setBookingDashboardView(cleaned));
+    // }
+
+    if (resultList) {
+      return resultList.items;
+    }
   }
 );
 export const getSingleBookingDuties = createAsyncThunk(
@@ -116,6 +179,12 @@ export const bookingDutiesSlice = createSlice({
       return {
         ...state,
         data: action?.payload?.data,
+      };
+    },
+    setBookingDashboardView: (state, action: PayloadAction<any | {}>) => {
+      return {
+        ...state,
+        bookingDashboardView: action?.payload,
       };
     },
     setIsAddEditDrawerOpen: (state) => {
@@ -212,5 +281,6 @@ export const {
   setBookingDutiesFilter,
   setBookingDuties,
   setIsEditingBookingDuties,
+  setBookingDashboardView,
 } = actions;
 export default bookingDutiesSlice.reducer;

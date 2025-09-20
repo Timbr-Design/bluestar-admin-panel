@@ -14,7 +14,7 @@ import { ReactComponent as DeleteIcon } from "../../../icons/trash.svg";
 import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
 import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
-
+import { ReactComponent as IllustrationIcon } from "../../../icons/Illustration.svg";
 import type { MenuProps } from "antd";
 import { Table, TableProps, Dropdown, notification } from "antd";
 import React, { useState, useEffect, useRef } from "react";
@@ -54,9 +54,19 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
   const [api, contextHolder] = notification.useNotification();
   const notify = useNotification();
 
-  const handleDeleteDutyType = () => {
-    notify.success("Duty type deleted", dutyType?.name);
-    dispatch(deleteDutyType({ id: dutyTypeId }));
+  const handleDeleteDutyType = async () => {
+    try {
+      const resultAction = await dispatch(deleteDutyType({ id: dutyTypeId }));
+
+      if (deleteDutyType.fulfilled.match(resultAction)) {
+        notify.success("Duty type deleted", dutyType?.name);
+      } else {
+        console.log("ERROR");
+      }
+    } catch (error) {
+      console.log("ERRRO");
+    }
+
     setOpenDeleteModal(false);
   };
 
@@ -216,7 +226,9 @@ const DutyTypeTable = ({ handleOpenSidePanel }: IDutyTypeTable) => {
           emptyText: (
             <EmptyComponent
               backgroundImageIcon={<SpiralIcon />}
-              upperImageIcon={<SearchIcon2 />}
+              upperImageIcon={
+                q && q.length > 0 ? <SearchIcon2 /> : <IllustrationIcon />
+              }
               headerText={"No items found"}
               descText={
                 "There is no data in this page Start by clicking the Add button above "

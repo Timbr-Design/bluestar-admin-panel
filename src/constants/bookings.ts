@@ -28,14 +28,14 @@ export const BOOKINGS_DUTY_TABS = [
     name: "All",
     type: "",
   },
-  { id: 2, name: "Upcoming", type: "upcoming" },
-  { id: 3, name: "Alloted", type: "alloted" },
-  { id: 4, name: "Dispatched", type: "dispatched" },
-  { id: 5, name: "Booked", type: "booked" },
-  { id: 6, name: "Completed", type: "completed" },
-  { id: 7, name: "Billed", type: "billed" },
-  { id: 8, name: "Cancelled", type: "cancelled" },
-  { id: 9, name: "Needs attention", type: "needAttention" },
+  { id: 2, name: "Upcoming", type: "Upcoming" },
+  { id: 3, name: "Alloted", type: "Alloted" },
+  { id: 4, name: "Dispatched", type: "Dispatched" },
+  { id: 5, name: "Booked", type: "Booked" },
+  { id: 6, name: "Completed", type: "Completed" },
+  { id: 7, name: "Billed", type: "Billed" },
+  { id: 8, name: "Cancelled", type: "Cancelled" },
+  { id: 9, name: "Needs attention", type: "NeedAttention" },
 ];
 
 export const DUTY_STATUS = {
