@@ -27,8 +27,6 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
   const { vehicleList, q, pagination, selectedDutyType, selectedVehicleGroup } =
     useAppSelector((state) => state.database);
 
-  console.log(form);
-
   useEffect(() => {
     setSelectedVehicle(vehicle);
   }, [vehicle]);
@@ -53,15 +51,20 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
     },
     {
       label: "Garage Start Time",
-      value: new Date(
-        form.getFieldValue("durationDetails").start_from_garage_before_mins
-      ).toLocaleTimeString(),
+      value: form.getFieldValue("durationDetails")
+        ?.start_from_garage_before_mins
+        ? new Date(
+            form.getFieldValue("durationDetails").start_from_garage_before_mins
+          ).toLocaleTimeString()
+        : undefined,
     },
     {
       label: "Reporting Time",
-      value: new Date(
-        form.getFieldValue("durationDetails").reporting_time
-      ).toLocaleTimeString(),
+      value: form.getFieldValue("durationDetails")?.reporting_time
+        ? new Date(
+            form.getFieldValue("durationDetails").reporting_time
+          ).toLocaleTimeString()
+        : undefined,
     },
     { label: "Duty Type", value: selectedDutyType?.name },
     { label: "Vehicle Group", value: selectedVehicleGroup?.name },
@@ -74,8 +77,6 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
       value: form.getFieldValue("drop_address"),
     },
   ];
-
-  console.log(bookingInfo);
 
   const getInitials = (name: string) => {
     const names = name?.split(" "); // Split the name by spaces
@@ -166,21 +167,21 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
           pagination={false}
           rowClassName={rowClassName}
           onRow={onRowClick}
-          footer={() => (
-            <CustomPagination
-              total={pagination?.total ?? 0}
-              current={pagination?.page ?? 1}
-              pageSize={pagination.limit ?? 10}
-              onPageChange={(page: number) => {
-                dispatch(
-                  getVehicle({
-                    search: q,
-                    page: page,
-                  })
-                );
-              }}
-            />
-          )}
+          // footer={() => (
+          //   <CustomPagination
+          //     total={pagination?.total ?? 0}
+          //     current={pagination?.page ?? 1}
+          //     pageSize={pagination.limit ?? 10}
+          //     onPageChange={(page: number) => {
+          //       dispatch(
+          //         getVehicle({
+          //           search: q,
+          //           page: page,
+          //         })
+          //       );
+          //     }}
+          //   />
+          // )}
         />
       </div>
     </div>

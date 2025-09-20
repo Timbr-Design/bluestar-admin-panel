@@ -52,7 +52,6 @@ const AssignDriver = ({ handleSetDriver, driver }: IAssignDriver) => {
   ];
 
   const onRowClick = (record: any) => {
-    console.log(record, "record");
     return {
       onClick: () => {
         setSelectedDriver(record);
@@ -81,21 +80,21 @@ const AssignDriver = ({ handleSetDriver, driver }: IAssignDriver) => {
         pagination={false}
         rowClassName={rowClassName}
         onRow={onRowClick}
-        footer={() => (
-          <CustomPagination
-            total={pagination?.total ?? 0}
-            current={pagination?.page ?? 1}
-            pageSize={pagination.limit ?? 10}
-            onPageChange={(page: number) => {
-              dispatch(
-                getDrivers({
-                  search: q,
-                  page: page,
-                })
-              );
-            }}
-          />
-        )}
+        // footer={() => (
+        //   <CustomPagination
+        //     total={pagination?.total ?? 0}
+        //     current={pagination?.page ?? 1}
+        //     pageSize={pagination.limit ?? 10}
+        //     onPageChange={(page: number) => {
+        //       dispatch(
+        //         getDrivers({
+        //           search: q,
+        //           page: page,
+        //         })
+        //       );
+        //     }}
+        //   />
+        // )}
       />
     </div>
   );

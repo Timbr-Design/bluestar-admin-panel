@@ -10,7 +10,6 @@ export const BOOKINGS_TABS = [
   { id: 4, name: "Completed", type: "completed" },
   { id: 5, name: "Billed", type: "billed" },
   { id: 6, name: "Cancelled", type: "cancelled" },
-  { id: 7, name: "Unconfirmed", type: "unconfirmed" },
 ];
 
 export const BOOKINGS_STATUS = {

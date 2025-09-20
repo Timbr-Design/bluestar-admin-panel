@@ -88,6 +88,11 @@ const Bookings = () => {
   useEffect(() => {
     if (currentSelectedBooking) {
       setBookingValues(currentSelectedBooking);
+      dispatch(
+        getVehicle({
+          vehicle_group_id: currentSelectedBooking?.vehicle_group_id,
+        })
+      );
       setDriver(currentSelectedBooking?.expand?.driver_id);
       setVehicle(currentSelectedBooking?.expand?.vehicle_id);
     }
@@ -125,6 +130,7 @@ const Bookings = () => {
   }, [q]);
 
   const handleCloseSidePanel = () => {
+    setFormSetp(1);
     dispatch(setIsAddEditDrawerClose());
     dispatch(setIsEditingBooking(false));
     dispatch(clearCurrentSelectedBooking());
@@ -245,6 +251,7 @@ const Bookings = () => {
     // To move backward in the form
     if (formStep === 1) {
       handleCloseSidePanel();
+      setFormSetp(1);
     } else if (formStep === 2) {
       setFormSetp(1);
     } else if (formStep === 3) {
@@ -305,7 +312,16 @@ const Bookings = () => {
             btnText="All Duties"
           />
           <PrimaryBtn
-            LeadingIcon={PlusOutlined}
+            className={
+              selectedRowKeys && selectedRowKeys.length > 0
+                ? styles.deleteBtn
+                : null
+            }
+            LeadingIcon={
+              selectedRowKeys && selectedRowKeys.length > 0
+                ? null
+                : PlusOutlined
+            }
             onClick={() => {
               if (selectedRowKeys && selectedRowKeys.length > 0)
                 handleDeleteSelected();

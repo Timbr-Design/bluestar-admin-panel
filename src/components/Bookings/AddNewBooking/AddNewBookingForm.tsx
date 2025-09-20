@@ -124,7 +124,6 @@ const AddNewBookingForm = ({
   }, []);
 
   useEffect(() => {
-    console.log(initialData, "INITIALDATA");
     if (initialData?.id) {
       form.setFieldsValue({
         bookingId: initialData?.booking_id,
@@ -251,12 +250,11 @@ const AddNewBookingForm = ({
         console.log("Failed:", errorInfo);
       }}
       onFinish={(values) => {
-        console.log(values, "values");
-        // handleSetBookingValues({
-        //   ...values,
-        //   localBooking: values?.bookingType === "Local",
-        //   outstationBooking: values?.bookingType === "Outstation",
-        // });
+        handleSetBookingValues({
+          ...values,
+          localBooking: values?.bookingType === "Local",
+          outstationBooking: values?.bookingType === "Outstation",
+        });
       }}
       requiredMark={CustomizeRequiredMark}
       className={styles.form}
@@ -327,7 +325,14 @@ const AddNewBookingForm = ({
           ]}
           style={{ marginTop: "12px" }}
         >
-          <Input placeholder="Phone number" />
+          <Input
+            placeholder="Phone number"
+            onKeyPress={(e) => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault(); // block anything that’s not a digit
+              }
+            }}
+          />
         </Form.Item>
         <Form.Item
           name="booked_by_email"

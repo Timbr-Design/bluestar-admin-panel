@@ -161,3 +161,21 @@
   justify-content: flex-end;
   gap: 12px;
 }
+
+
+.deleteBtn {
+  display: flex;
+  justify-content: center;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  background: #d92d20;
+  width: 148px;
+  height: 40px;
+  align-items: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+  cursor: pointer;
+  font-family: "Inter", sans-serif !important;
+}
