@@ -121,7 +121,6 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
   useEffect(() => {
     if (Object.keys(selectedVehicle).length) {
       const values = selectedVehicle;
-      console.log(values);
       setRegistrationDocument(
         values?.registration?.registrationDocument || null
       );
@@ -180,11 +179,9 @@ const VehicleForm = ({ handleCloseSidePanel }: IVehicleForm) => {
           layout="vertical"
           form={form}
           onFinish={(Values) => {
-            console.log(Values, "Values");
             if (Object.keys(selectedVehicle).length) {
               const tempValues = {
                 ...Values,
-                driver_id: Values.driver_id.value,
                 vehicle_group_id: Values.vehicle_group_id.value,
               };
 

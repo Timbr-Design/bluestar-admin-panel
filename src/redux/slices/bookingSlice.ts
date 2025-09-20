@@ -13,7 +13,12 @@ const initialState = {
     search: "",
   },
   isEditingBooking: false,
-  bookingStates: { status: "idle", loading: false, error: "", loadingById: false },
+  bookingStates: {
+    status: "idle",
+    loading: false,
+    error: "",
+    loadingById: false,
+  },
   pagination: {
     total: 0,
     page: 0,
@@ -24,65 +29,74 @@ const initialState = {
 export const getBookings = createAsyncThunk(
   "booking/getBookings",
   async (params: any) => {
-    //  const record = await pb.collection("bookings").getList(1,50, {
-    //   expand: "vehicle_group_id,customer_id,duty_type_id,driver_id,vehicle_id,billed_customer_id",
-    //   filter: `booked_by_name ~ "${params.search}" || booking_id ~ "${params.search}" || booked_by_number ~ "${params.search}" || booking_status ~ "${params.status}"`,
-
-    // });
-
-    // const filters: string[] = [];
-
-    // if (params.search) {
-    //   filters.push(
-    //     `(booked_by_name ~ "${params.search}" || booking_id ~ "${params.search}" || booked_by_number ~ "${params.search}")`
-    //   );
-    // }
-
-    // if (params.status) {
-    //   filters.push(`booking_status ~ "${params.status}"`);
-    // }
-
-    // const filterString = filters.join(" && "); // use AND to combine
-
-    // const record = await pb.collection("bookings").getList(1, 50, {
-    //   expand: "vehicle_group_id,customer_id,duty_type_id,driver_id,vehicle_id,billed_customer_id",
-    //   filter: filterString,
-    // });
-    console.log(params)
-
     const filters: string[] = [];
 
-if (params.search) {
-  filters.push(
-    `(booked_by_name ~ "${params.search}" || booking_id ~ "${params.search}" || booked_by_number ~ "${params.search}")`
-  );
-}
+    if (params.search) {
+      filters.push(
+        `(booked_by_name ~ "${params.search}" || booking_id ~ "${params.search}" || booked_by_number ~ "${params.search}")`
+      );
+    }
 
-if (params.status) {
-  filters.push(`booking_status ~ "${params.status}"`);
-}
+    if (params.status) {
+      filters.push(`booking_status ~ "${params.status}"`);
+    }
 
-if (params.start_date && params.end_date) {
-  filters.push(
-    `(start_date <= "${params.start_date}" && end_date >= "${params.end_date}")`
-  );
-} 
-// else if (params.start_date) {
-//   filters.push(`start_date <= "${params.start_date}"`);
-// } else if (params.end_date) {
-//   filters.push(`end_date >= "${params.end_date}"`);
-// }
+    if (params.start_date && params.end_date) {
+      filters.push(
+        `(start_date <= "${params.start_date}" && end_date >= "${params.end_date}")`
+      );
+    }
+    // else if (params.start_date) {
+    //   filters.push(`start_date <= "${params.start_date}"`);
+    // } else if (params.end_date) {
+    //   filters.push(`end_date >= "${params.end_date}"`);
+    // }
 
-const filterString = filters.join(" && ");
+    const filterString = filters.join(" && ");
 
-const record = await pb.collection("bookings").getList(1, 50, {
-  expand:
-    "vehicle_group_id,customer_id,duty_type_id,driver_id,vehicle_id,billed_customer_id",
-  filter: filterString,
-});
+    const record = await pb.collection("bookings").getList(1, 50, {
+      expand:
+        "vehicle_group_id,customer_id,duty_type_id,driver_id,vehicle_id,billed_customer_id",
+      filter: filterString,
+    });
 
+    if (record) {
+      const bookingIds = record.items.map((b) => b.id);
 
-    return record.items; 
+      let duties: any[] = [];
+      if (bookingIds.length) {
+        const dutyFilter = bookingIds
+          .map((id) => `booking_id = "${id}"`)
+          .join(" || ");
+
+        const dutiesResult = await pb.collection("booking_duty").getFullList({
+          filter: dutyFilter,
+        });
+
+        duties = dutiesResult;
+      }
+      const bookingsWithDuties = record.items.map((b) => {
+        const bookingDuties = duties.filter((d) => d.booking_id === b.id);
+
+        const completed = bookingDuties.filter(
+          (d) => d.status?.toLowerCase() === "Completed"
+        ).length;
+
+        const total = bookingDuties.length;
+
+        return {
+          ...b,
+          dutyStats: {
+            completed,
+            total,
+          },
+        };
+      });
+
+      return bookingsWithDuties;
+    }
+
+    return record.items;
   }
 );
 export const getSingleBookings = createAsyncThunk(
@@ -98,7 +112,7 @@ export const deleteBooking = createAsyncThunk(
   async (params: any, { dispatch, getState }: any) => {
     const { booking } = getState();
     // const response = await apiClient.delete(`/booking/${params.id}`);
-    const record = await pb.collection('bookings').delete(params.id);
+    const record = await pb.collection("bookings").delete(params.id);
     if (record) {
       dispatch(clearCurrentSelectedBooking());
       notification.success({
@@ -119,7 +133,7 @@ export const addNewBooking = createAsyncThunk(
   "booking/addNewBooking",
   async (body: any, { dispatch }: any) => {
     // const response = await apiClient.post("/booking", body);
-    const record = await pb.collection('bookings').create(body);
+    const record = await pb.collection("bookings").create(body);
 
     if (record) {
       dispatch(clearCurrentSelectedBooking());
@@ -137,7 +151,7 @@ export const updateBooking = createAsyncThunk(
   "booking/updateBooking",
   async ({ body, id }: any, { dispatch }: any) => {
     // const response = await apiClient.put(`/booking/${id}`, body);
-    const record = await pb.collection('bookings').update(id, body);
+    const record = await pb.collection("bookings").update(id, body);
 
     if (record) {
       dispatch(clearCurrentSelectedBooking());
@@ -147,7 +161,7 @@ export const updateBooking = createAsyncThunk(
       });
       dispatch(setIsAddEditDrawerClose());
       dispatch(getBookings({ page: "1", search: "", limit: 10 }));
-      
+
       return record;
     }
   }
@@ -156,8 +170,9 @@ export const getBookingById = createAsyncThunk(
   "booking/getBookingById",
   async (params: any) => {
     const { id } = params;
-    const record = await pb.collection("bookings").getOne(id,{
-      expand: 'customer_id,duty_type_id,vehicle_group_id,driver_id,vehicle_id,billed_customer_id'
+    const record = await pb.collection("bookings").getOne(id, {
+      expand:
+        "customer_id,duty_type_id,vehicle_group_id,driver_id,vehicle_id,billed_customer_id",
     });
     if (record) {
       return record;

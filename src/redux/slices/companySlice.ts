@@ -173,9 +173,9 @@ const companySlice = createSlice({
       .addCase(getCompanies.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        notification.error({
-          message: 'Error',
-        });
+        // notification.error({
+        //   message: 'Error',
+        // });
       })
       // Get Company by ID
       .addCase(getCompanyById.pending, (state) => {
@@ -208,9 +208,9 @@ const companySlice = createSlice({
       .addCase(createCompany.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        notification.error({
-          message: 'Error',
-        });
+        // notification.error({
+        //   message: 'Error',
+        // });
       })
       // Update Company
       .addCase(updateCompany.pending, (state) => {

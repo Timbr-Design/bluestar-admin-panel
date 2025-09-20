@@ -31,6 +31,9 @@ import { ReactComponent as DotsHorizontal } from "../../icons/dots-horizontal.sv
 import { ReactComponent as DeleteIcon } from "../../icons/trash.svg";
 import { ReactComponent as EyeIcon } from "../../icons/eye2.svg";
 import { ReactComponent as CheckCircleIcon } from "../../icons/checkCircle.svg";
+import { ReactComponent as SpiralIcon } from "../../icons/SpiralBg.svg";
+import { ReactComponent as SearchIcon2 } from "../../icons/SearchIcon2.svg";
+import { ReactComponent as IllustrationIcon } from "../../icons/Illustration.svg";
 import { ReactComponent as EditIcon } from "../../icons/edit02Component.svg";
 import { ReactComponent as DocumentsIcon } from "../../icons/fileIcon.svg";
 import { ReactComponent as TrashIcon } from "../../icons/trash2.svg";
@@ -46,6 +49,7 @@ import {
   clearCurrentSelectedBooking,
   getBookingById,
   updateBooking,
+  setBookingFilter,
 } from "../../redux/slices/bookingSlice";
 import BookingsStates from "../States/BookingsStates";
 import { useSelector } from "react-redux";
@@ -59,6 +63,7 @@ import {
   setSelectedRowType,
 } from "../../redux/slices/databaseSlice";
 import dayjs from "dayjs";
+import EmptyComponent from "../EmptyComponent/EmptyComponent";
 
 const BookingsTable = () => {
   const [deleteModal, setDeleteModal] = useState(false);
@@ -148,6 +153,14 @@ const BookingsTable = () => {
     return items.filter((item) => !(item.key === "1" && row.is_confirmed));
   }
 
+  const getInitials = (name: string) => {
+    const names = name?.split(" "); // Split the name by spaces
+    const firstInitial = names && names[0]?.charAt(0).toUpperCase(); // Get the first letter of the first name
+    const lastInitial = names && names[1]?.charAt(0).toUpperCase(); // Get the first letter of the last name (if exists)
+
+    return firstInitial + (lastInitial || ""); // Combine the initials
+  };
+
   const columns: TableColumnsType<any> = [
     {
       title: "Start date",
@@ -214,7 +227,10 @@ const BookingsTable = () => {
                 }}
                 title="Passenger List"
               >
-                <Badge color="yellow" count={`+${passenger.length - 1}`} />
+                <div
+                  className={styles.driverProfile}
+                >{`+${passenger.length - 1}`}</div>
+                {/* <Badge color="yellow" count={`+${passenger.length - 1}`} /> */}
               </Popover>
             </Space>
           );
@@ -240,6 +256,17 @@ const BookingsTable = () => {
           ? record?.expand?.duty_type_id?.name
           : "";
         return <span style={{}}>{name}</span>;
+      },
+    },
+    {
+      title: "Duties",
+      dataIndex: "duties",
+      key: "duties",
+      render: (_, record) => {
+        const name = record?.dutyStats
+          ? `${record?.dutyStats?.completed}/${record?.dutyStats?.total}`
+          : "0/0";
+        return <span>{name}</span>;
       },
     },
     {
@@ -320,22 +347,7 @@ const BookingsTable = () => {
     dispatch(setSelectedRowType("bookings"));
     dispatch(setSelectedRowIds(selectedRowKeys));
     setSelectedRowKeys(selectedRowKeys);
-    console.log(selectedRowKeys);
   };
-
-  // rowSelection object indicates the need for row selection
-  // const rowSelection = {
-  // onChange: (selectedRowKeys: React.Key[], selectedRows: any[]) => {
-  // console.log(selectedRowKeys);
-  // dispatch(setSelectedRowType("bookings"));
-  // dispatch(setSelectedRowIds(selectedRowKeys));
-  // setSelectedRow
-  // },
-  // getCheckboxProps: (record: any) => ({
-  // disabled: record.name === "Disabled User", // Column configuration not to be checked
-  // name: record.name,
-  // }),
-  // };
 
   function handleCloseModal() {
     setDeleteModal(false);
@@ -430,6 +442,30 @@ const BookingsTable = () => {
           columns={columns}
           pagination={false}
           scroll={{ x: "max-content" }}
+          locale={{
+            emptyText: (
+              <EmptyComponent
+                backgroundImageIcon={<SpiralIcon />}
+                upperImageIcon={
+                  filters.search && filters.search.length > 0 ? (
+                    <SearchIcon2 />
+                  ) : (
+                    <IllustrationIcon />
+                  )
+                }
+                headerText={"No items found"}
+                descText={
+                  "There is no data in this page Start by clicking the Add button above "
+                }
+                handleCTA={
+                  filters.search && filters.search.length > 0
+                    ? () => dispatch(setBookingFilter({ search: "" }))
+                    : null
+                }
+                btnText={"Clear Search"}
+              />
+            ),
+          }}
           footer={() => (
             <CustomPagination
               total={pagination?.total ?? 0}
