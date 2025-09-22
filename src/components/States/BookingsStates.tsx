@@ -23,9 +23,23 @@ const BookingsStates = ({ status, isConfirmed }: IBookingsStates) => {
 
           case BOOKINGS_STATUS.booked:
             return (
-              <div className={cn(styles.container, styles.booked, { [styles.isConfirmed]: isConfirmed })}>
-                <div className={cn(styles.dot, styles.booked, { [styles.isConfirmed]: isConfirmed })}></div>
-                <div className={cn(styles.text, styles.booked, { [styles.isConfirmed]: isConfirmed })}>{"Booked"}</div>
+              <div
+                className={cn(styles.container, styles.booked, {
+                  [styles.isConfirmed]: isConfirmed,
+                })}
+              >
+                <div
+                  className={cn(styles.dot, styles.booked, {
+                    [styles.isConfirmed]: isConfirmed,
+                  })}
+                ></div>
+                <div
+                  className={cn(styles.text, styles.booked, {
+                    [styles.isConfirmed]: isConfirmed,
+                  })}
+                >
+                  {"Booked"}
+                </div>
               </div>
             );
           case BOOKINGS_STATUS.cancelled:

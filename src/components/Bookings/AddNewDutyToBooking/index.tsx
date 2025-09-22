@@ -145,7 +145,7 @@ const AddNewDutyToBookingForm = ({
         driver_notes: initialData?.driver_notes,
         // address: initialData?.address,
       });
-    }
+    } else form.resetFields();
   }, [initialData]);
   return (
     <Form
@@ -277,12 +277,15 @@ const AddNewDutyToBookingForm = ({
                   label="Start Date"
                 >
                   <CustomDatePicker
-                    showHour={true}
-                    showMinute={true}
-                    showTime={true}
-                    format="DD-MM-YYYY HH:mm"
+                    showHour={false}
+                    showMinute={false}
+                    showTime={false}
+                    format="DD-MM-YYYY"
                     use12Hours
                     onChange={form.onChange}
+                    disabledDate={(current) =>
+                      current && current < dayjs().startOf("day")
+                    }
                   />
                 </Form.Item>
               </Col>
@@ -297,12 +300,23 @@ const AddNewDutyToBookingForm = ({
                   label="End Date"
                 >
                   <CustomDatePicker
-                    showHour={true}
-                    showMinute={true}
-                    showTime={true}
-                    use12Hours
+                    showHour={false}
+                    showMinute={false}
+                    showTime={false}
                     format="DD-MM-YYYY"
+                    use12Hours
                     onChange={form.onChange}
+                    disabledDate={(current) => {
+                      // Get the start time from form values
+                      const startTime = form.getFieldValue("start_date");
+
+                      return (
+                        current &&
+                        (current <
+                          dayjs(startTime || undefined).startOf("day") ||
+                          current < dayjs().startOf("day"))
+                      );
+                    }}
                   />
                 </Form.Item>
               </Col>
@@ -317,12 +331,11 @@ const AddNewDutyToBookingForm = ({
                   name={"reporting_time"}
                   label="Reporting Time"
                 >
-                  <CustomDatePicker
-                    showHour={true}
-                    showMinute={true}
-                    showTime={true}
-                    format="DD-MM-YYYY HH:mm"
-                    use12Hours
+                  <TimePicker
+                    format="HH:mm" // 24-hour format
+                    minuteStep={5}
+                    defaultValue={dayjs("12:00", "HH:mm")}
+                    style={{ width: "100%" }}
                     onChange={form.onChange}
                   />
                 </Form.Item>
@@ -333,17 +346,47 @@ const AddNewDutyToBookingForm = ({
                     {
                       required: false,
                     },
+                    {
+                      validator: (_, value) => {
+                        const start = form.getFieldValue("reporting_time");
+                        if (!value || !start) return Promise.resolve();
+                        if (dayjs(value).isAfter(dayjs(start))) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error("End time must be greater than start time")
+                        );
+                      },
+                    },
                   ]}
                   name={"est_drop_time"}
                   label="Est Drop Time"
                 >
-                  <CustomDatePicker
-                    showHour={true}
-                    showMinute={true}
-                    showTime={true}
-                    use12Hours
-                    format="DD-MM-YYYY"
+                  <TimePicker
+                    format="HH:mm"
+                    minuteStep={5}
+                    style={{ width: "100%" }}
                     onChange={form.onChange}
+                    disabledTime={() => {
+                      const start = form.getFieldValue("reporting_time");
+                      if (!start) return {};
+                      const startHour = dayjs(start).hour();
+                      const startMinute = dayjs(start).minute();
+
+                      return {
+                        disabledHours: () =>
+                          Array.from({ length: startHour }, (_, i) => i),
+                        disabledMinutes: (selectedHour) => {
+                          if (selectedHour === startHour) {
+                            return Array.from(
+                              { length: startMinute + 1 },
+                              (_, i) => i
+                            );
+                          }
+                          return [];
+                        },
+                      };
+                    }}
                   />
                 </Form.Item>
               </Col>

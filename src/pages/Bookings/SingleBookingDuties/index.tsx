@@ -3,7 +3,7 @@
 
 import { EditFilled, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { Input, DatePicker, Button, Drawer, Form } from "antd";
-import { ChangeEvent, useEffect } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import PrimaryBtn from "../../../components/PrimaryBtn";
@@ -15,13 +15,14 @@ import classNames from "classnames";
 import { BOOKINGS_DUTY_TABS } from "../../../constants/bookings";
 import SingleBookingsTable from "../../../components/BookingsTable/SingleBooking";
 import {
+  getBookingsDuties,
   setBookingDutiesFilter,
   setCurrentSelectedBookingDuties,
   setIsAddEditDrawerClose,
   setIsAddEditDrawerOpen,
   setIsEditingBookingDuties,
 } from "../../../redux/slices/bookingDutiesSlice";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import AddNewDutyToBookingForm from "../../../components/Bookings/AddNewDutyToBooking";
 
@@ -58,6 +59,7 @@ const SingleBookingDuties = () => {
     currentSelectedBookingDuties,
     isEditingBookingDuties,
   } = useSelector((state: RootState) => state.bookingDuties);
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
 
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -68,15 +70,17 @@ const SingleBookingDuties = () => {
     if (dates) {
       const start_date = dayjs(dates[0]).format("YYYY-MM-DD HH:mm:ss");
       const end_date = dayjs(dates[1]).format("YYYY-MM-DD HH:mm:ss");
-      console.log(start_date);
 
-      // setDateRange([start_date, end_date]);
-      // dispatch(
-      //   getBookingsDuties({ search: q, status: status, start_date, end_date })
-      // );
+      dispatch(
+        getBookingsDuties({
+          search: filters.search,
+          status: status,
+          start_date,
+          end_date,
+        })
+      );
     } else {
-      // dispatch(getBookings({ page: "1", search: "", limit: 10 }));
-      // setDateRange(null);
+      dispatch(getBookingsDuties({ page: "1", search: "", limit: 10 }));
     }
   };
 
@@ -104,6 +108,7 @@ const SingleBookingDuties = () => {
         <div className={styles.btnContainer}>
           <PrimaryBtn
             onClick={() => {
+              dispatch(setCurrentSelectedBookingDuties([]));
               dispatch(setIsAddEditDrawerOpen());
             }}
             LeadingIcon={PlusOutlined}
@@ -137,69 +142,21 @@ const SingleBookingDuties = () => {
             }}
           >
             <DatePicker.RangePicker
-            // value={[
-            //   filters.startDate ? dayjs(filters.startDate) : null,
-            //   filters.endDate ? dayjs(filters.endDate) : null,
-            // ]}
-            />
-            <p
-              className="cursor-pointer"
-              onClick={() => {
-                dispatch(
-                  setBookingDutiesFilter({
-                    startDate: undefined,
-                    endDate: undefined,
-                  })
-                );
+              onChange={handleDateRangeChange}
+              format="DD/MM/YYYY"
+              placeholder={["Start Date", "End Date"]}
+              disabledDate={(current) => {
+                if (!startDate) return false; // no restriction until start selected
+                return current.isBefore(startDate, "day"); // disable before start
               }}
-            >
-              clear
-            </p>
+              onCalendarChange={(dates) => {
+                setStartDate(dates?.[0] || null);
+              }}
+            />
           </div>
         </div>
         <SingleBookingsTable />
       </div>
-      <Drawer
-        destroyOnClose
-        size="large"
-        mask
-        title={
-          <div>
-            <div>Add New Duty</div>
-            <small>Fill your duty details here</small>
-          </div>
-        }
-        footer={
-          <div className={styles.drawerFooter}>
-            <Button onClick={() => dispatch(setIsAddEditDrawerClose())}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                !isEditingBookingDuties
-                  ? dispatch(setIsEditingBookingDuties(true))
-                  : form.submit();
-              }}
-              type="primary"
-              icon={<EditFilled />}
-            >
-              {!isEditingBookingDuties ? "Edit" : "Save"}
-            </Button>
-          </div>
-        }
-        onClose={() => {
-          dispatch(setIsAddEditDrawerClose());
-        }}
-        open={isAddEditDrawerOpen}
-      >
-        <div>
-          <AddNewDutyToBookingForm
-            initialData={currentSelectedBookingDuties}
-            form={form}
-            isEditable={isEditingBookingDuties}
-          />
-        </div>
-      </Drawer>
     </div>
   );
 };

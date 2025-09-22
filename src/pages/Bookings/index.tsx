@@ -39,7 +39,7 @@ import { RootState } from "../../types/store";
 import { useAppDispatch, useAppSelector } from "../../hooks/store";
 import { RouteName } from "../../constants/routes";
 import { useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 
 const { RangePicker } = DatePicker;
 
@@ -107,6 +107,7 @@ const Bookings = () => {
   };
 
   const handleSetVehicle = (values: any) => {
+    console.log("Sdf");
     setVehicle(values);
   };
 
@@ -259,26 +260,7 @@ const Bookings = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (Object.keys(currentSelectedBooking).length) {
-  //     form.setFieldsValue(currentSelectedBooking);
-  //     // form.setFieldValue("customer_id", {
-  //     //   value: currentSelectedBooking?.driver?.id,
-  //     //   label: selectedVehicle?.driver?.name,
-  //     // });
-  //     const tempArr = currentSelectedBooking?.pricing?.map((data: any) => {
-  //       return {
-  //         name: data?.vehicleGroup?.name,
-  //         vehicleGroupId: data?.id,
-  //         baseRate: data?.baseRate,
-  //         extraKmRate: data?.extraKmRate,
-  //         extraHrRate: data?.extraKmRate,
-  //       };
-  //     });
-  //   } else {
-  //     form.resetFields();
-  //   }
-  // }, [currentSelectedBooking, form]);
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
 
   const handleDateRangeChange = (dates: any) => {
     if (dates) {
@@ -333,7 +315,7 @@ const Bookings = () => {
             btnText={
               selectedRowKeys && selectedRowKeys.length > 0
                 ? "Delete Bookings"
-                : "Add bookings"
+                : "Add booking"
             }
           />
         </div>
@@ -354,6 +336,13 @@ const Bookings = () => {
               onChange={handleDateRangeChange}
               format="DD/MM/YYYY"
               placeholder={["Start Date", "End Date"]}
+              disabledDate={(current) => {
+                if (!startDate) return false; // no restriction until start selected
+                return current.isBefore(startDate, "day"); // disable before start
+              }}
+              onCalendarChange={(dates) => {
+                setStartDate(dates?.[0] || null);
+              }}
             />
           </div>
         </div>
