@@ -20,11 +20,10 @@ import PrimaryBtn from "../../components/PrimaryBtn";
 import SecondaryBtn from "../../components/SecondaryBtn";
 import { BOOKINGS_DUTY_TABS } from "../../constants/bookings";
 import { useAppDispatch } from "../../hooks/store";
-import { setBookingDutiesFilter } from "../../redux/slices/bookingDutiesSlice";
 import {
-  setIsAddEditDrawerOpen,
+  setBookingDutiesFilter,
   setIsAddEditDrawerClose,
-} from "../../redux/slices/bookingSlice";
+} from "../../redux/slices/bookingDutiesSlice";
 import { RootState } from "../../types/store";
 
 dayjs.extend(utc);

@@ -43,14 +43,9 @@ export const getBookings = createAsyncThunk(
 
     if (params.start_date && params.end_date) {
       filters.push(
-        `(start_date <= "${params.start_date}" && end_date >= "${params.end_date}")`
+        `(start_date <= "${params.end_date}" && end_date >= "${params.start_date}")`
       );
     }
-    // else if (params.start_date) {
-    //   filters.push(`start_date <= "${params.start_date}"`);
-    // } else if (params.end_date) {
-    //   filters.push(`end_date >= "${params.end_date}"`);
-    // }
 
     const filterString = filters.join(" && ");
 

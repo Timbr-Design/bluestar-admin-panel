@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getVehicle } from "../../../redux/slices/databaseSlice";
 import { Typography, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import { CarOutlined } from "@ant-design/icons";
 import CustomPagination from "../../Common/Pagination";
 import styles from "./index.module.scss";
+import dayjs from "dayjs";
 
 const { Text } = Typography;
 
@@ -19,72 +20,127 @@ interface IAssignVehicle {
   form: any;
   handleSetVehicle: (values: any) => void;
   vehicle: any;
+  currentSelectedBookingDuties?: any;
 }
 
-const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
+const AssignVehicle = ({
+  form,
+  handleSetVehicle,
+  vehicle,
+  currentSelectedBookingDuties,
+}: IAssignVehicle) => {
   const dispatch = useAppDispatch();
   const [selectedVehicle, setSelectedVehicle] = useState({ id: "" });
-  const { vehicleList, q, pagination, selectedDutyType, selectedVehicleGroup } =
+  const { vehicleList, selectedDutyType, selectedVehicleGroup } =
     useAppSelector((state) => state.database);
 
   useEffect(() => {
     setSelectedVehicle(vehicle);
   }, [vehicle]);
 
-  const bookingInfo: BookingInfo[] = [
-    { label: "Booking ID", value: form.getFieldValue("bookingId") },
-    {
-      label: "Start Date",
-      value: form.getFieldValue("durationDetails")?.start_date
-        ? new Date(
-            form.getFieldValue("durationDetails").start_date
-          ).toLocaleDateString()
-        : undefined,
-    },
-    {
-      label: "End Date",
-      value: form.getFieldValue("durationDetails")?.end_date
-        ? new Date(
-            form.getFieldValue("durationDetails").end_date
-          ).toLocaleDateString()
-        : undefined,
-    },
-    {
-      label: "Garage Start Time",
-      value: form.getFieldValue("durationDetails")
-        ?.start_from_garage_before_mins
-        ? new Date(
-            form.getFieldValue("durationDetails").start_from_garage_before_mins
-          ).toLocaleTimeString()
-        : undefined,
-    },
-    {
-      label: "Reporting Time",
-      value: form.getFieldValue("durationDetails")?.reporting_time
-        ? new Date(
-            form.getFieldValue("durationDetails").reporting_time
-          ).toLocaleTimeString()
-        : undefined,
-    },
-    { label: "Duty Type", value: selectedDutyType?.name },
-    { label: "Vehicle Group", value: selectedVehicleGroup?.name },
-    {
-      label: "Reporting Address",
-      value: form.getFieldValue("reporting_address"),
-    },
-    {
-      label: "Drop Address",
-      value: form.getFieldValue("drop_address"),
-    },
-  ];
+  let bookingInfo: BookingInfo[];
+  if (!currentSelectedBookingDuties) {
+    bookingInfo = [
+      { label: "Booking ID", value: form.getFieldValue("bookingId") },
+      {
+        label: "Start Date",
+        value: form.getFieldValue("durationDetails")?.start_date
+          ? new Date(
+              form.getFieldValue("durationDetails").start_date
+            ).toLocaleDateString()
+          : undefined,
+      },
+      {
+        label: "End Date",
+        value: form.getFieldValue("durationDetails")?.end_date
+          ? new Date(
+              form.getFieldValue("durationDetails").end_date
+            ).toLocaleDateString()
+          : undefined,
+      },
+      {
+        label: "Garage Start Time",
+        value: form.getFieldValue("durationDetails")
+          ?.start_from_garage_before_mins
+          ? new Date(
+              form.getFieldValue(
+                "durationDetails"
+              ).start_from_garage_before_mins
+            ).toLocaleTimeString()
+          : undefined,
+      },
+      {
+        label: "Reporting Time",
+        value: form.getFieldValue("durationDetails")?.reporting_time
+          ? new Date(
+              form.getFieldValue("durationDetails").reporting_time
+            ).toLocaleTimeString()
+          : undefined,
+      },
+      { label: "Duty Type", value: selectedDutyType?.name },
+      { label: "Vehicle Group", value: selectedVehicleGroup?.name },
+      {
+        label: "Reporting Address",
+        value: form.getFieldValue("reporting_address"),
+      },
+      {
+        label: "Drop Address",
+        value: form.getFieldValue("drop_address"),
+      },
+    ];
+  } else {
+    bookingInfo = [
+      { label: "Booking ID", value: currentSelectedBookingDuties.booking_id },
+      {
+        label: "Start Date",
+        value: new Date(
+          currentSelectedBookingDuties.start_date
+        ).toLocaleDateString(),
+      },
+      {
+        label: "End Date",
+        value: new Date(
+          currentSelectedBookingDuties.end_date
+        ).toLocaleDateString(),
+      },
+      {
+        label: "Garage Start Time",
+        value: new Date(
+          currentSelectedBookingDuties.start_from_garage_before_mins
+        ).toLocaleDateString(),
+      },
+      {
+        label: "Reporting Time",
+        value: new Date(
+          currentSelectedBookingDuties.reporting_time
+        ).toLocaleDateString(),
+      },
+      {
+        label: "Duty Type",
+        value: currentSelectedBookingDuties?.expand?.duty_type_id?.name,
+      },
+      {
+        label: "Vehicle Group",
+        value: currentSelectedBookingDuties?.expand?.vehicle_group_id?.name,
+      },
+      {
+        label: "Reporting Address",
+        value: currentSelectedBookingDuties.reporting_address_map_link,
+      },
+      {
+        label: "Drop Address",
+        value: currentSelectedBookingDuties.drop_address_map_link,
+      },
+    ];
+  }
 
-  const getInitials = (name: string) => {
+  const getInitials = useCallback((name: string) => {
     const names = name?.split(" "); // Split the name by spaces
     const firstInitial = names && names[0]?.charAt(0).toUpperCase(); // Get the first letter of the first name
     const lastInitial = names && names[1]?.charAt(0).toUpperCase(); // Get the first letter of the last name (if exists)
 
     return firstInitial + (lastInitial || ""); // Combine the initials
-  };
+  }, []);
 
   const columns: ColumnsType<any> = [
     {
@@ -188,4 +244,4 @@ const AssignVehicle = ({ form, handleSetVehicle, vehicle }: IAssignVehicle) => {
   );
 };
 
-export default AssignVehicle;
+export default React.memo(AssignVehicle);

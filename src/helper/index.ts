@@ -1,3 +1,5 @@
+import { BOOKINGS_STATUS } from "../constants/bookings";
+
 /* eslint-disable */
 export const formatEpochToDate = (epoch: number) => {
   const date = new Date(epoch * 1000);
@@ -10,3 +12,23 @@ export const formatEpochToDate = (epoch: number) => {
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+export const normalizeBookingStatus = (status: string) => {
+  if (!status) return "";
+
+  switch (status.toLowerCase()) {
+    case "booked":
+      return BOOKINGS_STATUS.booked;
+    case "billed":
+      return BOOKINGS_STATUS.billed;
+    case "unconfirmed":
+      return BOOKINGS_STATUS.unconfirmed;
+    case "ongoing":
+      return BOOKINGS_STATUS.onGoing;
+    case "completed":
+      return BOOKINGS_STATUS.completed;
+    case "cancelled":
+      return BOOKINGS_STATUS.cancelled;
+    default:
+      return status; // fallback if unexpected status
+  }
+};

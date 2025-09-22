@@ -230,7 +230,6 @@ const BookingsTable = () => {
                 <div
                   className={styles.driverProfile}
                 >{`+${passenger.length - 1}`}</div>
-                {/* <Badge color="yellow" count={`+${passenger.length - 1}`} /> */}
               </Popover>
             </Space>
           );
@@ -289,6 +288,7 @@ const BookingsTable = () => {
       key: "action",
       className: "custom-column",
       render: (data: any, row: any) => {
+        console.log(row, "ROW");
         return (
           <div
             className={styles.editButton}

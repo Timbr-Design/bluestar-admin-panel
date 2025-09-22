@@ -16,6 +16,7 @@ const initialState = {
     endDate: undefined,
   },
   isEditingBookingDuties: true,
+  isAllotingDuties: false,
   bookingDashboardView: {} as any,
   bookingDutiesStates: { status: "idle", loading: false, error: "" },
   pagination: {
@@ -60,8 +61,7 @@ export const updateBookingDuties = createAsyncThunk(
         description: "update booking duties successfully",
       });
       dispatch(setIsAddEditDrawerClose());
-      console.log(body.booking_id)
-      dispatch(getBookingsDuties({bookingId: body.bookingId, ...filters }));
+      dispatch(getBookingsDuties({ bookingId: body.bookingId, ...filters }));
       return record;
     }
   }
@@ -70,38 +70,35 @@ export const getBookingsDuties = createAsyncThunk(
   "bookingsDuties/getBookingsDuties",
   async (params: any, { dispatch }: any) => {
     const { bookingId } = params;
-    console.log(params,bookingId)
     const filters: string[] = [];
 
-// Always filter by bookingId
-if(bookingId)
-  filters.push(`booking_id = "${bookingId}"`);
+    // Always filter by bookingId
+    if (bookingId) filters.push(`booking_id = "${bookingId}"`);
 
-if (params.startDate && params.endDate) {
-  filters.push(
-    `(start_date <= "${params.startDate}" && end_date >= "${params.endDate}")`
-  );
-} 
+    if (params.start_date && params.end_date) {
+      if (params.start_date && params.end_date) {
+        filters.push(
+          `(start_date <= "${params.end_date}" && end_date >= "${params.start_date}")`
+        );
+      }
+    }
 
-// Apply search filter (if provided)
-// if (params.search) {
-//   filters.push(
-//     `(booking_id ~ "${params.search}" || duty_type.name ~ "${params.search}" || driver_id.name ~ "${params.search}")`
-//   );
-// }
+    // Apply search filter (if provided)
+    if (params.search) {
+      filters.push(`(booking_id ~ "${params.search}")`);
+    }
 
-if(params.status){
-  filters.push(`status = "${params.status}"`);
-}
+    if (params.status) {
+      filters.push(`status = "${params.status}"`);
+    }
 
-const filterString = filters.join(" && ");
+    const filterString = filters.join(" && ");
 
-const resultList = await pb.collection("booking_duty").getList(1, 50, {
-  filter: filterString,
-  expand: "vehicle_group_id,duty_type_id,driver_id,booking_id,billed_customer_id",
-});
-
-
+    const resultList = await pb.collection("booking_duty").getList(1, 50, {
+      filter: filterString,
+      expand:
+        "vehicle_group_id,duty_type_id,driver_id,booking_id,billed_customer_id,vehicle_id",
+    });
 
     // const resultList = await pb.collection("booking_duty").getList(1, 50, {
     //   filter: `booking_id ~ "${bookingId}"`,
@@ -196,6 +193,12 @@ export const bookingDutiesSlice = createSlice({
         isEditingBookingDuties: action.payload,
       };
     },
+    setIsAllotingDuties: (state, action: PayloadAction<boolean>) => {
+      return {
+        ...state,
+        isAllotingDuties: action.payload,
+      };
+    },
     setIsAddEditDrawerClose: (state) => {
       return { ...state, isAddEditDrawerOpen: false };
     },
@@ -281,6 +284,7 @@ export const {
   setBookingDutiesFilter,
   setBookingDuties,
   setIsEditingBookingDuties,
+  setIsAllotingDuties,
   setBookingDashboardView,
 } = actions;
 export default bookingDutiesSlice.reducer;

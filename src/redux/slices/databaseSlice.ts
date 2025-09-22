@@ -14,7 +14,7 @@ export const addBankAccount = createAsyncThunk(
   "database/addBankAccount",
   async (body: any, { dispatch, getState }: any) => {
     const record = await pb.collection("bank_accounts").create(body);
-    console.log(record);
+
     const { database } = getState();
     const { pagination, q } = database;
     if (record) {
@@ -331,7 +331,6 @@ export const addNewCustomer = createAsyncThunk(
   async (body: any, { dispatch }) => {
     // const response = await apiClient.post("/database/customer", body);
     const record = await pb.collection("customers").create(body);
-    console.log(record);
     if (record) {
       notification.success({
         message: "Success",
@@ -649,10 +648,7 @@ export const updateIdentification = createAsyncThunk(
 export const addNewDriver = createAsyncThunk(
   "database/addNewDriver",
   async (body: any, { dispatch, getState }: any) => {
-    // const response = await apiClient.post("/database/driver", body);
     const record = await pb.collection("drivers").create(body);
-
-    console.log(body);
 
     // dispatch(addIdentification(data))
 
@@ -860,10 +856,8 @@ export const getVehicleGroupById = createAsyncThunk(
 
   async (params: any) => {
     const { id } = params;
-    console.log(id);
     // const response = await apiClient.get(`/database/vehicle-group/${id}`);
     const record = await pb.collection("vehicle_groups").getOne(id);
-    console.log(record);
 
     return record;
   }
@@ -874,21 +868,14 @@ export const deleteVehicleGroup = createAsyncThunk(
 
   async (params: any, { dispatch, getState }: any) => {
     const { id } = params;
-    console.log(id, "id");
 
-    console.log(getState(), "getState");
 
     const { database } = getState();
     const { pagination, q } = database;
 
-    console.log(id, "id");
     await pb.collection("vehicle_groups").delete(id);
 
-    // const response = await apiClient.delete(`/database/vehicle-group/${id}`);
-
     dispatch(getVehicleGroup({ page: pagination.page, search: q, limit: 10 }));
-
-    // return response.data;
   }
 );
 
@@ -912,12 +899,7 @@ export const updateVehicleGroup = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
 
-    // const response = await apiClient.put(
-    //   `/database/vehicle-group/${id}`,
-    //   payload
-    // );
     const record = await pb.collection("vehicle_groups").update(id, payload);
-    console.log(record);
 
     const { database } = getState();
     const { pagination, q } = database;
