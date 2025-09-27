@@ -3,42 +3,24 @@ import { ReactComponent as DeleteIconRed } from "../../icons/trash-red.svg";
 import { ReactComponent as SpiralBg } from "../../icons/spiralBg1.svg";
 import styles from "./DeleteModal.module.scss";
 import Modal from "./index";
+import { BookingsModalProps } from "../../types/booking";
 
-interface DeleteExpenseModalProps {
-  title: string;
-  desc: string;
-  show: boolean;
-  onClose: () => void;
-  onDelete: () => void;
-  expenseDetails?: {
-    vehicle: string;
-    plateNumber: string;
-  };
-  data?: any;
-  actionBtn?: string;
-}
-
-const DeleteModal: React.FC<DeleteExpenseModalProps> = ({
+const BookingsModal: React.FC<BookingsModalProps> = ({
   title,
   desc,
   show,
   onClose,
-  onDelete,
+  handleCTA,
   data,
   actionBtn,
+  icon,
+  actionBtnColor,
 }) => {
-  const handleDelete = () => {
-    onDelete();
-    onClose();
-  };
-
   return (
     <Modal show={show} onClose={onClose}>
-      <div className={styles.deleteContainer}>
-        <DeleteIconRed />
-      </div>
+      <div className={styles.deleteContainer}>{icon ?? <DeleteIconRed />}</div>
       <div className={styles.bg}>
-        <SpiralBg width={150} height={150} />
+        <SpiralBg width={200} height={200} />
       </div>
       <div className={styles.modalContainer}>
         <div className={styles.textContainer}>
@@ -55,14 +37,12 @@ const DeleteModal: React.FC<DeleteExpenseModalProps> = ({
           <button
             className={styles.deleteBtn}
             style={{
-              background:
-                actionBtn && actionBtn === "Confirm"
-                  ? "#7F56D9"
-                  : actionBtn === "Restore"
-                    ? "green"
-                    : "#d92d20",
+              background: actionBtnColor ?? "#d92d20",
             }}
-            onClick={handleDelete}
+            onClick={() => {
+              onClose();
+              handleCTA();
+            }}
           >
             {actionBtn ? actionBtn : "Delete"}
           </button>
@@ -71,4 +51,4 @@ const DeleteModal: React.FC<DeleteExpenseModalProps> = ({
     </Modal>
   );
 };
-export default DeleteModal;
+export default BookingsModal;

@@ -26,7 +26,7 @@
   width: 36px;
   height: 36px;
 
-    &:hover {
+  &:hover {
     border-radius: 8px;
     background: #eff2f5;
   }
@@ -39,7 +39,7 @@
   border: none;
   cursor: pointer;
 
-    &:hover {
+  &:hover {
     border-radius: 8px;
     background: #eff2f5;
   }
@@ -203,18 +203,34 @@
   margin-bottom: 16px;
 }
 
-  .driverProfile {
+.driverProfile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100%;
+  width: 24px;
+  height: 24px;
+  border: 0.75px solid rgba(0, 0, 0, 0.08);
+  background-color: #f2f4f7;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  margin-left: 6px;
+}
+
+.actionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  :first-child {
     display: flex;
-    justify-content: center;
     align-items: center;
-    border-radius: 100%;
-    width: 24px;
-    height: 24px;
-    border: 0.75px solid rgba(0, 0, 0, 0.08);
-    background-color: #f2f4f7;
-    color: #475467;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 18px;
-    margin-left: 6px;
   }
+}
+
+.actionItemBox {
+  display: flex;
+  align-items: center;
+}

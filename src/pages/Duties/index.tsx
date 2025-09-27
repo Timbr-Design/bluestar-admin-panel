@@ -62,8 +62,6 @@ const SingleBookingDuties = () => {
     isEditingBookingDuties,
   } = useSelector((state: RootState) => state.bookingDuties);
 
-  console.log("currentSelectedBookingDuties", currentSelectedBookingDuties);
-
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     dispatch(setBookingDutiesFilter({ search: value }));

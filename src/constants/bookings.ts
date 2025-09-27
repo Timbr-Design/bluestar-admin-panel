@@ -28,7 +28,7 @@ export const BOOKINGS_DUTY_TABS = [
     type: "",
   },
   { id: 2, name: "Upcoming", type: "Upcoming" },
-  { id: 3, name: "Alloted", type: "Alloted" },
+  { id: 3, name: "Alloted", type: "alloted" },
   { id: 4, name: "Dispatched", type: "Dispatched" },
   { id: 5, name: "Booked", type: "Booked" },
   { id: 6, name: "Completed", type: "Completed" },

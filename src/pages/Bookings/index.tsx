@@ -229,7 +229,6 @@ const Bookings = () => {
         customer_id: form.getFieldValue("customer")[0]?.value,
         duty_type_id: form.getFieldValue("dutyType")[0]?.value,
         vehicle_group_id: [form.getFieldValue("vehicleGroup")[0]?.value],
-        is_confirmed: currentSelectedBooking?.is_confirmed,
       };
 
       if (isEditingBooking && currentSelectedBooking?.id) {

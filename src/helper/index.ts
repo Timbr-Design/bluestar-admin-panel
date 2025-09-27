@@ -1,4 +1,4 @@
-import { BOOKINGS_STATUS } from "../constants/bookings";
+import { BOOKINGS_DUTY_TABS, BOOKINGS_STATUS, DUTY_STATUS } from "../constants/bookings";
 
 /* eslint-disable */
 export const formatEpochToDate = (epoch: number) => {
@@ -28,6 +28,26 @@ export const normalizeBookingStatus = (status: string) => {
       return BOOKINGS_STATUS.completed;
     case "cancelled":
       return BOOKINGS_STATUS.cancelled;
+    default:
+      return status; // fallback if unexpected status
+  }
+};
+
+export const normalizeBookingDutyStatus = (status: string) => {
+  if (!status) return "";
+  switch (status) {
+    case "Booked":
+      return DUTY_STATUS.booked;
+    case "Billed":
+      return DUTY_STATUS.billed;
+    case "Upcoming":
+      return DUTY_STATUS.upcoming;
+    case "Alloted":
+      return DUTY_STATUS.alloted;
+    case "Completed":
+      return DUTY_STATUS.completed;
+    case "Cancelled":
+      return DUTY_STATUS.cancelled;
     default:
       return status; // fallback if unexpected status
   }
