@@ -10,6 +10,7 @@ import PrimaryBtn from "../../../components/PrimaryBtn";
 import { useAppDispatch } from "../../../hooks/store";
 import { RootState } from "../../../types/store";
 import styles from "../index.module.scss";
+import { ReactComponent as CrossIcon } from "../../../icons/x.svg";
 import { ReactComponent as ArrowLeftOutlined } from "../../../icons/arrow-left-blue.svg";
 import classNames from "classnames";
 import { BOOKINGS_DUTY_TABS } from "../../../constants/bookings";
@@ -25,6 +26,8 @@ import {
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import AddNewDutyToBookingForm from "../../../components/Bookings/AddNewDutyToBooking";
+import SecondaryBtn from "../../../components/SecondaryBtn";
+import useNotification from "../../../components/DeleteNotification/useNotification";
 
 dayjs.extend(utc);
 
@@ -60,6 +63,7 @@ const SingleBookingDuties = () => {
     isEditingBookingDuties,
   } = useSelector((state: RootState) => state.bookingDuties);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const notify = useNotification();
 
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -110,6 +114,7 @@ const SingleBookingDuties = () => {
             onClick={() => {
               dispatch(setCurrentSelectedBookingDuties([]));
               dispatch(setIsAddEditDrawerOpen());
+              dispatch(setIsEditingBookingDuties(true));
             }}
             LeadingIcon={PlusOutlined}
             btnText="Add Duty"
@@ -157,6 +162,71 @@ const SingleBookingDuties = () => {
         </div>
         <SingleBookingsTable />
       </div>
+      <Drawer
+        destroyOnClose
+        size="large"
+        mask
+        width={630}
+        closable={false}
+        title={
+          <div className={styles.formHeader}>
+            <div className={styles.header}>
+              {isEditingBookingDuties
+                ? currentSelectedBookingDuties?.id
+                  ? "Edit Duty"
+                  : "Add New Duty"
+                : "Duty details"}
+            </div>
+            <div className={styles.primaryText}>
+              {isEditingBookingDuties
+                ? "Fill your duty details here"
+                : "View your duty details here"}
+            </div>
+          </div>
+        }
+        footer={
+          <div style={{ height: "72px" }} className={styles.bottomContainer}>
+            <SecondaryBtn
+              btnText="Cancel"
+              onClick={() => dispatch(setIsAddEditDrawerClose())}
+            />
+
+            {currentSelectedBookingDuties?.status !== "Cancelled" && (
+              <Button
+                onClick={() => {
+                  !isEditingBookingDuties
+                    ? dispatch(setIsEditingBookingDuties(true))
+                    : form.submit();
+                }}
+                type="primary"
+                icon={!isEditingBookingDuties ? <EditFilled /> : ""}
+                className="primary-btn"
+              >
+                {!isEditingBookingDuties ? "Edit" : "Save"}
+              </Button>
+            )}
+          </div>
+        }
+        open={isAddEditDrawerOpen}
+      >
+        <button
+          className={styles.closeBtn}
+          onClick={() => {
+            dispatch(setIsAddEditDrawerClose());
+            notify.success(`Duty slip updated`);
+          }}
+        >
+          <CrossIcon />
+        </button>
+
+        <div>
+          <AddNewDutyToBookingForm
+            initialData={currentSelectedBookingDuties}
+            form={form}
+            isEditable={isEditingBookingDuties}
+          />
+        </div>
+      </Drawer>
     </div>
   );
 };

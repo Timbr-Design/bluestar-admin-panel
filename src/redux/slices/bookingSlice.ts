@@ -150,10 +150,6 @@ export const updateBooking = createAsyncThunk(
 
     if (record) {
       dispatch(clearCurrentSelectedBooking());
-      notification.success({
-        message: "Success",
-        description: "Booking updated successfully",
-      });
       dispatch(setIsAddEditDrawerClose());
       dispatch(getBookings({ page: "1", search: "", limit: 10 }));
 

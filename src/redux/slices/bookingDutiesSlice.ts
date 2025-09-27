@@ -56,10 +56,6 @@ export const updateBookingDuties = createAsyncThunk(
 
     if (record) {
       dispatch(setCurrentSelectedBookingDuties({}));
-      notification.success({
-        message: "Success",
-        description: "update booking duties successfully",
-      });
       dispatch(setIsAddEditDrawerClose());
       dispatch(getBookingsDuties({ bookingId: body.bookingId, ...filters }));
       return record;

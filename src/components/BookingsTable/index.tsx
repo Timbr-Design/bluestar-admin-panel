@@ -1,7 +1,6 @@
 /* eslint-disable */
 
 import {
-  Badge,
   Dropdown,
   MenuProps,
   Popover,
@@ -10,33 +9,23 @@ import {
   TableColumnsType,
   Tag,
 } from "antd";
-import { ReactComponent as DeleteIconRed } from "../../icons/trash-red.svg";
 import styles from "./index.module.scss";
-import {
-  CheckCircleTwoTone,
-  DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
-  FilePdfOutlined,
-  HeatMapOutlined,
-  MailOutlined,
-  MoreOutlined,
-  PhoneOutlined,
-  PushpinOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import { PhoneOutlined, UserOutlined } from "@ant-design/icons";
 import _ from "lodash";
 import useDebounce from "../../hooks/common/useDebounce";
 import { ReactComponent as DotsHorizontal } from "../../icons/dots-horizontal.svg";
 import { ReactComponent as DeleteIcon } from "../../icons/trash.svg";
 import { ReactComponent as EyeIcon } from "../../icons/eye2.svg";
 import { ReactComponent as CheckCircleIcon } from "../../icons/checkCircle.svg";
+import { ReactComponent as CheckCircleFilledIcon } from "../../icons/check-circle-filled.svg";
+import { ReactComponent as TrashIconFilled } from "../../icons/trashIconFilled.svg";
 import { ReactComponent as SpiralIcon } from "../../icons/SpiralBg.svg";
 import { ReactComponent as SearchIcon2 } from "../../icons/SearchIcon2.svg";
 import { ReactComponent as IllustrationIcon } from "../../icons/Illustration.svg";
 import { ReactComponent as EditIcon } from "../../icons/edit02Component.svg";
 import { ReactComponent as DocumentsIcon } from "../../icons/fileIcon.svg";
 import { ReactComponent as TrashIcon } from "../../icons/trash2.svg";
+import { ReactComponent as SuccessOutlineIcon } from "../../icons/successOutline.svg";
 
 import { useEffect, useState } from "react";
 import Modal from "../Modal";
@@ -64,10 +53,11 @@ import {
 } from "../../redux/slices/databaseSlice";
 import dayjs from "dayjs";
 import EmptyComponent from "../EmptyComponent/EmptyComponent";
+import BookingsModal from "../Modal/BookingsModal";
+import { BookingsModalProps } from "../../types/booking";
+import useNotification from "../DeleteNotification/useNotification";
 
 const BookingsTable = () => {
-  const [deleteModal, setDeleteModal] = useState(false);
-  const [conformedBookingModal, setConformedBookingModal] = useState(false);
   const {
     currentSelectedBooking,
     bookings,
@@ -77,89 +67,154 @@ const BookingsTable = () => {
   } = useSelector((state: RootState) => state.booking);
   const [selectedBooking, setSelectedBooking] = useState<any>({});
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [modalValues, setModalValues] = useState<BookingsModalProps | null>(
+    null
+  );
 
   const dispatch = useAppDispatch();
+  const notify = useNotification();
+
+  const handleUndoStatus = async (bookingId: string) => {};
+
+  const handleDelete = async () => {
+    handleCloseBookingModal();
+    const resultAction = await dispatch(
+      deleteBooking({ id: selectedBooking.id })
+    );
+
+    if (deleteBooking.fulfilled.match(resultAction)) {
+      notify.success("Booking has been deleted", "", "", null, true, () =>
+        handleUndoStatus(selectedBooking.id)
+      );
+    } else {
+      notify.success("Failed to update details.");
+    }
+  };
 
   function returnItems(row: any) {
-    const items: MenuProps["items"] = [
-      {
-        key: "1",
-        label: (
-          <div className={styles.popoverContainer}>
-            <CheckCircleIcon />
-            <div style={{ color: "#079455" }}>Confirm booking</div>
-          </div>
-        ),
-        onClick: (e) => {
-          e.domEvent.stopPropagation();
-          setConformedBookingModal(true);
-          setSelectedBooking(row);
-        },
+    const deleteBookingItem = {
+      key: "5",
+      label: (
+        <div className={styles.popoverContainer}>
+          <TrashIcon />
+          <div style={{ color: "#F04438" }}>Delete Booking</div>
+        </div>
+      ),
+      onClick: (e) => {
+        e.domEvent.stopPropagation();
+        setSelectedBooking(row);
+        setOpenModal(true);
+        const modalValues: BookingsModalProps = {
+          title: "Delete booking",
+          desc: `Are you sure you want to delete this booking? Booking ID: ${row?.booking_id}`,
+          handleCTA: handleDelete,
+          onClose: handleCloseBookingModal,
+          actionBtn: "Delete",
+          icon: <TrashIconFilled />,
+          show: true,
+        };
+        setModalValues(modalValues);
       },
-      {
-        key: "2",
-        onClick: (e) => {
-          e.domEvent.stopPropagation();
-          dispatch(setIsEditingBooking(false));
-          dispatch(setIsAddEditDrawerOpen());
-        },
-        label: (
-          <div className={styles.popoverContainer}>
-            <EyeIcon />
-            <div style={{ color: "#344054" }}>View booking</div>
-          </div>
-        ),
+    };
+
+    const viewBookingItem = {
+      key: "2",
+      onClick: (e) => {
+        e.domEvent.stopPropagation();
+        dispatch(setIsEditingBooking(false));
+        dispatch(setIsAddEditDrawerOpen());
       },
-      {
-        key: "3",
-        label: (
-          <div className={styles.popoverContainer}>
-            <EditIcon />
-            <div style={{ color: "#344054" }}>Edit booking</div>
-          </div>
-        ),
-        onClick: (e) => {
-          e.domEvent.stopPropagation();
-          dispatch(setIsEditingBooking(true));
-          dispatch(setIsAddEditDrawerOpen());
-          dispatch(getBookingById({ id: row.id }));
-        },
+      label: (
+        <div className={styles.popoverContainer}>
+          <EyeIcon />
+          <div style={{ color: "#344054" }}>View booking</div>
+        </div>
+      ),
+    };
+
+    const editBookingItem = {
+      key: "3",
+      label: (
+        <div className={styles.popoverContainer}>
+          <EditIcon />
+          <div style={{ color: "#344054" }}>Edit booking</div>
+        </div>
+      ),
+      onClick: (e) => {
+        e.domEvent.stopPropagation();
+        dispatch(setIsEditingBooking(true));
+        dispatch(setIsAddEditDrawerOpen());
+        dispatch(getBookingById({ id: row.id }));
       },
-      {
-        key: "4",
-        label: (
-          <div className={styles.popoverContainer}>
-            <DocumentsIcon />
-            <div style={{ color: "#344054" }}>Generate invoice</div>
-          </div>
-        ),
+    };
+    const allotItem = {
+      key: "6",
+      label: (
+        <div className={styles.popoverContainer}>
+          <DocumentsIcon />
+          <div style={{ color: "#344054" }}>Allot all duties</div>
+        </div>
+      ),
+    };
+    const confirmItem = {
+      key: "1",
+      label: (
+        <div className={styles.popoverContainer}>
+          <CheckCircleIcon />
+          <div style={{ color: "#079455" }}>Confirm booking</div>
+        </div>
+      ),
+      onClick: (e) => {
+        e.domEvent.stopPropagation();
+        setOpenModal(true);
+        const modalValues: BookingsModalProps = {
+          title: "Confirm booking",
+          desc: `Are you sure you want to confirm this booking? Booking ID: ${row?.booking_id}`,
+          handleCTA: handleConfirmBooking,
+          onClose: handleCloseBookingModal,
+          actionBtn: "Confirm",
+          icon: <CheckCircleFilledIcon />,
+          show: true,
+          actionBtnColor: "#7F56D9",
+        };
+        setModalValues(modalValues);
+        setSelectedBooking(row);
       },
-      {
-        key: "5",
-        label: (
-          <div className={styles.popoverContainer}>
-            <TrashIcon />
-            <div style={{ color: "#F04438" }}>Delete Booking</div>
-          </div>
-        ),
-        onClick: (e) => {
-          e.domEvent.stopPropagation();
-          setDeleteModal(true);
-        },
-      },
+    };
+    const generateItem = {
+      key: "4",
+      label: (
+        <div className={styles.popoverContainer}>
+          <DocumentsIcon />
+          <div style={{ color: "#344054" }}>Generate invoice</div>
+        </div>
+      ),
+    };
+
+    const items1: MenuProps["items"] = [
+      viewBookingItem,
+      editBookingItem,
+      { type: "divider" },
+      allotItem,
+      generateItem,
+      { type: "divider" },
+      deleteBookingItem,
     ];
 
-    // Filter out the confirm booking option if isConfirmed is true
-    return items.filter((item) => !(item.key === "1" && row.is_confirmed));
+    const items2: MenuProps["items"] = [
+      confirmItem,
+      { type: "divider" },
+      viewBookingItem,
+      editBookingItem,
+      { type: "divider" },
+      generateItem,
+      { type: "divider" },
+      deleteBookingItem,
+    ];
+
+    return row.is_confirmed ? items1 : items2;
   }
-
-  const getInitials = (name: string) => {
-    const names = name?.split(" "); // Split the name by spaces
-    const firstInitial = names && names[0]?.charAt(0).toUpperCase(); // Get the first letter of the first name
-    const lastInitial = names && names[1]?.charAt(0).toUpperCase(); // Get the first letter of the last name (if exists)
-
-    return firstInitial + (lastInitial || ""); // Combine the initials
-  };
 
   const columns: TableColumnsType<any> = [
     {
@@ -273,12 +328,9 @@ const BookingsTable = () => {
       dataIndex: "is_confirmed",
       key: "bookingStatus",
       render: (_, record) => {
-        const status = record?.is_confirmed;
+        const status = record?.booking_status;
         return (
-          <BookingsStates
-            status={status ? "completed" : "unconfirmed"}
-            isConfirmed={record?.is_confirmed}
-          />
+          <BookingsStates status={status} isConfirmed={record?.is_confirmed} />
         );
       },
     },
@@ -288,7 +340,6 @@ const BookingsTable = () => {
       key: "action",
       className: "custom-column",
       render: (data: any, row: any) => {
-        console.log(row, "ROW");
         return (
           <div
             className={styles.editButton}
@@ -297,7 +348,18 @@ const BookingsTable = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setDeleteModal(true);
+                setOpenModal(true);
+                const modalValues: BookingsModalProps = {
+                  title: "Delete booking",
+                  desc: `Are you sure you want to delete this booking? Booking ID: ${row?.booking_id}`,
+                  handleCTA: handleDelete,
+                  onClose: handleCloseBookingModal,
+                  actionBtn: "Delete",
+                  icon: <TrashIconFilled />,
+                  show: true,
+                };
+                setModalValues(modalValues);
+
                 setSelectedBooking(row);
               }}
               className={styles.deleteBtn}
@@ -331,11 +393,6 @@ const BookingsTable = () => {
     return bookings?.map((each: any) => {
       return {
         ...each,
-        // address: {
-        //   dropAddress: each?.dropAddress,
-        //   reportingAddress: each?.reportingAddress,
-        // },
-        // start_date: dayjs(each.duration.startTime).format("DD,MMM YYYY hh:mm A"),
         vehicle_groupid: each.vehicle_groupid,
         id: each.id,
         action: "",
@@ -349,12 +406,8 @@ const BookingsTable = () => {
     setSelectedRowKeys(selectedRowKeys);
   };
 
-  function handleCloseModal() {
-    setDeleteModal(false);
-    dispatch(clearCurrentSelectedBooking());
-  }
   function handleCloseBookingModal() {
-    setConformedBookingModal(false);
+    setOpenModal(false);
     dispatch(clearCurrentSelectedBooking());
   }
 
@@ -376,53 +429,35 @@ const BookingsTable = () => {
 
   let navigate = useNavigate();
 
-  const handleConfirmBooking = () => {
-    handleCloseBookingModal();
-    const tempObj = _.omit(currentSelectedBooking, ["id"]);
+  const handleConfirmBooking = async () => {
+    const bookingId = currentSelectedBooking?.id;
+    const isConfirmed = currentSelectedBooking?.is_confirmed;
 
-    const bookingDataUpdate = {
-      ...tempObj,
-      is_confirmed: true,
-      customer_id: currentSelectedBooking?.customer_id,
-      booked_by_name: _.omit(currentSelectedBooking?.booked_by_name, ["id"]),
-      passengers: currentSelectedBooking?.passengers.map(
-        (ele: { name: string; phoneNo: string; email: string }) => ({
-          name: ele.name,
-          phoneNo: ele.phoneNo,
-          email: ele.email,
-        })
-      ),
-      duty_type_id: currentSelectedBooking?.duty_type_id,
-      vehicle_group_id: [currentSelectedBooking?.vehicle_group_id],
-      vehicleId:
-        currentSelectedBooking?.vehicle !== undefined
-          ? currentSelectedBooking?.vehicle?.id
-          : null,
-      driver_id: currentSelectedBooking?.driver_id,
-      durationDetails: _.omit(currentSelectedBooking?.durationDetails, ["id"]),
-      pricingDetails: _.omit(currentSelectedBooking?.pricingDetails, [
-        "company",
-      ]),
-    };
-
-    dispatch(
+    const resultAction = await dispatch(
       updateBooking({
-        id: currentSelectedBooking?.id,
+        id: bookingId,
         body: {
-          is_confirmed: !currentSelectedBooking?.is_confirmed,
+          is_confirmed: !isConfirmed,
         },
       })
     );
+
+    if (updateBooking.fulfilled.match(resultAction)) {
+      notify.success(
+        "Booking confirmed successfully!",
+        `Booking ID: #${bookingId}`,
+        "",
+        <SuccessOutlineIcon />
+      );
+    } else {
+      notify.success("Failed to confirm booking.");
+    }
   };
 
   return (
     <>
       <div className={styles.container}>
         <Table
-          // rowSelection={{
-          //   type: "checkbox",
-          //   ...rowSelection,
-          // }}
           rowKey={"id"}
           rowSelection={{
             type: "checkbox",
@@ -483,65 +518,16 @@ const BookingsTable = () => {
           )}
         />
       </div>
-      {/* delete booking */}
-      <Modal show={deleteModal} onClose={() => handleCloseModal()}>
-        <div className={styles.deleteContainer}>
-          <DeleteIconRed />
-        </div>
-        <div className={styles.modalContainer}>
-          <div className={styles.textContainer}>
-            <div className={styles.primaryText}>Delete booking</div>
-            <div className={styles.secondaryText}>
-              {`Are you sure you want to delete this booking? Booking ID: ${selectedBooking?.booking_id}`}
-            </div>
-          </div>
-          <div className={styles.bottomBtns}>
-            <button className={styles.cancelBtn} onClick={handleCloseModal}>
-              Cancel
-            </button>
-            <button
-              className={styles.deleteBtn}
-              onClick={() => {
-                dispatch(deleteBooking({ id: selectedBooking.id }));
-                handleCloseModal();
-              }}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      </Modal>
-      {/* confirmed booking */}
-      <Modal
-        show={conformedBookingModal}
-        onClose={() => handleCloseBookingModal()}
-      >
-        <div className={styles.modalContainer}>
-          <div className={styles["check-icon-container"]}>
-            <CheckCircleIcon />
-          </div>
-          <div className={styles.textContainer}>
-            <div className={styles.primaryText}>Confirm booking</div>
-            <div className={styles.secondaryText}>
-              {`Are you sure you want to confirm this booking? Booking ID: ${selectedBooking?.booking_id}`}
-            </div>
-          </div>
-          <div className={styles.bottomBtns}>
-            <button
-              className={styles.cancelBtn}
-              onClick={handleCloseBookingModal}
-            >
-              Cancel
-            </button>
-            <button
-              className={styles.confirmBtn}
-              onClick={handleConfirmBooking}
-            >
-              Confirm
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <BookingsModal
+        show={openModal}
+        onClose={handleCloseBookingModal}
+        title={modalValues?.title ?? ""}
+        desc={modalValues?.desc ?? ""}
+        handleCTA={modalValues?.handleCTA ?? null}
+        actionBtnColor={modalValues?.actionBtnColor ?? null}
+        actionBtn={modalValues?.actionBtn}
+        icon={modalValues?.icon ?? null}
+      />
     </>
   );
 };

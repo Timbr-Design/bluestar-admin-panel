@@ -445,28 +445,17 @@ const CustomerForm = ({ handleCloseSidePanel }: ICustomerForm) => {
                     style={{ width: "100%" }}
                     placeholder="Select tax"
                     dropdownRender={(menu) => <>{menu}</>}
-                    options={taxes?.map((state) => ({
-                      label: state.name,
-                      value: state.id,
-                    }))}
+                    options={
+                      taxes &&
+                      Array.isArray(taxes) &&
+                      taxes?.map((state) => ({
+                        label: state.name,
+                        value: state.id,
+                      }))
+                    }
                   />
                 </Form.Item>
               </div>
-              {/* <div className={styles.typeContainer}>
-              <div className={styles.text}>
-                <p>Taxes</p>
-              </div>
-              <Select
-                style={{ width: "100%" }}
-                placeholder="Select One"
-                dropdownRender={(menu) => <>{menu}</>}
-                options={CUSTOMER_TAX_TYPES.map((state) => ({
-                  label: state.label,
-                  value: state.value,
-                }))}
-              />
-            </div> */}
-              {/* </div> */}
             </Input.Group>
           </Form.Item>
           <div className={styles.typeContainer}>

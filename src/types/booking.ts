@@ -130,3 +130,19 @@ export interface IBookingResponse {
   customer: ICustomer;
   vehicleGroup: IVehicleGroup[];
 }
+
+export interface BookingsModalProps {
+  title: string;
+  desc: string;
+  show: boolean;
+  onClose: () => void;
+  handleCTA: () => void;
+  expenseDetails?: {
+    vehicle: string;
+    plateNumber: string;
+  };
+  data?: any;
+  actionBtn?: string;
+  icon?: any;
+  actionBtnColor?: string;
+}

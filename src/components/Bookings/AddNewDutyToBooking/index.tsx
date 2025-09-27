@@ -28,6 +28,7 @@ import {
 } from "../../../redux/slices/bookingDutiesSlice";
 
 import dayjs from "dayjs";
+import useNotification from "../../DeleteNotification/useNotification";
 
 const { TextArea } = Input;
 interface AddNewDutyToBookingForm {
@@ -41,17 +42,10 @@ const AddNewDutyToBookingForm = ({
   form,
 }: AddNewDutyToBookingForm) => {
   let { bookingId } = useParams();
-  const {
-    vehicleGroupSelectOption,
-    dutyTypeOption,
-    customersOption,
-    addressList,
-    addressListSelectOption,
-  } = useAppSelector((state: RootState) => state.database);
-  const { currentSelectedBookingDuties } = useAppSelector(
-    (state: RootState) => state.bookingDuties
-  );
+  const { vehicleGroupSelectOption, dutyTypeOption, addressListSelectOption } =
+    useAppSelector((state: RootState) => state.database);
   const dispatch = useAppDispatch();
+  const notify = useNotification();
 
   useEffect(() => {
     dispatch(
@@ -85,7 +79,7 @@ const AddNewDutyToBookingForm = ({
     }
   };
 
-  const onSubmit = (values: any) => {
+  const onSubmit = async (values: any) => {
     const updatedValues = {
       ...values,
       start_date: dayjs(values.start_date).format("YYYY-MM-DD HH:mm:ss"),
@@ -98,11 +92,18 @@ const AddNewDutyToBookingForm = ({
       ),
       est_drop_time: dayjs(values.est_drop_time).format("YYYY-MM-DD HH:mm:ss"),
       booking_id: bookingId,
+      vehicle_group_id: values.vehicle_group_id[0].value,
     };
     if (isEditable && initialData?.id) {
-      dispatch(
+      const resultAction = await dispatch(
         updateBookingDuties({ id: initialData.id, data: updatedValues })
       );
+
+      if (updateBookingDuties.fulfilled.match(resultAction)) {
+        notify.success("Duty details updated");
+      } else {
+        notify.success("Failed to update details.");
+      }
     } else {
       dispatch(addNewBookingDuties(updatedValues));
     }
@@ -160,42 +161,47 @@ const AddNewDutyToBookingForm = ({
       requiredMark={CustomizeRequiredMark}
       className={styles.form}
     >
-      {/* duty_type_id */}
-      <Form.Item
-        name="duty_type_id"
-        rules={[{ required: true }]}
-        label="Duty type"
-      >
-        <Select
-          allowClear
-          showSearch
-          options={dutyTypeOption}
-          value={form.getFieldValue("duty_type_id")}
-          onSearch={(text) => getDutyTypeValue(text)}
-          placeholder="Select Duty type"
-          fieldNames={{ label: "label", value: "value" }}
-          notFoundContent={<div>No search result</div>}
-        />
-      </Form.Item>
+      <div className={styles.typeContainer}>
+        {/* duty_type_id */}
+        <Form.Item
+          name="duty_type_id"
+          rules={[{ required: true }]}
+          label="Duty type"
+        >
+          <Select
+            allowClear
+            showSearch
+            options={dutyTypeOption}
+            value={form.getFieldValue("duty_type_id")}
+            onSearch={(text) => getDutyTypeValue(text)}
+            placeholder="Select Duty type"
+            fieldNames={{ label: "label", value: "value" }}
+            notFoundContent={<div>No search result</div>}
+          />
+        </Form.Item>
+      </div>
       {/* vehicle_group_id */}
-      <Form.Item
-        name="vehicle_group_id"
-        id="vehicle_group_id"
-        rules={[{ required: true }]}
-        label="Vehicle Group"
-      >
-        <Select
-          allowClear
-          showSearch
-          options={vehicleGroupSelectOption}
-          onSearch={(text) => getVehicleGroupValue(text)}
-          placeholder="Search drivers"
-          fieldNames={{ label: "label", value: "value" }}
-          notFoundContent={<div>No search result</div>}
-        ></Select>
-      </Form.Item>
+      <div className={styles.typeContainer}>
+        <Form.Item
+          name="vehicle_group_id"
+          id="vehicle_group_id"
+          rules={[{ required: true }]}
+          label="Vehicle Group"
+          style={{ marginTop: "8px" }}
+        >
+          <Select
+            allowClear
+            showSearch
+            options={vehicleGroupSelectOption}
+            onSearch={(text) => getVehicleGroupValue(text)}
+            placeholder="Search drivers"
+            fieldNames={{ label: "label", value: "value" }}
+            notFoundContent={<div>No search result</div>}
+          ></Select>
+        </Form.Item>
+      </div>
       {/* from and to */}
-      <Row gutter={12}>
+      <Row gutter={12} style={{ marginTop: "8px" }}>
         <Col sm={12}>
           {/* from */}
           <Form.Item
@@ -241,12 +247,14 @@ const AddNewDutyToBookingForm = ({
         ]}
         name="reporting_address_map_link"
         label="Reporting Address"
+        style={{ marginTop: "8px" }}
       >
         <TextArea placeholder="Location (Google map link)"></TextArea>
       </Form.Item>
       {/* drop_address_map_link */}
       <Form.Item
         name="drop_address_map_link"
+        style={{ marginTop: "8px" }}
         rules={[
           { required: true, message: "Please provide a Google Maps link!" },
           {
@@ -429,6 +437,7 @@ const AddNewDutyToBookingForm = ({
                 <Form.Item
                   name={"base_rate"}
                   label="Base Rate"
+                  style={{ paddingTop: "16px" }}
                   rules={[
                     {
                       required: true,
@@ -439,6 +448,10 @@ const AddNewDutyToBookingForm = ({
                   <InputNumber
                     style={{
                       width: "100%",
+                      textAlign: "left",
+                      border: "1px solid #d9d9d9",
+                      borderRadius: "6px",
+                      height: "40px",
                     }}
                     min={0}
                     placeholder="Prefilled based on Duty Type"
@@ -455,10 +468,15 @@ const AddNewDutyToBookingForm = ({
                       type: "number",
                     },
                   ]}
+                  style={{ marginTop: "8px" }}
                 >
                   <InputNumber
                     style={{
                       width: "100%",
+                      textAlign: "left",
+                      border: "1px solid #d9d9d9",
+                      borderRadius: "6px",
+                      height: "40px",
                     }}
                     min={0}
                     placeholder="Per Extra KM Rate"
@@ -473,12 +491,17 @@ const AddNewDutyToBookingForm = ({
                       type: "number",
                     },
                   ]}
+                  style={{ marginTop: "8px" }}
                   name={"per_extra_hour_rate"}
                   label="Per Extra Hour Rate"
                 >
                   <InputNumber
                     style={{
                       width: "100%",
+                      textAlign: "left",
+                      border: "1px solid #d9d9d9",
+                      borderRadius: "6px",
+                      height: "40px",
                     }}
                     min={0}
                     placeholder="Per Extra Hour Rate"

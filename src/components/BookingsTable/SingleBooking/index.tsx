@@ -1,7 +1,6 @@
 /* eslint-disable */
 
 import {
-  Badge,
   Button,
   Drawer,
   Dropdown,
@@ -14,16 +13,7 @@ import {
 } from "antd";
 import styles from "../index.module.scss";
 import styles1 from "../../../pages/Bookings/index.module.scss";
-import {
-  CarOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
-  MoreOutlined,
-  PhoneOutlined,
-  RedoOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import { MoreOutlined, PhoneOutlined, UserOutlined } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../types/store";
@@ -45,19 +35,38 @@ import dayjs from "dayjs";
 import useDebounce from "../../../hooks/common/useDebounce";
 import AssignVehicle from "../../Bookings/AssignVehicle";
 import { ReactComponent as CrossIcon } from "../../../icons/x.svg";
+import { ReactComponent as EditIcon } from "../../../icons/edit-02.svg";
+import { ReactComponent as EyeIcon } from "../../../icons/eye.svg";
+import { ReactComponent as CarIcon } from "../../../icons/car.svg";
+import { ReactComponent as ReverseIcon } from "../../../icons/reverse-left.svg";
+import { ReactComponent as CancelIcon } from "../../../icons/x-circle.svg";
+import { ReactComponent as CancelIconFilled } from "../../../icons/x-circle-filled.svg";
+import { ReactComponent as SwitchIcon } from "../../../icons/switch-horizontal.svg";
+import { ReactComponent as ShareIcon } from "../../../icons/shareIcon.svg";
+import { ReactComponent as ClearFileIcon } from "../../../icons/clearFile.svg";
+import { ReactComponent as CheckIcon } from "../../../icons/checkGray.svg";
+import { ReactComponent as CheckCircleIcon } from "../../../icons/checkCircle.svg";
+import { ReactComponent as AlertCircleIcon } from "../../../icons/alertCircle.svg";
+import { ReactComponent as SuccessOutlineIcon } from "../../../icons/successOutline.svg";
+import { ReactComponent as PrinterIcon } from "../../../icons/printer.svg";
+
 import { ReactComponent as SpiralIcon } from "../../../icons/SpiralBg.svg";
 import { ReactComponent as SearchIcon2 } from "../../../icons/SearchIcon2.svg";
 import { ReactComponent as IllustrationIcon } from "../../../icons/Illustration.svg";
 import {
   clearSelectedDriver,
   clearSelectedVehicleGroup,
+  getDrivers,
   getVehicle,
 } from "../../../redux/slices/databaseSlice";
 import SecondaryBtn from "../../SecondaryBtn";
 import AssignDriver from "../../Bookings/AssignDriver";
 import EmptyComponent from "../../EmptyComponent/EmptyComponent";
-import BookingsStates from "../../States/BookingsStates";
-import { normalizeBookingStatus } from "../../../helper";
+import BookingDutyStates from "../../States/BookingDutyStates";
+import DeleteModal from "../../Modal/DeleteModal";
+import useNotification from "../../DeleteNotification/useNotification";
+import BookingsModal from "../../Modal/BookingsModal";
+import { BookingsModalProps } from "../../../types/booking";
 
 const SingleBookingsTable = () => {
   let { bookingId } = useParams();
@@ -79,14 +88,20 @@ const SingleBookingsTable = () => {
   const [driver, setDriver] = useState<any>({});
   const [formStep, setFormStep] = useState(1);
   const [allotedVehicleDriver, setAllotedVehicleDriver] = useState<any>({});
+  const [openModal, setOpenModal] = useState(false);
+  const [modalValues, setModalValues] = useState<BookingsModalProps | null>(
+    null
+  );
+
+  const notify = useNotification();
 
   useEffect(() => {
     if (vehicleList) setVehicle(vehicleList);
     if (driverList) setDriver(driverList);
   }, [vehicleList, driverList]);
 
-  const handleUnconfirmDuty = (dutyId: string) => {
-    dispatch(
+  const handleUnconfirmDuty = async (dutyId: string, prevStatus: string) => {
+    const resultAction = await dispatch(
       updateBookingDuties({
         id: dutyId,
         bookingId: bookingId,
@@ -95,9 +110,26 @@ const SingleBookingsTable = () => {
         },
       })
     );
+    if (updateBookingDuties.fulfilled.match(resultAction)) {
+      notify.success(
+        "Duty has been marked as unconfirmed",
+        "",
+        "",
+        <AlertCircleIcon />,
+        true,
+        () => handleUndoStatus(prevStatus, dutyId)
+      );
+    } else {
+      notify.success("Failed to update details.");
+    }
   };
 
-  const handleCancelDuty = (dutyId: string) => {
+  const handleModalClose = () => {
+    setOpenModal(false);
+    setModalValues(null);
+  };
+
+  const handleCancelDuty = async (dutyId: string) => {
     dispatch(
       updateBookingDuties({
         id: dutyId,
@@ -109,39 +141,101 @@ const SingleBookingsTable = () => {
     );
   };
 
+  const handleConfirmDuty = async (dutyId: string) => {
+    const resultAction = await dispatch(
+      updateBookingDuties({
+        id: dutyId,
+        bookingId: bookingId,
+        data: {
+          status: "Booked",
+        },
+      })
+    );
+
+    if (updateBookingDuties.fulfilled.match(resultAction)) {
+      notify.success(
+        "Duty confirmed",
+        `Duty ID: ${dutyId}`,
+        "",
+        <SuccessOutlineIcon />
+      );
+    } else {
+      notify.success("Failed to restore duty.");
+    }
+  };
+
+  const handleRestoreDuty = async (dutyId: string, prevStatus: string) => {
+    const resultAction = await dispatch(
+      updateBookingDuties({
+        id: dutyId,
+        bookingId: bookingId,
+        data: {
+          status: "Booked",
+        },
+      })
+    );
+
+    if (updateBookingDuties.fulfilled.match(resultAction)) {
+      notify.success(
+        "Duty restored",
+        "",
+        "",
+        <SuccessOutlineIcon />,
+        true,
+        () => handleUndoStatus(prevStatus, dutyId)
+      );
+    } else {
+      notify.success("Failed to restore duty.");
+    }
+  };
+
+  const handleSendInfomation = async (dutyId: string) => {
+    dispatch(setIsAddEditDrawerOpen());
+    dispatch(setIsEditingBookingDuties(true));
+
+    notify.success("Duty information has been sent to assigned driver");
+  };
+
+  const handleClearAllotment = async (dutyId: string) => {
+    dispatch(setIsAddEditDrawerOpen());
+    dispatch(setIsEditingBookingDuties(true));
+
+    notify.success("Allotment cleared", "", "", <SuccessOutlineIcon />);
+  };
+
   function returnItems(row: any) {
-    const items: MenuProps["items"] = [
+    const items1: MenuProps["items"] = [
       {
         key: "1",
         label: (
           <div
+            className={styles.actionItemBox}
             onClick={() => {
               dispatch(setCurrentSelectedBookingDuties(row));
               dispatch(setIsAddEditDrawerOpen());
+              dispatch(setIsEditingBookingDuties(false));
             }}
           >
-            <Space>
-              <EyeOutlined />
+            <Space className={styles.actionItem}>
+              <EyeIcon />
               View Duty
             </Space>
           </div>
         ),
       },
       {
-        type: "divider",
-      },
-      {
         key: "2",
         label: (
           <div
+            className={styles.actionItemBox}
             onClick={() => {
               dispatch(setCurrentSelectedBookingDuties(row));
               dispatch(setIsAddEditDrawerOpen());
               dispatch(setIsEditingBookingDuties(true));
             }}
           >
-            <Space>
-              <EditOutlined twoToneColor="#52c41a" />
+            <Space className={styles.actionItem}>
+              <EditIcon />
               Edit Duty
             </Space>
           </div>
@@ -154,6 +248,7 @@ const SingleBookingsTable = () => {
         key: "3",
         label: (
           <div
+            className={styles.actionItemBox}
             onClick={() => {
               dispatch(
                 getVehicle({
@@ -164,8 +259,8 @@ const SingleBookingsTable = () => {
               dispatch(setIsAllotingDuties(true));
             }}
           >
-            <Space>
-              <CarOutlined />
+            <Space className={styles.actionItem}>
+              <CarIcon />
               Allot vehicle and driver
             </Space>
           </div>
@@ -177,10 +272,418 @@ const SingleBookingsTable = () => {
       {
         key: "4",
         label: (
-          <div onClick={() => handleUnconfirmDuty(row.id)}>
-            <Space>
-              <RedoOutlined />
+          <div
+            className={styles.actionItemBox}
+            onClick={() => handleUnconfirmDuty(row.id, row.status)}
+          >
+            <Space className={styles.actionItem}>
+              <ReverseIcon />
               Unconfirm Duty
+            </Space>
+          </div>
+        ),
+      },
+      {
+        key: "5",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            style={{
+              color: "#F04438",
+            }}
+            onClick={() => {
+              setOpenModal(true);
+              const modalValues: BookingsModalProps = {
+                title: "Cancel duty",
+                desc: "Are you sure you want to cancel this duty?",
+                handleCTA: () => handleCancelDuty(row?.id),
+                onClose: handleModalClose,
+                actionBtn: "Cancel",
+                icon: <CancelIconFilled />,
+                show: true,
+              };
+              setModalValues(modalValues);
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <CancelIcon />
+              Cancel Duty
+            </Space>
+          </div>
+        ),
+      },
+    ];
+
+    const items2: MenuProps["items"] = [
+      {
+        key: "1",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(setCurrentSelectedBookingDuties(row));
+              dispatch(setIsAddEditDrawerOpen());
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <EyeIcon />
+              View Duty
+            </Space>
+          </div>
+        ),
+      },
+      {
+        key: "2",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(setCurrentSelectedBookingDuties(row));
+              dispatch(setIsAddEditDrawerOpen());
+              dispatch(setIsEditingBookingDuties(true));
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <EditIcon />
+              Edit Duty
+            </Space>
+          </div>
+        ),
+      },
+      {
+        type: "divider",
+      },
+      {
+        key: "3",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(
+                getVehicle({
+                  vehicle_group_id: row?.expand?.vehicle_group_id?.id,
+                })
+              );
+              dispatch(setCurrentSelectedBookingDuties(row));
+              dispatch(setIsAllotingDuties(true));
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <CarIcon />
+              Re-allot vehicle and driver
+            </Space>
+          </div>
+        ),
+      },
+      {
+        key: "4",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(
+                getDrivers({
+                  driver_id: row?.expand?.driver_id?.id,
+                })
+              );
+              dispatch(setCurrentSelectedBookingDuties(row));
+              dispatch(setIsAllotingDuties(true));
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <SwitchIcon />
+              Change Driver
+            </Space>
+          </div>
+        ),
+      },
+      {
+        key: "5",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(setCurrentSelectedBookingDuties(row));
+
+              handleSendInfomation(row?.id);
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <ShareIcon />
+              Send information to driver
+            </Space>
+          </div>
+        ),
+      },
+      {
+        type: "divider",
+      },
+      {
+        key: "6",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(setCurrentSelectedBookingDuties(row));
+              const modalValues: BookingsModalProps = {
+                title: "Clear allotment",
+                desc: "Assigned vehicle and driver to this duty will be removed",
+                handleCTA: () => handleClearAllotment(row?.id),
+                onClose: handleModalClose,
+                actionBtn: "Remove",
+                icon: <AlertCircleIcon />,
+                show: true,
+              };
+              setModalValues(modalValues);
+              dispatch(setIsAddEditDrawerOpen());
+              dispatch(setIsEditingBookingDuties(true));
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <ClearFileIcon />
+              Clear allotment
+            </Space>
+          </div>
+        ),
+      },
+      {
+        key: "7",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(setCurrentSelectedBookingDuties(row));
+              dispatch(setIsAddEditDrawerOpen());
+              dispatch(setIsEditingBookingDuties(true));
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <CheckIcon />
+              Close Duty
+            </Space>
+          </div>
+        ),
+      },
+      {
+        type: "divider",
+      },
+      {
+        key: "8",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => handleUnconfirmDuty(row.id, row.status)}
+          >
+            <Space className={styles.actionItem}>
+              <ReverseIcon />
+              Unconfirm Duty
+            </Space>
+          </div>
+        ),
+      },
+      {
+        key: "9",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            style={{
+              color: "#F04438",
+            }}
+            onClick={() => {
+              setOpenModal(true);
+              const modalValues: BookingsModalProps = {
+                title: "Cancel duty",
+                desc: "Are you sure you want to cancel this duty?",
+                handleCTA: () => handleCancelDuty(row?.id),
+                onClose: handleModalClose,
+                actionBtn: "Cancel",
+                icon: <CancelIconFilled />,
+                show: true,
+              };
+              setModalValues(modalValues);
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <CancelIcon />
+              Cancel Duty
+            </Space>
+          </div>
+        ),
+      },
+    ];
+
+    const items3: MenuProps["items"] = [
+      {
+        key: "1",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(setCurrentSelectedBookingDuties(row));
+              dispatch(setIsAddEditDrawerOpen());
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <EyeIcon />
+              Preview duty slip
+            </Space>
+          </div>
+        ),
+      },
+      {
+        key: "2",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(setCurrentSelectedBookingDuties(row));
+              dispatch(setIsAddEditDrawerOpen());
+              dispatch(setIsEditingBookingDuties(true));
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <EditIcon />
+              Edit duty slip
+            </Space>
+          </div>
+        ),
+      },
+      {
+        type: "divider",
+      },
+      {
+        key: "3",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(
+                getVehicle({
+                  vehicle_group_id: row?.expand?.vehicle_group_id?.id,
+                })
+              );
+              dispatch(setCurrentSelectedBookingDuties(row));
+              dispatch(setIsAllotingDuties(true));
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <PrinterIcon />
+              Print Duty Slip
+            </Space>
+          </div>
+        ),
+      },
+    ];
+
+    const items4: MenuProps["items"] = [
+      {
+        key: "1",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(setCurrentSelectedBookingDuties(row));
+              dispatch(setIsAddEditDrawerOpen());
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <EyeIcon />
+              View duty
+            </Space>
+          </div>
+        ),
+      },
+      {
+        key: "2",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              setOpenModal(true);
+              const modalValues: BookingsModalProps = {
+                title: "Restore duty",
+                desc: "Are you sure you want to restore this duty?",
+                handleCTA: () => handleRestoreDuty(row?.id, row.status),
+                onClose: handleModalClose,
+                actionBtn: "Restore",
+                icon: <AlertCircleIcon />,
+                show: true,
+                actionBtnColor: "#7F56D9",
+              };
+              setModalValues(modalValues);
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <ReverseIcon />
+              Restore duty
+            </Space>
+          </div>
+        ),
+      },
+    ];
+
+    const items5: MenuProps["items"] = [
+      {
+        key: "1",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              setOpenModal(true);
+              const modalValues: BookingsModalProps = {
+                title: "Confirm duty",
+                desc: "Are you sure you want to confirm this duty?",
+                handleCTA: () => handleConfirmDuty(row?.id),
+                onClose: handleModalClose,
+                actionBtn: "Confirm",
+                icon: <AlertCircleIcon />,
+                show: true,
+                actionBtnColor: "#7F56D9",
+              };
+              setModalValues(modalValues);
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <CheckCircleIcon />
+              <div style={{ color: "#079455" }}>Confirm duty</div>
+            </Space>
+          </div>
+        ),
+      },
+      {
+        type: "divider",
+      },
+      {
+        key: "2",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(setCurrentSelectedBookingDuties(row));
+              dispatch(setIsAddEditDrawerOpen());
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <EyeIcon />
+              View duty
+            </Space>
+          </div>
+        ),
+      },
+      {
+        key: "3",
+        label: (
+          <div
+            className={styles.actionItemBox}
+            onClick={() => {
+              dispatch(setCurrentSelectedBookingDuties(row));
+              dispatch(setIsAddEditDrawerOpen());
+              dispatch(setIsEditingBookingDuties(true));
+            }}
+          >
+            <Space className={styles.actionItem}>
+              <EditIcon />
+              Edit duty
             </Space>
           </div>
         ),
@@ -192,20 +695,45 @@ const SingleBookingsTable = () => {
         key: "5",
         label: (
           <div
+            className={styles.actionItemBox}
             style={{
               color: "#F04438",
             }}
-            onClick={() => handleCancelDuty(row?.id)}
+            onClick={() => {
+              setOpenModal(true);
+              const modalValues: BookingsModalProps = {
+                title: "Cancel duty",
+                desc: "Are you sure you want to cancel this duty?",
+                handleCTA: () => handleCancelDuty(row?.id),
+                onClose: handleModalClose,
+                actionBtn: "Cancel",
+                icon: <CancelIconFilled />,
+                show: true,
+              };
+              setModalValues(modalValues);
+            }}
           >
-            <Space>
-              <DeleteOutlined />
+            <Space className={styles.actionItem}>
+              <CancelIcon />
               Cancel Duty
             </Space>
           </div>
         ),
       },
     ];
-    return items;
+
+    switch (row.status) {
+      case "Alloted":
+        return items2;
+      case "Completed":
+        return items3;
+      case "Cancelled":
+        return items4;
+      case "Unconfirmed":
+        return items5;
+      default:
+        return items1;
+    }
   }
 
   const columns: TableColumnsType<any> = [
@@ -321,7 +849,7 @@ const SingleBookingsTable = () => {
       dataIndex: "status",
       key: "status",
       render: (data: any) => {
-        return <BookingsStates status={normalizeBookingStatus(data)} />;
+        return <BookingDutyStates status={data} />;
       },
     },
     {
@@ -391,10 +919,6 @@ const SingleBookingsTable = () => {
     setDriver(values);
   };
 
-  useEffect(() => {
-    console.log(allotedVehicleDriver, "ALLOTED");
-  }, [allotedVehicleDriver]);
-
   const primaryBtnText = useMemo(() => {
     if (formStep === 1) {
       return "next";
@@ -410,6 +934,28 @@ const SingleBookingsTable = () => {
       return "back";
     }
   }, [formStep]);
+
+  const handleUndoStatus = async (prevStatus: string, dutyId: string) => {
+    const resultAction = await dispatch(
+      updateBookingDuties({
+        id: dutyId,
+        bookingId: bookingId,
+        data: {
+          status: prevStatus,
+        },
+      })
+    );
+    if (updateBookingDuties.fulfilled.match(resultAction)) {
+      notify.success(
+        `Duty has been marked as ${prevStatus}`,
+        "",
+        "",
+        <AlertCircleIcon />
+      );
+    } else {
+      notify.success("Failed to update details.");
+    }
+  };
 
   const handlePrimaryBtn = async () => {
     // To move forward in the form
@@ -427,13 +973,23 @@ const SingleBookingsTable = () => {
           ...updatedDuty,
           vehicle_id: allotedVehicleDriver?.vehicle_data?.id || "",
         };
-      dispatch(
+      const resultAction = await dispatch(
         updateBookingDuties({
           id: currentSelectedBookingDuties.id,
           data: updatedDuty,
           bookingId: currentSelectedBookingDuties.booking_id,
         })
       );
+      if (updateBookingDuties.fulfilled.match(resultAction)) {
+        notify.success(
+          "Vehicle and Driver assigned",
+          "",
+          "",
+          <SuccessOutlineIcon />
+        );
+      } else {
+        notify.success("Failed to update details.");
+      }
       setFormStep(1);
       dispatch(setIsAllotingDuties(false));
     }
@@ -539,10 +1095,7 @@ const SingleBookingsTable = () => {
             </div>
           }
           footer={
-            <div
-              className={`${styles1.bottomContainer}`}
-              style={{ height: "72px" }}
-            >
+            <div className={styles1.drawerFooter} style={{ height: "72px" }}>
               <SecondaryBtn
                 btnText={secondaryBtnText}
                 onClick={handleSecondaryBtn}
@@ -591,6 +1144,17 @@ const SingleBookingsTable = () => {
             )}
           </div>
         </Drawer>
+
+        <BookingsModal
+          show={openModal}
+          onClose={handleModalClose}
+          title={modalValues?.title ?? ""}
+          desc={modalValues?.desc ?? ""}
+          handleCTA={modalValues?.handleCTA ?? null}
+          actionBtnColor={modalValues?.actionBtnColor ?? null}
+          actionBtn={modalValues?.actionBtn}
+          icon={modalValues?.icon ?? null}
+        />
       </div>
     </>
   );
