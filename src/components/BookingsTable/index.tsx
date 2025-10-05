@@ -56,6 +56,7 @@ import EmptyComponent from "../EmptyComponent/EmptyComponent";
 import BookingsModal from "../Modal/BookingsModal";
 import { BookingsModalProps } from "../../types/booking";
 import useNotification from "../DeleteNotification/useNotification";
+import { setBookingId } from "../../redux/slices/bookingDutiesSlice";
 
 const BookingsTable = () => {
   const {
@@ -467,6 +468,7 @@ const BookingsTable = () => {
           onRow={(record, rowIndex) => {
             return {
               onClick: (event) => {
+                dispatch(setBookingId(record.booking_id));
                 navigate(`${RouteName.BOOKINGS}/${record.id}`);
               },
             };

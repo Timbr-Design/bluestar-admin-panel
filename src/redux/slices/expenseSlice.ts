@@ -1,24 +1,22 @@
 /* eslint-disable */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import apiClient from "../../utils/configureAxios";
 import pb from "../../utils/configurePocketbase";
 import { notification } from "antd";
-import { getExpenses } from "./vehicleTrackerSlice";
 import { IExpense } from "../../interface/expense";
 
 interface IExpenseState {
-  expenses: IExpense[]
+  expenses: IExpense[];
   filters: {
     status: string;
     search: string;
   };
-  selectedExpense: IExpense | null
+  selectedExpense: IExpense | null;
   pagination: {
     total: number;
     page: number;
     limit: number;
   };
-  openExpenseForm: boolean
+  openExpenseForm: boolean;
 }
 
 const initialState: IExpenseState = {
@@ -33,41 +31,66 @@ const initialState: IExpenseState = {
     page: 1,
     limit: 10,
   },
-  openExpenseForm: false
+  openExpenseForm: false,
 };
 
-export const addNewExpense = createAsyncThunk(
-  "vehicle-tracker/expense",
-  async (body: any, { dispatch }) => {
-    const response = await apiClient.post("/vehicle-tracker/expense", body);
-    if (response.status === 201) {
-      notification.success({
-        message: "Success",
-        description: "New customer added successfully",
-      });
-      console.log(response.data)
-      dispatch(setOpenExpenseForm(false));
-      dispatch(getExpenses({ page: "1", search: "", limit: 10 }));
-      return response.data;
+export const getExpenses = createAsyncThunk(
+  "vehicleTracker/expense",
+  async (params: any, { dispatch }) => {
+
+    const filters: string[] = [];
+
+    if (params.search) {
+      filters.push(`vehicle_id.model_name ~ "${params.search}"`);
+    }
+
+    const filterString = filters.join(" && ");
+
+    const resultList = await pb.collection("vehicle_expense").getList(1, 50, {
+      expand: "vehicle_id",
+      filter: filterString
+    });
+
+    if (resultList) {
+      dispatch(setExpenses(resultList.items));
+      return resultList.items;
     }
   }
 );
 
+export const addNewExpense = createAsyncThunk(
+  "vehicle-tracker/expense",
+  async (body: any, { dispatch }) => {
+    const record = await pb.collection("vehicle_expense").create(body);
+
+    // const response = await apiClient.post("/vehicle-tracker/expense", body);
+    if (record) {
+      notification.success({
+        message: "Success",
+        description: "New customer added successfully",
+      });
+      dispatch(setOpenExpenseForm(false));
+      dispatch(getExpenses({ page: "1", search: "", limit: 10 }));
+      return record;
+    }
+  }
+);
 
 export const updateExpense = createAsyncThunk(
   "expense",
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
 
-    const response = await apiClient.put(`/expense/${id}`, payload);
-    if (response.status === 200) {
+    const record = await pb.collection('vehicle_expense').update(id, payload);
+
+    if (record) {
       notification.success({
         message: "Success",
         description: "Expense updated successfully",
       });
       dispatch(setOpenExpenseForm(false));
       dispatch(getExpenses({ page: "1", search: "", limit: 10 }));
-      return response.data;
+      return record;
     }
   }
 );
@@ -77,23 +100,28 @@ export const deleteExpense = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { id } = body;
 
-    const response = await apiClient.delete(`/expense/${id}`);
+    const response = await pb.collection("vehicle_expense").delete(id);
 
-    if (response.status === 200) {
+    if (response) {
       dispatch(getExpenses({ page: "1", search: "", limit: 10 }));
-      return response.data;
+      return response;
     }
   }
 );
 
 export const getExpenseById = createAsyncThunk(
-  "vehicleTracker",async (params: any) => {
-    const response = await apiClient.get("/vehicle-tracker/expense",{params});
-    return response.data.data;
+  "vehicleTracker",
+  async (params: any) => {
+    const record = await pb.collection("vehicle_expense").getOne(params, {
+      expand: "vehicle_id",
+    });
+
+    if (record) {
+      return record;
+    }
   }
   // async (params: any) => {
 
-    
   //   // const response = await apiClient.get("/auth/admin/login", { params });
   //   // return response.data;
 
@@ -106,7 +134,6 @@ export const getExpenseById = createAsyncThunk(
   // }
 );
 
-
 export const expenseSlice = createSlice({
   name: "expenses",
   initialState,
@@ -117,14 +144,20 @@ export const expenseSlice = createSlice({
         ...action.payload,
       };
     },
-    setOpenExpenseForm: (state,action: PayloadAction<boolean>) => {
+    setOpenExpenseForm: (state, action: PayloadAction<boolean>) => {
       state.openExpenseForm = action.payload;
     },
-    setSelectedExpense: (state,action: PayloadAction<IExpense | null>) => {
+    setSelectedExpense: (state, action: PayloadAction<IExpense | null>) => {
       state.selectedExpense = action.payload;
     },
-    setPagination: (state, action: PayloadAction<{ total: number; page: number; limit: number }>) => {
+    setPagination: (
+      state,
+      action: PayloadAction<{ total: number; page: number; limit: number }>
+    ) => {
       state.pagination = action.payload;
+    },
+    setExpenses: (state, action: PayloadAction<any>) => {
+      state.expenses = action.payload;
     },
   },
 });
@@ -134,6 +167,7 @@ export const {
   setAttendanceFilter,
   setPagination,
   setOpenExpenseForm,
-  setSelectedExpense
+  setSelectedExpense,
+  setExpenses,
 } = actions;
 export default expenseSlice.reducer;

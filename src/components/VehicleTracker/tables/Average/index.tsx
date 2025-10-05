@@ -106,11 +106,6 @@ const AverageTable = ({ handleOpenSidePanel }: IAverageTable) => {
   );
   const dispatch = useAppDispatch();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [openVechileId, setOpenVechileId] = useState(null);
-
-  const handleDetails = (row) => {
-    console.log(row);
-  };
 
   function returnItems(row: any) {
     const items: MenuProps["items"] = [

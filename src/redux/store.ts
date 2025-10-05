@@ -15,6 +15,7 @@ import invoiceSlice from "./slices/invoiceSlice";
 import vehicleAvailabilitySlice from "./slices/vehicleAvailabilitySlice";
 import  expenseSlice  from "./slices/expenseSlice";
 import  fuelSlice  from "./slices/FuelSlice";
+import  loanSlice from "./slices/LoanSlice";
 
 const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ const store = configureStore({
     vehicleTracker: vehicleTrackerSlice,
     expenses: expenseSlice,
     fuels: fuelSlice,
+    loans: loanSlice,
     bookingDuties: bookingDutiesSlice,
     billing: billingSlice,
     login: loginSlice,

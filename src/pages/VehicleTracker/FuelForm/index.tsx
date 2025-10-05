@@ -10,22 +10,16 @@ import { RootState } from "../../../types/store";
 import { getDrivers, getVehicle } from "../../../redux/slices/databaseSlice";
 import type { UploadFile } from "antd/es/upload/interface";
 import styles from "./index.module.scss";
-import { addNewFuel, setOpenFuelForm, updateFuel } from "../../../redux/slices/FuelSlice";
+import {
+  addNewFuel,
+  setOpenFuelForm,
+  updateFuel,
+} from "../../../redux/slices/FuelSlice";
 import dayjs from "dayjs";
+import CustomDatePicker from "../../../components/Common/CustomDatePicker";
 
 const { TextArea } = Input;
 const { Option } = Select;
-
-interface FuelExpenseFormData {
-  date: string;
-  vehicle: string;
-  fuelType: string;
-  quantity: number;
-  amount: number;
-  paidBy: string;
-  receipts?: UploadFile[];
-  notes?: string;
-}
 
 interface FuelExpenseFormProps {
   open: boolean;
@@ -35,14 +29,11 @@ interface FuelExpenseFormProps {
 const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [receiptDoc, setReceiptDoc] = useState<IFile>();
+  const [receiptDoc, setReceiptDoc] = useState<IFile | null>();
   const dispatch = useAppDispatch();
 
-  const {
-    driverOption: options,
-    vehicleList,
-  } = useAppSelector((state: RootState) => state.database);
-  const {selectedFuel} = useAppSelector((state: RootState)=>state.fuels)
+  const { driverList, vehicleList } = useAppSelector((state) => state.database);
+  const { selectedFuel } = useAppSelector((state) => state.fuels);
 
   const handleReceiptDoc = (file: IFile) => {
     setReceiptDoc(file);
@@ -50,10 +41,10 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
 
   const handleSubmit = async (values: any) => {
     if (selectedFuel) {
-          dispatch(updateFuel({ payload: values, id: selectedFuel._id }));
-        } else {
-          dispatch(addNewFuel(values));
-        }
+      dispatch(updateFuel({ payload: values, id: selectedFuel.id }));
+    } else {
+      dispatch(addNewFuel(values));
+    }
   };
 
   useEffect(() => {
@@ -78,23 +69,22 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
   };
 
   useEffect(() => {
-      if (selectedFuel && Object.keys(selectedFuel).length) {
-        dispatch(setOpenFuelForm(true))
-        setReceiptDoc(selectedFuel?.receipts || []);
-        form.setFieldsValue({
-          amount: selectedFuel.amount,
-          date: dayjs(selectedFuel.date),
-          driverId: selectedFuel.driverId,
-          fuelType: selectedFuel.fuelType,
-          notes: selectedFuel.notes,
-          quantity: selectedFuel.quantity,
-          vehicle: selectedFuel.vehicleId.vehicleNumber,
-        });
-      }
-      else{
-        form.resetFields();
-      }
-    }, [selectedFuel]);
+    if (selectedFuel && Object.keys(selectedFuel).length) {
+      dispatch(setOpenFuelForm(true));
+      setReceiptDoc(selectedFuel?.receipt);
+      form.setFieldsValue({
+        amount_inr: selectedFuel.amount_inr,
+        transaction_date: dayjs(selectedFuel.transaction_date),
+        driver_id: selectedFuel.driver_id,
+        fuel_type: selectedFuel.fuel_type,
+        driver_notes: selectedFuel.driver_notes,
+        quantity_ltr: selectedFuel.quantity_ltr,
+        vehicle_id: selectedFuel?.vehicle_id,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [selectedFuel]);
 
   return (
     <Drawer
@@ -129,16 +119,11 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
         form={form}
         layout="vertical"
         onFinish={(values) => {
-          console.log(values)
           const valuesToSend = {
-            date: new Date(values.date).getTime(),
-            vehicleId: "67d07a409680a5f900f7a91b",
-            fuelType: values.fuelType,
-            quantity: values.quantity,
-            amount: values.amount,
-            driverId: values.driverId,
-            receipts: receiptDoc,
-            notes: values.notes,
+            ...values,
+            transaction_date: dayjs(values.transaction_date).format(
+              "YYYY-MM-DD"
+            ),
           };
           handleSubmit(valuesToSend);
         }}
@@ -146,32 +131,31 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
       >
         <Form.Item
           label="Date"
-          name="date"
+          name="transaction_date"
           required={false}
           rules={[{ required: true, message: "Please select date" }]}
         >
-          <DatePicker
-            className={styles.datePicker}
-            placeholder="12/12/2024"
-            format="DD/MM/YYYY"
+          <CustomDatePicker
+            showHour={false}
+            showMinute={false}
+            showTime={false}
+            format="DD-MM-YYYY"
           />
         </Form.Item>
 
         <Form.Item
           label="Vehicle"
-          name="vehicle"
+          name="vehicle_id"
           required
           rules={[{ required: true, message: "Please select vehicle" }]}
         >
           <Select
             showSearch
             allowClear
-            options={vehicleList?.data?.map(
-              (option: {
-                modelName: any; value: string; label: string 
-}) => ({
-                value: option.modelName,
-                label: option.modelName,
+            options={vehicleList?.map(
+              (option: { model_name: any; id: string }) => ({
+                value: option.id,
+                label: option.model_name,
               })
             )}
             onSearch={(text) => getPanelValue(text)}
@@ -184,19 +168,19 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
 
         <Form.Item
           label="Fuel Type"
-          name="fuelType"
+          name="fuel_type"
           required
           rules={[{ required: true, message: "Please select fuel type" }]}
         >
           <Select placeholder="Permanent Address">
-            <Option value="petrol">Petrol</Option>
-            <Option value="diesel">Diesel</Option>
+            <Option value="Petrol">Petrol</Option>
+            <Option value="Diesel">Diesel</Option>
           </Select>
         </Form.Item>
 
         <Form.Item
           label="Quantity (in litres)"
-          name="quantity"
+          name="quantity_ltr"
           required
           rules={[{ required: true, message: "Please enter quantity" }]}
         >
@@ -205,7 +189,7 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
 
         <Form.Item
           label="Amount"
-          name="amount"
+          name="amount_inr"
           required
           rules={[{ required: true, message: "Please enter amount" }]}
         >
@@ -214,17 +198,17 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
 
         <Form.Item
           label="Paid by"
-          name="driverId"
-          id="driverId"
+          name="driver_id"
+          id="driver_id"
           required
           rules={[{ required: true, message: "Please select payment method" }]}
         >
           <Select
             showSearch
             allowClear
-            options={options?.map((option: { value: any; label: any }) => ({
-              value: option.value,
-              label: option.label,
+            options={driverList?.map((option: { id: any; name: any }) => ({
+              value: option.id,
+              label: option.name,
             }))}
             onSearch={(text) => getPanelValue(text)}
             placeholder="Search drivers"
@@ -239,7 +223,7 @@ const FuelExpenseForm = ({ open, onClose }: FuelExpenseFormProps) => {
           isMultiple={false}
         />
 
-        <Form.Item label="Notes" name="notes">
+        <Form.Item label="Notes" name="driver_notes">
           <TextArea
             placeholder="Add a note...."
             rows={4}

@@ -2,22 +2,22 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import apiClient from "../../utils/configureAxios";
 import { notification } from "antd";
-import { getFuels } from "./vehicleTrackerSlice";
 import { IFuel } from "../../interface/fuel";
+import pb from "../../utils/configurePocketbase";
 
 interface IFuelState {
-  fuels: IFuel[]
+  fuels: IFuel[];
   filters: {
     status: string;
     search: string;
   };
-  selectedFuel: any
+  selectedFuel: IFuel;
   pagination: {
     total: number;
     page: number;
     limit: number;
   };
-  openFuelForm: boolean
+  openFuelForm: boolean;
 }
 
 const initialState: IFuelState = {
@@ -32,41 +32,69 @@ const initialState: IFuelState = {
     page: 1,
     limit: 10,
   },
-  openFuelForm: false
+  openFuelForm: false,
 };
 
-export const addNewFuel = createAsyncThunk(
-  "vehicle-tracker/fuel",
-  async (body: any, { dispatch }) => {
-    const response = await apiClient.post("/vehicle-tracker/fuel", body);
-    if (response.status === 201) {
-      notification.success({
-        message: "Success",
-        description: "New customer added successfully",
+export const getFuels = createAsyncThunk(
+  "vehicleTracker/expense",
+  async (params: any, { dispatch }) => {
+
+    const filters: string[] = [];
+
+    if (params.search) {
+      filters.push(`vehicle_id.model_name ~ "${params.search}"`);
+    }
+
+    const filterString = filters.join(" && ");
+
+    const resultList = await pb
+      .collection("vehicle_fuel_expense")
+      .getList(1, 50,{
+        expand: "driver_id,vehicle_id",
+        filter: filterString,
       });
-      console.log(response.data)
-      dispatch(setOpenFuelForm(true));
-      dispatch(getFuels({ page: "1", search: "", limit: 10 }));
-      return response.data;
+
+    if (resultList) {
+      dispatch(setFuels(resultList.items));
+      return resultList.items;
     }
   }
 );
 
+export const addNewFuel = createAsyncThunk(
+  "vehicle-tracker/fuel",
+  async (body: any, { dispatch }) => {
+    const record = await pb.collection("vehicle_fuel_expense").create(body);
+
+    if (record) {
+      notification.success({
+        message: "Success",
+        description: "New customer added successfully",
+      });
+      dispatch(setOpenFuelForm(false));
+      dispatch(getFuels({ page: "1", search: "", limit: 10 }));
+      return record;
+    }
+  }
+);
 
 export const updateFuel = createAsyncThunk(
   "fuel",
   async (body: any, { dispatch, getState }: any) => {
     const { payload, id } = body;
 
-    const response = await apiClient.put(`/fuel/${id}`, payload);
-    if (response.status === 200) {
+    const record = await pb
+      .collection("vehicle_fuel_expense")
+      .update(id, payload);
+
+    if (record) {
       notification.success({
         message: "Success",
         description: "Expense updated successfully",
       });
       dispatch(setOpenFuelForm(false));
       dispatch(getFuels({ page: "1", search: "", limit: 10 }));
-      return response.data;
+      return record;
     }
   }
 );
@@ -76,15 +104,15 @@ export const deleteFuel = createAsyncThunk(
   async (body: any, { dispatch, getState }: any) => {
     const { id } = body;
 
-    const response = await apiClient.delete(`/fuel/${id}`);
+    const response = await pb.collection('vehicle_fuel_expense').delete(id);
 
-    if (response.status === 200) {
+
+    if (response) {
       dispatch(getFuels({ page: "1", search: "", limit: 10 }));
-      return response.data;
+      return response;
     }
   }
 );
-
 
 export const fuelSlice = createSlice({
   name: "fuels",
@@ -96,14 +124,20 @@ export const fuelSlice = createSlice({
         ...action.payload,
       };
     },
-    setOpenFuelForm: (state,action: PayloadAction<boolean>) => {
+    setOpenFuelForm: (state, action: PayloadAction<boolean>) => {
       state.openFuelForm = action.payload;
     },
-    setSelectedFuel: (state,action: PayloadAction<IFuel | null>) => {
+    setSelectedFuel: (state, action: PayloadAction<IFuel | null>) => {
       state.selectedFuel = action.payload;
     },
-    setPagination: (state, action: PayloadAction<{ total: number; page: number; limit: number }>) => {
+    setPagination: (
+      state,
+      action: PayloadAction<{ total: number; page: number; limit: number }>
+    ) => {
       state.pagination = action.payload;
+    },
+    setFuels: (state, action: PayloadAction<any>) => {
+      state.fuels = action.payload;
     },
   },
 });
@@ -113,6 +147,7 @@ export const {
   setAttendanceFilter,
   setPagination,
   setOpenFuelForm,
-  setSelectedFuel
+  setSelectedFuel,
+  setFuels,
 } = actions;
 export default fuelSlice.reducer;

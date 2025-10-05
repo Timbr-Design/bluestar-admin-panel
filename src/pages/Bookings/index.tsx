@@ -41,8 +41,6 @@ import { RouteName } from "../../constants/routes";
 import { useNavigate } from "react-router-dom";
 import dayjs, { Dayjs } from "dayjs";
 
-const { RangePicker } = DatePicker;
-
 const BookingsTabs = ({ status, setStatus }) => {
   const dispatch = useAppDispatch();
   // const [status, setStatus] = useState<string>("");
@@ -107,7 +105,6 @@ const Bookings = () => {
   };
 
   const handleSetVehicle = (values: any) => {
-    console.log("Sdf");
     setVehicle(values);
   };
 

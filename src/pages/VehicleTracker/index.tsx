@@ -24,7 +24,13 @@ import FuelsTable from "../../components/VehicleTracker/tables/Fuels";
 import LoansTable from "../../components/VehicleTracker/tables/Loans";
 import AverageTable from "../../components/VehicleTracker/tables/Average";
 import { IExpense } from "../../interface/expense";
-import { setOpenExpenseForm, setSelectedExpense } from "../../redux/slices/expenseSlice";
+import {
+  setOpenExpenseForm,
+  setSelectedExpense,
+} from "../../redux/slices/expenseSlice";
+import { getVehicle } from "../../redux/slices/databaseSlice";
+import { getFuels, setOpenFuelForm } from "../../redux/slices/FuelSlice";
+import { FUEL_STATUS } from "../../constants/tracker";
 
 const tab = [
   {
@@ -49,7 +55,6 @@ const tab = [
   },
 ];
 const VehicleTabs = ({ setDescVal }: any) => {
-  // const [filter, setFilter] = useState("");
   const dispatch = useAppDispatch();
   const { filters } = useSelector((state: RootState) => state.vehicleTracker);
 
@@ -77,24 +82,49 @@ const VehicleTabs = ({ setDescVal }: any) => {
     </div>
   );
 };
+const VehicleFilters = ({ status, setStatus }) => {
+  const dispatch = useAppDispatch();
+
+  return (
+    <div className={styles.tabsContainer}>
+      {FUEL_STATUS?.map((item) => (
+        <button
+          key={item.id}
+          className={cn(styles.tab, {
+            [styles.selected]: item.type === status,
+          })}
+          onClick={() => {
+            setStatus(item.type);
+            dispatch(getFuels({ page: 1, limit: 10, status: item.type }));
+          }}
+        >
+          {item.name}
+        </button>
+      ))}
+    </div>
+  );
+};
 
 const VehicleTrackerPage = () => {
   const dispatch = useAppDispatch();
   const [desc, setDesc] = useState(tab[0].desc);
-  const [openFuelForm, setOpenFuelForm] = useState(false);
   const [dateRange, setDateRange] = useState<[number, number] | null>(null);
-  const {openExpenseForm} = useSelector((state: RootState)=>state.expenses);
+  const { openExpenseForm } = useSelector((state: RootState) => state.expenses);
+  const { openFuelForm } = useSelector((state: RootState) => state.fuels);
+  const [status, setStatus] = useState<string>("");
 
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     dispatch(setVehicleTrackerFilter({ search: value }));
   };
 
-  const { filters } = useSelector(
-    (state: RootState) => state.vehicleTracker
-  );
+  const { filters } = useSelector((state: RootState) => state.vehicleTracker);
 
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    dispatch(getVehicle({ page: 1, limit: "10", search: "" }));
+  }, []);
 
   const renderBtnText = () => {
     if (filters.currentTab === "expense") {
@@ -102,36 +132,36 @@ const VehicleTrackerPage = () => {
     }
   };
 
-    const handleDateRangeChange = (dates: any) => {
-      console.log(dates)
-      if (dates) {
-        // Convert to epoch timestamps (milliseconds)
-        const startDate = dates[0]?.valueOf();
-        const endDate = dates[1]?.valueOf();
-        
-        setDateRange([startDate, endDate]);
-        
-        // You can use these values to filter your data or make API calls
-        // console.log("Start Date (epoch):", startDate);
-        // console.log("End Date (epoch):", endDate);
-        
-        // If you need to update filters or fetch data based on date range
-        // dispatch(setBookingFilter({ startDate, endDate }));
-        // dispatch(getBookings({ startDate, endDate })); update this line
-      } else {
-        setDateRange(null);
-      }
-    };
+  const handleDateRangeChange = (dates: any) => {
+    if (dates) {
+      // Convert to epoch timestamps (milliseconds)
+      const startDate = dates[0]?.valueOf();
+      const endDate = dates[1]?.valueOf();
 
-    const handleDateChange = (date, dateString)=>{
-console.log(date, dateString);
+      setDateRange([startDate, endDate]);
+
+      // You can use these values to filter your data or make API calls
+      // console.log("Start Date (epoch):", startDate);
+      // console.log("End Date (epoch):", endDate);
+
+      // If you need to update filters or fetch data based on date range
+      // dispatch(setBookingFilter({ startDate, endDate }));
+      // dispatch(getBookings({ startDate, endDate })); update this line
+    } else {
+      setDateRange(null);
     }
+  };
+
+  const handleDateChange = (date, dateString) => {
+    // console.log(date, dateString);
+  };
 
   const handleSidePanelForm = () => {
     if (filters.currentTab === "expense") {
+      dispatch(setSelectedExpense(null));
       dispatch(setOpenExpenseForm(true));
     } else if (filters.currentTab === "fuel") {
-      setOpenFuelForm(true);
+      dispatch(setOpenFuelForm(true));
     }
   };
 
@@ -168,38 +198,47 @@ console.log(date, dateString);
                 onClick={handleSidePanelForm}
               />
             )}
-            {filters.currentTab === "loans" && <DatePicker onChange={handleDateChange}
-              format="DD/MM/YYYY"/>}
+            {filters.currentTab === "loans" && (
+              <DatePicker onChange={handleDateChange} format="DD/MM/YYYY" />
+            )}
             {filters.currentTab === "average" && <DriverFilter />}
-            {filters.currentTab === "average" && <div className={styles.filterContainer}>
-            <DatePicker.RangePicker 
-              onChange={handleDateRangeChange}
-              format="DD/MM/YYYY"
-              placeholder={["Start Date", "End Date"]}
-            />
-          </div>}
+            {filters.currentTab === "average" && (
+              <div className={styles.filterContainer}>
+                <DatePicker.RangePicker
+                  onChange={handleDateRangeChange}
+                  format="DD/MM/YYYY"
+                  placeholder={["Start Date", "End Date"]}
+                />
+              </div>
+            )}
           </div>
         </div>
+        {filters.currentTab === "fuel" && (
+          <VehicleFilters status={status} setStatus={setStatus} />
+        )}
 
         {filters.currentTab === "expense" && (
-          <ExpenseTable handleOpenSidePanel={() => setOpenExpenseForm(true)}/>
+          <ExpenseTable handleOpenSidePanel={() => setOpenExpenseForm(true)} />
         )}
         {filters.currentTab === "fuel" && (
-          <FuelsTable handleOpenSidePanel={() => setOpenFuelForm(true)} />
+          <FuelsTable
+            handleOpenSidePanel={() => dispatch(setOpenFuelForm(true))}
+          />
         )}
-        {filters.currentTab === "loans" && (
-          <LoansTable />
-        )}
+        {filters.currentTab === "loans" && <LoansTable />}
         {filters.currentTab === "average" && (
           <AverageTable handleOpenSidePanel={() => {}} />
         )}
       </div>
-      <FuelForm open={openFuelForm} onClose={() => setOpenFuelForm(false)} />
+      <FuelForm
+        open={openFuelForm}
+        onClose={() => dispatch(setOpenFuelForm(false))}
+      />
       <ExpenseForm
         open={openExpenseForm}
         onClose={() => {
-          dispatch(setOpenExpenseForm(false))
-          dispatch(setSelectedExpense(null))
+          dispatch(setOpenExpenseForm(false));
+          dispatch(setSelectedExpense(null));
         }}
       />
     </div>
