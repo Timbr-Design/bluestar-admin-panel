@@ -14,8 +14,6 @@ const DriverFilter = () => {
     setOpen(newOpen);
   };
 
-  console.log(open, "open");
-
   const PopoverComponent = () => {
     return (
       <div className={styles.container}>

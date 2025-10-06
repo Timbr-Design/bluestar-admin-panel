@@ -1,6 +1,6 @@
 import { IFile } from "../constants/database";
 
-export interface IFuel {
+export interface IAverage {
   transaction_date?: number | null;
   vehicle_id: string;
   fuel_type: "Petrol" | "Diesel" | "CNG" | "Electric";

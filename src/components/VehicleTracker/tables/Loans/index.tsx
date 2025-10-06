@@ -10,9 +10,7 @@ import { getLoans } from "../../../../redux/slices/vehicleTrackerSlice";
 import useDebounce from "../../../../hooks/common/useDebounce";
 
 const LoansTable = () => {
-  const { loans, filters, pagination, vehicleTrackerState } = useAppSelector(
-    (state) => state.vehicleTracker
-  );
+  const { loans, filters, pagination } = useAppSelector((state) => state.loans);
   const dispatch = useAppDispatch();
   const columns: TableColumnsType<any> = [
     {
@@ -33,8 +31,8 @@ const LoansTable = () => {
     },
     {
       title: "EMI Amount (₹)",
-      dataIndex: "emiAmount",
-      key: "emiAmount",
+      dataIndex: "emi_amount",
+      key: "emi_amount",
       render: (text) => `₹${text.toLocaleString("hi-IN")}`,
     },
     {
@@ -67,7 +65,7 @@ const LoansTable = () => {
         bordered
         columns={columns}
         dataSource={loans}
-        loading={vehicleTrackerState?.loading}
+        // loading={?.loading}
         pagination={false}
         scroll={{
           x: 756,

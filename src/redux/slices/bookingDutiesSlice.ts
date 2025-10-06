@@ -8,6 +8,7 @@ import pb from "../../utils/configurePocketbase";
 const initialState = {
   isAddEditDrawerOpen: false,
   currentSelectedBookingDuties: {} as any, // as Ibooking later
+  bookingId: "",
   data: [],
   filters: {
     status: undefined,
@@ -195,8 +196,14 @@ export const bookingDutiesSlice = createSlice({
         isAllotingDuties: action.payload,
       };
     },
-    setIsAddEditDrawerClose: (state) => {
+    setIsAddEditDrawerClose: (state, action: PayloadAction<boolean>) => {
       return { ...state, isAddEditDrawerOpen: false };
+    },
+    setBookingId: (state, action: PayloadAction<string>)=>{
+      return {
+        ...state,
+        bookingId:action.payload
+      }
     },
     setCurrentSelectedBookingDuties: (
       state,
@@ -282,5 +289,6 @@ export const {
   setIsEditingBookingDuties,
   setIsAllotingDuties,
   setBookingDashboardView,
+  setBookingId
 } = actions;
 export default bookingDutiesSlice.reducer;

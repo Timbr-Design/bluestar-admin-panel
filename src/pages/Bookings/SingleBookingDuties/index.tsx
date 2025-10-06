@@ -54,13 +54,14 @@ const BookingsTabs = () => {
   );
 };
 const SingleBookingDuties = () => {
-  let { bookingId } = useParams();
+  // let { bookingId } = useParams();
   const dispatch = useAppDispatch();
   const {
     filters,
     isAddEditDrawerOpen,
     currentSelectedBookingDuties,
     isEditingBookingDuties,
+    bookingId,
   } = useSelector((state: RootState) => state.bookingDuties);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const notify = useNotification();

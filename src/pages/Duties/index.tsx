@@ -53,7 +53,6 @@ const DutiesTabs = () => {
   );
 };
 const SingleBookingDuties = () => {
-  let { bookingId } = useParams();
   const dispatch = useAppDispatch();
   const {
     filters,
@@ -106,7 +105,6 @@ const SingleBookingDuties = () => {
                 filters.endDate ? dayjs(filters.endDate) : null,
               ]}
               onChange={(dates, dateString) => {
-                // console.log(dayjs(dateString[0]).format("YYYY-MM-DD HH:mm:ss"));
                 dispatch(
                   setBookingDutiesFilter({
                     startDate: dayjs(dateString[0]).format(

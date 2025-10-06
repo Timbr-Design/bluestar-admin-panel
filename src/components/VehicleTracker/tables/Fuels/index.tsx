@@ -10,35 +10,62 @@ import React, { useState, useEffect } from "react";
 import styles from "./index.module.scss";
 
 import CustomPagination from "../../../Common/Pagination";
-import { getFuels } from "../../../../redux/slices/vehicleTrackerSlice";
 import { MoreOutlined } from "@ant-design/icons";
 import {
   deleteFuel,
+  getFuels,
   setSelectedFuel,
 } from "../../../../redux/slices/FuelSlice";
 import DeleteModal from "../../../Modal/DeleteModal";
+import dayjs from "dayjs";
+import useDebounce from "../../../../hooks/common/useDebounce";
+import { IFuel } from "../../../../interface/fuel";
+import useNotification from "../../../DeleteNotification/useNotification";
+import { setVehicleTrackerFilter } from "../../../../redux/slices/vehicleTrackerSlice";
 
 interface IFuelsTable {
   handleOpenSidePanel: () => void;
 }
 
 const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
-  const { fuels, filters, pagination, vehicleTrackerState } = useAppSelector(
+  const { filters, pagination, vehicleTrackerState } = useAppSelector(
     (state) => state.vehicleTracker
   );
-  // const {vehicleList} = useAppSelector((state)=>state.database)
+
+  const { fuels } = useAppSelector((state) => state.fuels);
 
   const dispatch = useAppDispatch();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedRow, setSelectedRow] = useState<IFuel | null>(null);
+
+  const notify = useNotification();
 
   const handleEditFuels = (row) => {
     dispatch(setSelectedFuel(row));
     handleOpenSidePanel();
   };
 
-  const handleDeleteFuel = () => {
-    dispatch(deleteFuel({ id: selectedRow?._id }));
+  const handleDeleteFuel = async () => {
+    try {
+      const resultAction = await dispatch(deleteFuel({ id: selectedRow?.id }));
+
+      if (deleteFuel.fulfilled.match(resultAction)) {
+        notify.success("Expense has been deleted");
+      } else {
+        notify.success("Failed to delete expense");
+      }
+    } catch (error) {
+      console.log("ERRRO");
+    }
+    setOpenDeleteModal(false);
+  };
+
+  const handleAllExpenses = () => {
+    dispatch(
+      setVehicleTrackerFilter({
+        search: selectedRow?.expand?.vehicle_id?.model_name,
+      })
+    );
   };
 
   function returnItems(row: any) {
@@ -61,14 +88,12 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
         ),
       },
       {
-        type: "divider",
-      },
-      {
         key: "2",
         label: (
           <div
             onClick={(e) => {
               e.stopPropagation();
+              handleAllExpenses();
             }}
           >
             <Space>
@@ -106,47 +131,65 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
   }
   const columns: TableColumnsType<any> = [
     {
-      title: "Vehicle Name",
+      title: "Vehicle Name and Number",
       dataIndex: "vehicleName",
       key: "vehicleName",
-    },
-    {
-      title: "Vehicle Number",
-      dataIndex: "vehicleNumber",
-      key: "vehicleNumber",
+      className: "vehicle-column-separator",
+      render: (_: any, record: any) => (
+        <div>
+          <div>{record?.expand?.vehicle_id?.model_name ?? "-"}</div>
+          <div style={{ color: "#666", fontSize: "12px" }}>
+            {record?.expand?.vehicle_id?.vehicle_number ?? "-"}
+          </div>
+        </div>
+      ),
     },
     {
       title: "Date",
-      dataIndex: "date",
-      key: "date",
+      dataIndex: "transaction_date",
+      key: "transaction_date",
+      render: (_: any, record: any) => {
+        const transaction_date = dayjs(record?.transaction_date).format(
+          "DD/MM/YYYY"
+        );
+        return transaction_date;
+      },
     },
     {
       title: "Driver",
-      dataIndex: "driver",
-      key: "driver",
+      dataIndex: "driver_id",
+      key: "driver_id",
+      render: (_: any, record: any) => {
+        const driver = record?.expand?.driver_id?.name ?? "-";
+        return driver;
+      },
     },
     {
       title: "Fuel Type",
-      dataIndex: "fuelType",
-      key: "fuelType",
+      dataIndex: "fuel_type",
+      key: "fuel_type",
     },
     {
-      title: "Quantity (Litres)",
-      dataIndex: "quantity",
-      key: "quantity",
+      title: "Quantity",
+      dataIndex: "quantity_ltr",
+      key: "quantity_ltr",
       render: (text) => `${text} L`,
     },
     {
-      title: "Rate (₹/Litre)",
+      title: "Rate",
       dataIndex: "rate",
       key: "rate",
-      render: (text) => `₹${text}`,
+      render: (_: any, record: any) => {
+        const amount = record?.amount_inr;
+        const quantity = record?.quantity_ltr;
+        return amount / quantity;
+      },
     },
     {
-      title: "Amount (₹)",
-      dataIndex: "amount",
-      key: "amount",
-      render: (text) => `₹${text}`,
+      title: "Amount",
+      dataIndex: "amount_inr",
+      key: "amount_inr",
+      render: (text) => `₹${text ?? "-"}`,
     },
     {
       title: "Action",
@@ -155,6 +198,7 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
       fixed: "right",
       width: 100,
       render: (data: any, row: any) => {
+        setSelectedRow(row);
         return (
           <div className={styles.columnsAction}>
             <Dropdown menu={{ items: returnItems(row) }}>
@@ -170,13 +214,15 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
     setOpenDeleteModal(false);
   };
 
+  const debouncedSearch = useDebounce(filters.search, 500);
+
   useEffect(() => {
     dispatch(
       getFuels({
-        search: filters.search,
+        search: debouncedSearch || "",
       })
     );
-  }, [filters.search]);
+  }, [debouncedSearch]);
 
   return (
     <>
@@ -211,6 +257,7 @@ const FuelsTable = ({ handleOpenSidePanel }: IFuelsTable) => {
         show={openDeleteModal}
         onClose={handleCloseModal}
         onDelete={handleDeleteFuel}
+        data={`Car: ${selectedRow?.expand?.vehicle_id?.model_name} | ${selectedRow?.expand?.vehicle_id?.vehicle_number}`}
       />
     </>
   );

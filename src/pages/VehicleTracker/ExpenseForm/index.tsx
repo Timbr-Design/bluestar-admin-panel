@@ -32,6 +32,7 @@ import {
 import { useDispatch } from "react-redux";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
 import { IExpense } from "../../../interface/expense";
+import CustomDatePicker from "../../../components/Common/CustomDatePicker";
 
 const { Option } = Select;
 
@@ -63,8 +64,8 @@ const ExpenseForm: React.FC<{
   const [receiptDoc, setReceiptDoc] = useState<IFile | []>();
   const [isReminder, setIsReminder] = useState(false);
 
-  const {selectedExpense} = useAppSelector((state)=>state.expenses)
-
+  const { selectedExpense } = useAppSelector((state) => state.expenses);
+  const { vehicleList } = useAppSelector((state) => state.database);
   const dispatch = useAppDispatch();
 
   const handleReceiptDoc = (file: IFile) => {
@@ -73,29 +74,28 @@ const ExpenseForm: React.FC<{
 
   useEffect(() => {
     if (selectedExpense && Object.keys(selectedExpense).length) {
-      dispatch(setOpenExpenseForm(true))
-      setReceiptDoc(selectedExpense?.receipts || []);
+      dispatch(setOpenExpenseForm(true));
+      setReceiptDoc(selectedExpense?.reciept || []);
       form.setFieldsValue({
-        amount: selectedExpense.amount,
-        date: dayjs(selectedExpense.date),
-        expenseTypes: selectedExpense.expenseType,
-        isActive: selectedExpense.isActive,
-        notes: selectedExpense.notes,
-        paymentMode: selectedExpense.paymentMode,
+        amount_inr: selectedExpense.amount_inr,
+        transaction_date: dayjs(selectedExpense.transaction_date),
+        expenseTypes: selectedExpense.expenseTypes,
+        is_approved: selectedExpense.is_approved,
+        driver_notes: selectedExpense.driver_notes,
+        payment_mode: selectedExpense.payment_mode,
         repeatExpense: selectedExpense.repeatExpense,
-        vehicle: selectedExpense.vehicleId.vehicleNumber,
-        receipts: selectedExpense.receipts,
-        reminder: selectedExpense.reminder,
+        vehicle_id: selectedExpense.vehicle_id,
+        reciept: selectedExpense.reciept,
+        send_reminder: selectedExpense.send_reminder,
       });
-    }
-    else{
+    } else {
       form.resetFields();
     }
   }, [selectedExpense]);
 
   const handleSave = (values: any) => {
     if (selectedExpense) {
-      dispatch(updateExpense({ payload: values, id: selectedExpense._id }));
+      dispatch(updateExpense({ payload: values, id: selectedExpense.id }));
     } else {
       dispatch(addNewExpense(values));
     }
@@ -129,48 +129,31 @@ const ExpenseForm: React.FC<{
         form={form}
         layout="vertical"
         onFinish={(values) => {
-          const valuesToSend = {
-            date: new Date(values.date).getTime(),
-            vehicleId: "67d07a409680a5f900f7a91b",
-            // values.vehicle,
-            expenseType: values.expenseTypes,
-            amount: values.amount,
-            paymentMode: values.paymentMode,
-            // repeatExpense: {
-            //   repeatInterval: values.frequency.every,
-            //   endsAfter: values.frequency.occurrences,
-            // },
-            notes: values.notes,
-            receipts: receiptDoc,
-            // reminder: {
-            //   reminderIntervalKm: 
-            // },
+          const updatedValues = {
+            ...values,
+            transaction_date: dayjs(values.transaction_date).format(
+              "YYYY-MM-DD"
+            ),
           };
-          handleSave(valuesToSend);
+          handleSave(updatedValues);
         }}
         initialValues={{
-          date: dayjs(),
+          transaction_date: dayjs(),
           isRecurring: false,
           frequency: { every: 1, period: "Day", occurrences: 30 },
         }}
       >
-        {/* <Form.Item
-          label="Date"
-          name="date"
-          rules={[{ required: true, message: "Please select a date" }]}
-        >
-          <DatePicker className={styles.fullWidth} />
-        </Form.Item> */}
         <Form.Item
           label="Date"
-          name="date"
+          name="transaction_date"
           required={false}
           rules={[{ required: true, message: "Please select date" }]}
         >
-          <DatePicker
-            className={styles.datePicker}
-            placeholder="12/12/2024"
-            format="DD/MM/YYYY"
+          <CustomDatePicker
+            showHour={false}
+            showMinute={false}
+            showTime={false}
+            format="DD-MM-YYYY"
           />
         </Form.Item>
 
@@ -219,20 +202,20 @@ const ExpenseForm: React.FC<{
 
         <Form.Item
           label="Vehicle"
-          name="vehicle"
+          name="vehicle_id"
           rules={[{ required: true, message: "Please select a vehicle" }]}
         >
           <Select placeholder="Select Vehicle">
-            {vehicles.map((vehicle) => (
+            {vehicleList?.map((vehicle) => (
               <Option key={vehicle.id} value={vehicle.id}>
-                {vehicle.name} - {vehicle.number}
+                {vehicle.model_name} - {vehicle.vehicle_number}
               </Option>
             ))}
           </Select>
         </Form.Item>
 
         <Form.Item
-          label="Expense Type"
+          label="Expense Description"
           name="expenseTypes"
           rules={[{ required: true, message: "Please select expense type(s)" }]}
         >
@@ -265,7 +248,7 @@ const ExpenseForm: React.FC<{
 
         <Form.Item
           label="Amount"
-          name="amount"
+          name="amount_inr"
           required
           rules={[{ required: true, message: "Please enter amount" }]}
         >
@@ -274,14 +257,14 @@ const ExpenseForm: React.FC<{
 
         <Form.Item
           label="Payment Mode"
-          name="paymentMode"
+          name="payment_mode"
           rules={[{ required: true, message: "Please select payment mode" }]}
         >
           <Select placeholder="Select payment mode">
-            <Option value="cash">Cash</Option>
-            <Option value="card">Card</Option>
-            <Option value="upi">UPI</Option>
-            <Option value="netbanking">Net Banking</Option>
+            <Option value="Cash">Cash</Option>
+            <Option value="Card">Card</Option>
+            <Option value="UPI">UPI</Option>
+            <Option value="Net Banking">Net Banking</Option>
           </Select>
         </Form.Item>
 
@@ -297,14 +280,14 @@ const ExpenseForm: React.FC<{
             JPG, PNG, DOC or PDF (max. 10MB)
           </div>
         </Form.Item> */}
-        <Form.Item name="uploadReciept" valuePropName="upload">
+        <Form.Item name="reciept" label="Receipts" valuePropName="upload">
           <UploadComponent
             handleUploadUrl={handleReceiptDoc}
             isMultiple={false}
           />
         </Form.Item>
 
-        <Form.Item name="sendReminder" valuePropName="checked">
+        <Form.Item name="send_reminder" valuePropName="checked">
           <div className={styles1.reminderContainer}>
             <div className={styles1.reminderText}>
               Send reminder
@@ -333,7 +316,7 @@ const ExpenseForm: React.FC<{
           </div>
         </Form.Item>
 
-        <Form.Item label="Notes" name="notes">
+        <Form.Item label="Notes" name="driver_notes">
           <TextArea
             placeholder="Add a note...."
             rows={4}
