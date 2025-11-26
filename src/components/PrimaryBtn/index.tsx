@@ -7,6 +7,7 @@ interface IPrimaryBtn {
   onClick: VoidFunction;
   loading?: boolean;
   className?: any;
+  disabled?: boolean;
 }
 
 const PrimaryBtn = ({
@@ -15,12 +16,14 @@ const PrimaryBtn = ({
   onClick,
   loading,
   className,
+  disabled,
 }: IPrimaryBtn) => {
   return (
     <button
       type={"button"}
       className={className ?? styles.container}
       onClick={onClick}
+      disabled={disabled}
     >
       {loading && <Spin size="small" />}
       {LeadingIcon ? <LeadingIcon style={{ fontSize: "18px" }} /> : null}

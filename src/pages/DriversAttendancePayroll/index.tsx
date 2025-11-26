@@ -5,23 +5,28 @@ import { DatePicker, Input, Tabs } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import AttendanceTable from "../../components/Attendance/Table";
 import PayrollTable from "../../components/Payroll/Table";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 import { setAttendanceFilter } from "../../redux/slices/attendanceSlice";
 import { useDispatch } from "react-redux";
 
 const DriversAttendancePayroll = () => {
   const { TabPane } = Tabs;
   const { RangePicker } = DatePicker;
+  const [activeKey, setActiveKey] = useState("attendance");
   const handleChange = (value: string) => {
     console.log(`Selected month: ${value}`);
   };
   const handleChangeRange = (value: string, dateStrings) => {
-    console.log(value, dateStrings);
+    // console.log(value, dateStrings);
   };
   const dispatch = useDispatch();
   const searchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     dispatch(setAttendanceFilter({ q: value }));
+  };
+
+  const handleTabChange = (key: string) => {
+    setActiveKey(key);
   };
 
   const operations = (
@@ -34,13 +39,16 @@ const DriversAttendancePayroll = () => {
         allowClear
         onChange={searchHandler}
       />
-      <RangePicker
-        onChange={(value: any, dateStrings) =>
-          handleChangeRange(value, dateStrings)
-        }
-        allowClear
-      />
-      <DatePicker allowClear onChange={handleChange} picker="month" />
+      {activeKey === "attendance" ? (
+        <RangePicker
+          onChange={(value: any, dateStrings) =>
+            handleChangeRange(value, dateStrings)
+          }
+          allowClear
+        />
+      ) : (
+        <DatePicker allowClear onChange={handleChange} picker="month" />
+      )}
     </div>
   );
 
@@ -53,7 +61,11 @@ const DriversAttendancePayroll = () => {
         </div>
       </div>
       <div className={styles.attendanceTable}>
-        <Tabs tabBarExtraContent={operations}>
+        <Tabs
+          tabBarExtraContent={operations}
+          activeKey={activeKey}
+          onChange={handleTabChange}
+        >
           <TabPane tab="Attendance" key="attendance">
             <AttendanceTable />
           </TabPane>

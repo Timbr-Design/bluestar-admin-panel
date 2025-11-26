@@ -528,3 +528,15 @@ input {
 .vehicle-column-separator {
   border-right: 1.5px solid #e0e0e0 !important;
 }
+
+.popoverContainer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+ .ant-dropdown-menu{
+      width: 100% !important;
+    }

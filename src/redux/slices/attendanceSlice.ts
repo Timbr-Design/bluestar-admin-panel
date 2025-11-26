@@ -4,6 +4,8 @@ import apiClient from "../../utils/configureAxios";
 
 const initialState = {
   isViewDrawerOpen: false,
+  isEditDriverPaymentOpen: false,
+  isDailyLogsOpen: false,
   isSlipDrawerOpen: false,
   attendance: [],
   filters: {
@@ -135,6 +137,12 @@ export const attendanceSlice = createSlice({
     },
     setIsViewDrawerOpen: (state) => {
       state.isViewDrawerOpen = true;
+    },
+    setIsDriverPaymentOpen: (state, action: PayloadAction<boolean>) => {
+      state.isEditDriverPaymentOpen = action.payload;
+    },
+    setIsDailyLogsOpen: (state, action: PayloadAction<boolean>) => {
+      state.isDailyLogsOpen = action.payload;
     },
 
     setIsViewDrawerClose: (state) => {
@@ -355,5 +363,7 @@ export const {
   setAttendanceFilter,
   setIsViewDrawerClose,
   setIsViewDrawerOpen,
+  setIsDriverPaymentOpen,
+  setIsDailyLogsOpen 
 } = actions;
 export default attendanceSlice.reducer;

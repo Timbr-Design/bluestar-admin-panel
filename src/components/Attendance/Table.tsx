@@ -1,6 +1,7 @@
 /* eslint-disable */
 import {
   Avatar,
+  Button,
   Drawer,
   Dropdown,
   MenuProps,
@@ -20,7 +21,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../hooks/store";
 import { RootState } from "../../types/store";
 import ViewLogs from "./ViewLogs";
-
+import styles from "../Payroll/Payroll.module.scss";
 import { getPastSevenDays } from "../../utils/date";
 import { useEffect, useMemo, useState } from "react";
 import Dayjs from "dayjs";
@@ -28,6 +29,7 @@ import Dayjs from "dayjs";
 
 import MarkedAttendance from "./MarkAttendance";
 import useDebounce from "../../hooks/common/useDebounce";
+import PrimaryBtn from "../PrimaryBtn";
 
 function ReturnItems(row: any) {
   const dispatch = useAppDispatch();
@@ -37,9 +39,6 @@ function ReturnItems(row: any) {
       label: <MarkedAttendance driverId={row.driverId} />,
     },
     {
-      type: "divider",
-    },
-    {
       key: "2",
       label: (
         <div
@@ -47,10 +46,8 @@ function ReturnItems(row: any) {
             dispatch(setIsViewDrawerOpen());
           }}
         >
-          <Space>
-            <CopyOutlined twoToneColor="#52c41a" />
-            View duty logs
-          </Space>
+          <CopyOutlined twoToneColor="#52c41a" />
+          View duty logs
         </div>
       ),
     },
@@ -119,11 +116,9 @@ const AttendanceTable = () => {
       fixed: "right",
       width: 100,
       render: (_, row) => (
-        <div>
-          <Dropdown menu={{ items: ReturnItems(row) }}>
-            <MoreOutlined />
-          </Dropdown>
-        </div>
+        <Dropdown menu={{ items: ReturnItems(row) }} trigger={["click"]}>
+          <MoreOutlined />
+        </Dropdown>
       ),
     },
   ];
@@ -184,6 +179,10 @@ const AttendanceTable = () => {
     });
   }, [attendance]);
 
+  const handleClose = () => {
+    dispatch(setIsViewDrawerClose());
+  };
+
   return (
     <>
       <Table
@@ -201,12 +200,18 @@ const AttendanceTable = () => {
         )}
       />
       <Drawer
-        title="Basic Drawer"
-        onClose={() => {
-          dispatch(setIsViewDrawerClose());
-        }}
+        placement="right"
+        closable={false}
+        title="Duty Logs"
+        onClose={handleClose}
         width={"700px"}
         open={isViewDrawerOpen}
+        className={styles.drawer}
+        footer={
+          <div className={styles.footer}>
+            <PrimaryBtn onClick={handleClose} btnText="Close" />
+          </div>
+        }
       >
         <ViewLogs />
       </Drawer>

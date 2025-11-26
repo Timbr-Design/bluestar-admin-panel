@@ -1,0 +1,29 @@
+.popoverContainer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.title1{
+  color: var(--colors-text-text-primary-900, #101828);
+
+/* Text sm/Regular */
+font-family: var(--Font-family-font-family-body, Inter);
+font-size: var(--Font-size-text-sm, 14px);
+font-style: normal;
+font-weight: 400;
+line-height: var(--Line-height-text-sm, 20px); /* 142.857% */
+}
+
+.title2{
+  color: var(--colors-text-text-tertiary-600, #475467);
+
+/* Text sm/Regular */
+font-family: var(--Font-family-font-family-body, Inter);
+font-size: var(--Font-size-text-sm, 14px);
+font-style: normal;
+font-weight: 400;
+line-height: var(--Line-height-text-sm, 20px); /* 142.857% */
+}

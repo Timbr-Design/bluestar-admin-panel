@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useAppDispatch } from "../../../hooks/store";
 import { markAbsent, markPresent } from "../../../redux/slices/attendanceSlice";
 import dayjs, { Dayjs } from "dayjs";
+import styles from "../ViewLogs/ViewLogs.module.scss";
 
 const MarkedAttendance = ({ driverId }) => {
   const dispatch = useAppDispatch();
@@ -68,20 +69,21 @@ const MarkedAttendance = ({ driverId }) => {
               }
             />
           </Flex>
-          {!isToday && (
-            <DatePicker
-              style={{
-                width: "100%",
-                marginTop: "0.5rem",
-                overflow: "scroll",
-              }}
-              needConfirm
-              multiple
-              allowClear
-              maxTagCount="responsive"
-              onChange={handleChange}
-            />
-          )}
+          {/* {!isToday && ( */}
+          <DatePicker
+            style={{
+              width: "100%",
+              marginTop: "0.5rem",
+              overflow: "scroll",
+            }}
+            needConfirm
+            multiple={isToday ? false : true}
+            allowClear
+            maxTagCount="responsive"
+            onChange={handleChange}
+            // value={isToday ? dayjs(new Date()) : ""}
+          />
+          {/* )} */}
           <Flex
             style={{
               marginTop: "1rem",
@@ -97,8 +99,8 @@ const MarkedAttendance = ({ driverId }) => {
       }
       title={
         <div>
-          <p>Marked attendance</p>
-          <small>For Shadab</small>
+          <p>Attendance</p>
+          <p className={styles.title2}>For Shadab</p>
         </div>
       }
       trigger="click"
@@ -106,11 +108,9 @@ const MarkedAttendance = ({ driverId }) => {
       arrow={false}
       onOpenChange={handleOpenChange}
     >
-      <div>
-        <Space>
-          <EditFilled twoToneColor="#52c41a" />
-          Marked Attendance
-        </Space>
+      <div className="popoverContainer">
+        <EditFilled />
+        Mark Attendance
       </div>
     </Popover>
   );

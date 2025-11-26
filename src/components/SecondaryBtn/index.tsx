@@ -5,11 +5,22 @@ interface ISecondaryBtn extends Partial<HTMLButtonElement> {
   LeadingIcon?: any;
   btnText: string;
   onClick: VoidFunction;
+  style?: any;
 }
 
-const SecondaryBtn = ({ btnText, LeadingIcon, onClick }: ISecondaryBtn) => {
+const SecondaryBtn = ({
+  btnText,
+  LeadingIcon,
+  onClick,
+  style,
+}: ISecondaryBtn) => {
   return (
-    <button type={"button"} className={styles.container} onClick={onClick}>
+    <button
+      type={"button"}
+      className={styles.container}
+      onClick={onClick}
+      style={style}
+    >
       {LeadingIcon ? <LeadingIcon /> : null}
       <div className={styles.text}>{btnText}</div>
     </button>

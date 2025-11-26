@@ -2,6 +2,9 @@
 import { CopyOutlined, MoreOutlined } from "@ant-design/icons";
 import { Table, Tag, Dropdown, MenuProps, Space, Drawer } from "antd";
 import { useAppDispatch, useAppSelector } from "../../../hooks/store";
+import { ReactComponent as EyeIcon } from "../../../icons/eye2.svg";
+import styles from "./ViewLogs.module.scss";
+import styles1 from "../../Payroll/Payroll.module.scss";
 import {
   setIsSlipDrawerClose,
   setIsSlipDrawerOpen,
@@ -16,25 +19,23 @@ function LogsReturnItems(row: any) {
       label:
         row["status"] == "completed" ? (
           <div
+            className={styles.popoverContainer}
             onClick={() => {
               dispatch(setIsSlipDrawerOpen());
             }}
           >
-            <Space>
-              <CopyOutlined twoToneColor="#52c41a" />
-              View duty slip
-            </Space>
+            <EyeIcon />
+            View duty slip
           </div>
         ) : (
           <div
-            onClick={() => {
-              //   dispatch(setIsViewDrawerOpen());
-            }}
+            className={styles.popoverContainer}
+            // onClick={() => {
+            //   dispatch(setIsViewDrawerOpen());
+            // }}
           >
-            <Space>
-              <CopyOutlined twoToneColor="#52c41a" />
-              View duty
-            </Space>
+            <EyeIcon />
+            View duty
           </div>
         ),
     },
@@ -69,7 +70,7 @@ const ViewLogs = () => {
                   return (
                     <div>
                       <p>{value}</p>
-                      <p>{row["time"]}</p>
+                      <p className={styles.title2}>{row["time"]}</p>
                     </div>
                   );
                 },
@@ -80,8 +81,8 @@ const ViewLogs = () => {
                 render: (value: any, row: any) => {
                   return (
                     <div>
-                      <p>{value}</p>
-                      <p>{row["vehicleNumber"]}</p>
+                      <p className={styles.title1}>{value}</p>
+                      <p className={styles.title2}>{row["vehicleNumber"]}</p>
                     </div>
                   );
                 },
@@ -145,6 +146,7 @@ const ViewLogs = () => {
         }}
         width={"700px"}
         open={isSlipDrawerOpen}
+        className={styles1.drawer}
       >
         hell
       </Drawer>
